@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pythonで ModuleNotFoundError: No module named が出たときの原因と直し方（venv）【実行して確認】 | 動かして確かめるプログラミング帳</title>
+<meta name="description" content="この記事の手順は 2026年11月6日 に下記の環境で実際に実行して確認しました。">
+<link rel="canonical" href="https://ai-dev-notes.cloud-ruto02.workers.dev/h-0902/">
+<meta property="og:title" content="Pythonで ModuleNotFoundError: No module named が出たときの原因と直し方（venv）【実行して確認】"><meta property="og:description" content="この記事の手順は 2026年11月6日 に下記の環境で実際に実行して確認しました。">
+<meta property="og:url" content="https://ai-dev-notes.cloud-ruto02.workers.dev/h-0902/"><meta property="og:site_name" content="動かして確かめるプログラミング帳"><meta property="og:type" content="article">
+<style>
+:root{--bg:#fff;--fg:#1d1d1f;--muted:#6e6e73;--line:#e3e3e8;--accent:#0b62d6;--soft:#f5f6f8}
+@media (prefers-color-scheme:dark){:root{--bg:#161618;--fg:#ececf0;--muted:#a1a1a8;--line:#333338;--accent:#6aa8ff;--soft:#202024}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.85 -apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif}
+a{color:var(--accent)}header,main,footer{max-width:760px;margin:0 auto;padding:0 16px}
+header{padding-top:20px;padding-bottom:12px;border-bottom:1px solid var(--line)}header a{color:var(--fg);text-decoration:none;font-weight:700}
+nav{font-size:14px;margin-top:6px}nav a{margin-right:12px;color:var(--muted)}
+h1{font-size:1.55rem;line-height:1.4;margin:24px 0 8px}h2{font-size:1.25rem;margin-top:2.2em;padding-bottom:4px;border-bottom:2px solid var(--line)}h3{font-size:1.08rem;margin-top:1.8em}
+.meta{color:var(--muted);font-size:13px}.table-wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px;margin:1em 0}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}th{background:var(--soft)}
+blockquote{margin:1em 0;padding:8px 14px;border-left:4px solid var(--line);color:var(--muted)}
+.cards{list-style:none;padding:0}.cards li{padding:10px 0;border-bottom:1px solid var(--line)}.cards .meta{display:block}
+footer{margin-top:48px;padding-top:16px;padding-bottom:32px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}footer a{color:var(--muted);margin-right:12px}
+img{max-width:100%;height:auto}
+.code-label{font-size:12px;color:var(--muted);margin:1em 0 -6px}pre{background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:12px 14px;overflow-x:auto;font-size:13.5px;line-height:1.6}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em}p code,li code,td code{background:var(--soft);padding:1px 5px;border-radius:4px}
+</style><script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "Pythonで ModuleNotFoundError: No module named が出たときの原因と直し方（venv）【実行して確認】", "datePublished": "2026-11-07", "dateModified": "2026-11-07", "mainEntityOfPage": "https://ai-dev-notes.cloud-ruto02.workers.dev/h-0902/"}</script>
+</head><body>
+<header><a href="/">動かして確かめるプログラミング帳</a><nav><a href="/category/howto/">手順・エラー解決</a><a href="/category/guide/">学習ロードマップ</a><a href="/category/tools/">サーバー・ツール</a><a href="/category/school/">スクール</a></nav></header>
+<main>
+<h1>Pythonで ModuleNotFoundError: No module named が出たときの原因と直し方（venv）【実行して確認】</h1>
+<p class="meta">公開日 <time datetime="2026-11-07">2026-11-07</time>　更新日 <time datetime="2026-11-07">2026-11-07</time>　<a href="/category/howto/">手順・エラー解決</a> / <a href="/category/python/">Python</a></p>
+<p>※本記事はアフィリエイト広告（PR）を含みます。</p>
+<p>この記事の手順は 2026年11月6日 に下記の環境で実際に実行して確認しました。</p>
+<h2>結論：動かしているPythonと、モジュールを入れたPythonが別物です</h2>
+<p>「インストールしたのに <code>ModuleNotFoundError: No module named &#x27;requests&#x27;</code> が出る」ときは、スクリプトを動かしているPythonに、そのモジュールが入っていません。仮想環境（venv）を使っている場合、パソコン全体のPythonに入れたモジュールは、仮想環境からは見えません。この環境では、仮想環境のPythonで <code>python -m pip install requests</code> を実行したところ、エラーが消えました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ .venv/bin/python -m pip install requests 2&gt;&amp;1 | grep Successfully
+Successfully installed certifi-2026.10.23 charset_normalizer-3.5.2 idna-3.20 requests-2.34.2 urllib3-2.8.0</code></pre>
+<h2>検証環境</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>項目</th><th>バージョン</th></tr></thead><tbody>
+<tr><td>OS</td><td>Ubuntu 24.04.5 LTS</td></tr>
+<tr><td>Python</td><td>Python 3.13.18</td></tr>
+<tr><td>requests</td><td>requests 2.34.2</td></tr>
+</tbody></table></div>
+<p>お使いの環境（OS・バージョン）が違うと、出力やエラー文が少し変わることがあります。</p>
+<h2>エラーの再現：パソコンでは動くのに、venvの中では動かない</h2>
+<p>requests を読み込んで、バージョンを表示するだけのスクリプトを用意しました。</p>
+<pre><code class="language-python">import requests
+
+print("requests", requests.__version__)</code></pre>
+<p>パソコン全体のPython（<code>python3</code>）では、requests が入っているため動きます。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ python3 check_requests.py
+requests 2.34.2</code></pre>
+<p>次に、同じフォルダに仮想環境 <code>.venv</code> を作り、仮想環境のPythonで同じスクリプトを動かしました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ python3 -m venv .venv
+
+$ .venv/bin/python check_requests.py
+Traceback (most recent call last):
+  File "/home/dev/work/venv-demo/check_requests.py", line 1, in &lt;module&gt;
+    import requests
+ModuleNotFoundError: No module named 'requests'</code></pre>
+<p>同じスクリプトなのに、仮想環境のPythonでは <code>ModuleNotFoundError</code> になりました。</p>
+<h2>原因：venvはパッケージを別に持っている</h2>
+<p>Pythonの公式ドキュメントでは、仮想環境は自分専用のパッケージの置き場所を持ち、パソコン全体のPythonに入っているパッケージとは分けて管理されると説明されています。作ったばかりの仮想環境に入っているパッケージを確かめると、pip しかありませんでした。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ .venv/bin/python -m pip list
+Package Version
+------- -------
+pip     26.2.2</code></pre>
+<p>どのPythonが動いているかは、<code>sys.executable</code> で確かめられます。<code>python3</code> はパソコン全体のPython、<code>.venv/bin/python</code> は仮想環境のPythonで、別のものです。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ which python3
+/usr/local/bin/python3
+
+$ .venv/bin/python -c "import sys; print(sys.executable)"
+/home/dev/work/venv-demo/.venv/bin/python</code></pre>
+<h2>直し方：使うPythonに対して pip install する</h2>
+<p>仮想環境のPythonに <code>-m pip</code> を付けてインストールすると、確実にそのPythonに入ります。<code>pip</code> だけで実行すると、別のPythonの pip が動くことがあるためです。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ .venv/bin/python -m pip install requests 2&gt;&amp;1 | grep Successfully
+Successfully installed certifi-2026.10.23 charset_normalizer-3.5.2 idna-3.20 requests-2.34.2 urllib3-2.8.0
+
+$ .venv/bin/python check_requests.py
+requests 2.34.2</code></pre>
+<p>エラーが消えました。仮想環境を有効にする <code>source .venv/bin/activate</code> を使う場合は、有効にした後の <code>python</code> が仮想環境のものになっていることも確かめました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ source .venv/bin/activate &amp;&amp; which python &amp;&amp; python check_requests.py
+/home/dev/work/venv-demo/.venv/bin/python
+requests 2.34.2</code></pre>
+<h2>うまくいかないとき</h2>
+<ul>
+<li>インストールしたのにまだエラーになる場合は、上の <code>sys.executable</code> の確認で、スクリプトを動かしているPythonのパスを表示してください。そのパスのPythonに <code>-m pip install</code> します。エディタ（VS Codeなど）から実行している場合は、エディタが選んでいるPythonが仮想環境のものかどうかもご確認ください。</li>
+<li>モジュール名とパッケージ名が違うことがあります（例: <code>import yaml</code> のパッケージ名は PyYAML）。名前は各パッケージの公式ドキュメントでご確認ください。</li>
+<li>Ubuntu 24.04 などで、パソコン全体のPythonに pip install しようとして <code>externally-managed-environment</code> というエラーが出る場合は、「<a href="/h-0903/">pip install で error: externally-managed-environment が出たときの直し方</a>」をご覧ください。</li>
+</ul>
+<h2>まとめ</h2>
+<p><code>ModuleNotFoundError: No module named</code> は、動かしているPythonにモジュールが入っていないときのエラーです。仮想環境を使っているなら、仮想環境のPythonで <code>python -m pip install モジュール名</code> を実行すると、この環境では解決しました。</p>
+<h3>この手順の次に読む記事</h3>
+<ul>
+<li><a href="/h-0903/">pip install で error: externally-managed-environment が出たときの原因と直し方</a></li>
+<li><a href="/h-0901/">Pythonで UnicodeDecodeError が出たときの原因と直し方（日本語CSV）</a></li>
+</ul>
+<h2>出典・参考にした公式ドキュメント</h2>
+<ul>
+<li>Python ドキュメント「venv --- 仮想環境の作成」: <a href="https://docs.python.org/ja/3/library/venv.html">https://docs.python.org/ja/3/library/venv.html</a></li>
+<li>Python チュートリアル「仮想環境とパッケージ」: <a href="https://docs.python.org/ja/3/tutorial/venv.html">https://docs.python.org/ja/3/tutorial/venv.html</a></li>
+<li>Python ドキュメント「sys --- システムパラメータと関数」: <a href="https://docs.python.org/ja/3/library/sys.html">https://docs.python.org/ja/3/library/sys.html</a></li>
+</ul>
+<h2>関連記事</h2><ul class="cards"><li><a href="/h-0903/">pip install で error: externally-managed-environment が出たときの原因と直し方（Ubuntu 24.04）【実行して確認】</a><span class="meta">更新日 2026-11-07</span></li><li><a href="/h-0901/">Pythonで UnicodeDecodeError: &#x27;utf-8&#x27; codec can&#x27;t decode byte が出たときの原因と直し方（日本語CSV）【実行して確認】</a><span class="meta">更新日 2026-11-07</span></li></ul>
+</main>
+<footer><a href="/p-ad-privacy/">広告の表示とプライバシーポリシー</a><div>© 2026 動かして確かめるプログラミング帳</div></footer>
+</body></html>
