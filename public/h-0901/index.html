@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pythonで UnicodeDecodeError: &#x27;utf-8&#x27; codec can&#x27;t decode byte が出たときの原因と直し方（日本語CSV）【実行して確認】 | 動かして確かめるプログラミング帳</title>
+<meta name="description" content="この記事の手順は 2026年11月6日 に下記の環境で実際に実行して確認しました。">
+<link rel="canonical" href="https://ai-dev-notes.cloud-ruto02.workers.dev/h-0901/">
+<meta property="og:title" content="Pythonで UnicodeDecodeError: &#x27;utf-8&#x27; codec can&#x27;t decode byte が出たときの原因と直し方（日本語CSV）【実行して確認】"><meta property="og:description" content="この記事の手順は 2026年11月6日 に下記の環境で実際に実行して確認しました。">
+<meta property="og:url" content="https://ai-dev-notes.cloud-ruto02.workers.dev/h-0901/"><meta property="og:site_name" content="動かして確かめるプログラミング帳"><meta property="og:type" content="article">
+<style>
+:root{--bg:#fff;--fg:#1d1d1f;--muted:#6e6e73;--line:#e3e3e8;--accent:#0b62d6;--soft:#f5f6f8}
+@media (prefers-color-scheme:dark){:root{--bg:#161618;--fg:#ececf0;--muted:#a1a1a8;--line:#333338;--accent:#6aa8ff;--soft:#202024}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.85 -apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif}
+a{color:var(--accent)}header,main,footer{max-width:760px;margin:0 auto;padding:0 16px}
+header{padding-top:20px;padding-bottom:12px;border-bottom:1px solid var(--line)}header a{color:var(--fg);text-decoration:none;font-weight:700}
+nav{font-size:14px;margin-top:6px}nav a{margin-right:12px;color:var(--muted)}
+h1{font-size:1.55rem;line-height:1.4;margin:24px 0 8px}h2{font-size:1.25rem;margin-top:2.2em;padding-bottom:4px;border-bottom:2px solid var(--line)}h3{font-size:1.08rem;margin-top:1.8em}
+.meta{color:var(--muted);font-size:13px}.table-wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px;margin:1em 0}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}th{background:var(--soft)}
+blockquote{margin:1em 0;padding:8px 14px;border-left:4px solid var(--line);color:var(--muted)}
+.cards{list-style:none;padding:0}.cards li{padding:10px 0;border-bottom:1px solid var(--line)}.cards .meta{display:block}
+footer{margin-top:48px;padding-top:16px;padding-bottom:32px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}footer a{color:var(--muted);margin-right:12px}
+img{max-width:100%;height:auto}
+.code-label{font-size:12px;color:var(--muted);margin:1em 0 -6px}pre{background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:12px 14px;overflow-x:auto;font-size:13.5px;line-height:1.6}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em}p code,li code,td code{background:var(--soft);padding:1px 5px;border-radius:4px}
+</style><script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "Pythonで UnicodeDecodeError: 'utf-8' codec can't decode byte が出たときの原因と直し方（日本語CSV）【実行して確認】", "datePublished": "2026-11-07", "dateModified": "2026-11-07", "mainEntityOfPage": "https://ai-dev-notes.cloud-ruto02.workers.dev/h-0901/"}</script>
+</head><body>
+<header><a href="/">動かして確かめるプログラミング帳</a><nav><a href="/category/howto/">手順・エラー解決</a><a href="/category/guide/">学習ロードマップ</a><a href="/category/tools/">サーバー・ツール</a><a href="/category/school/">スクール</a></nav></header>
+<main>
+<h1>Pythonで UnicodeDecodeError: &#x27;utf-8&#x27; codec can&#x27;t decode byte が出たときの原因と直し方（日本語CSV）【実行して確認】</h1>
+<p class="meta">公開日 <time datetime="2026-11-07">2026-11-07</time>　更新日 <time datetime="2026-11-07">2026-11-07</time>　<a href="/category/howto/">手順・エラー解決</a> / <a href="/category/python/">Python</a></p>
+<p>※本記事はアフィリエイト広告（PR）を含みます。</p>
+<p>この記事の手順は 2026年11月6日 に下記の環境で実際に実行して確認しました。</p>
+<h2>結論：ファイルがShift_JIS（cp932）なのに、UTF-8として読んでいるのが原因です</h2>
+<p>日本語のCSVをPythonで読んだときに <code>UnicodeDecodeError: &#x27;utf-8&#x27; codec can&#x27;t decode byte</code> が出たら、ファイルの文字コードと、読むときに指定した文字コードが合っていません。Windows版のExcelで「CSV」として保存したファイルは、多くの場合Shift_JIS系の cp932 です。読み込むときに <code>encoding=&quot;cp932&quot;</code> を指定すると、この環境ではエラーが消えて正しく読めました。</p>
+<pre><code class="language-python">with open("sales.csv", encoding="cp932") as f:
+    print(f.read())</code></pre>
+<h2>検証環境</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>項目</th><th>バージョン</th></tr></thead><tbody>
+<tr><td>OS</td><td>Ubuntu 24.04.5 LTS</td></tr>
+<tr><td>Python</td><td>Python 3.13.18</td></tr>
+<tr><td>pandas</td><td>pandas 3.0.5</td></tr>
+</tbody></table></div>
+<p>お使いの環境（OS・バージョン）が違うと、出力やエラー文が少し変わることがあります。</p>
+<h2>エラーの再現：Shift_JISのCSVをUTF-8で読む</h2>
+<p>まず、Excelで保存した日本語CSVと同じ状態を作るため、cp932 で書き込んだCSVファイルを用意しました。</p>
+<pre><code class="language-python"># Excelで保存した日本語CSVと同じ、Shift_JIS（cp932）のファイルを作る
+rows = "商品名,価格\nりんご,120\nみかん,80\n"
+with open("sales.csv", "w", encoding="cp932", newline="") as f:
+    f.write(rows)</code></pre>
+<p>このファイルを、文字コードにUTF-8を指定して読むコードです。</p>
+<pre><code class="language-python">with open("sales.csv", encoding="utf-8") as f:
+    print(f.read())</code></pre>
+<p>実行すると、次のエラーになりました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ python3 read_ng.py
+Traceback (most recent call last):
+  File "/home/dev/work/csv-sjis/read_ng.py", line 2, in &lt;module&gt;
+    print(f.read())
+          ~~~~~~^^
+  File "&lt;frozen codecs&gt;", line 325, in decode
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0x8f in position 0: invalid start byte</code></pre>
+<p>最後の行が要点です。「ファイルの0バイト目にある 0x8f というバイトを、UTF-8として読めなかった」という意味です。0x8f は「商」をcp932で表したときの1バイト目です。エラー文に出るバイトの値（0x82、0x83、0x8f など）はファイルの中身によって変わりますが、原因は同じです。</p>
+<h2>原因：ファイルの文字コードと、読むときの指定が合っていない</h2>
+<p><code>open()</code> の <code>encoding</code> は、ファイルの中身をどの文字コードとして解釈するかの指定です。Pythonの公式ドキュメントでは、cp932 は日本語のShift_JIS系の文字コードとして標準エンコーディングの一覧に載っています。今回のファイルは cp932 で保存されているため、UTF-8として読もうとすると、UTF-8では使われないバイトの並びにぶつかってエラーになります。</p>
+<p>ファイルの種類を調べる <code>file</code> コマンドでは、次のように表示されました。日本語の文字コード名までは出ないため、「UTF-8ではない」ことの目安として使います。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ file sales.csv
+sales.csv: CSV Non-ISO extended-ASCII text</code></pre>
+<h2>直し方：encoding="cp932" を指定して読む</h2>
+<p><code>encoding</code> を cp932 に変えたコードです。</p>
+<pre><code class="language-python">with open("sales.csv", encoding="cp932") as f:
+    print(f.read())</code></pre>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ python3 read_ok.py
+商品名,価格
+りんご,120
+みかん,80</code></pre>
+<p>エラーが消え、日本語も正しく表示されました。</p>
+<h3>pandasの read_csv でも同じ直し方</h3>
+<p>pandasの <code>read_csv()</code> も、何も指定しないとUTF-8として読みます。同じファイルを読むと、同じエラーになりました（長いトレースバックの最後の3行です）。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ python3 read_pandas_ng.py 2&gt;&amp;1 | tail -3
+  File "pandas/_libs/parsers.pyx", line 2076, in pandas._libs.parsers.raise_parser_error
+  File "&lt;frozen codecs&gt;", line 325, in decode
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0x8f in position 0: invalid start byte</code></pre>
+<p><code>read_csv()</code> にも <code>encoding</code> 引数があります。cp932 を指定したコードです。</p>
+<pre><code class="language-python">import pandas as pd
+
+df = pd.read_csv("sales.csv", encoding="cp932")
+print(df)</code></pre>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ python3 read_pandas_ok.py
+   商品名   価格
+0  りんご  120
+1  みかん   80</code></pre>
+<h2>うまくいかないとき</h2>
+<ul>
+<li><code>encoding=&quot;cp932&quot;</code> でもエラーになる場合は、ファイルがShift_JIS系ではない可能性があります。Excelの「CSV UTF-8」形式で保存したファイルは、先頭にBOMという目印が付いたUTF-8です。この形式については、この記事では実行して確認していないため、Pythonの公式ドキュメントの codecs（標準エンコーディングの一覧）で <code>utf-8-sig</code> の説明をご確認ください。</li>
+<li><code>errors=&quot;ignore&quot;</code> を付けるとエラーは出なくなりますが、読めなかった文字が黙って消えます。データが欠けるため、文字コードを正しく指定するほうが安全です。</li>
+</ul>
+<h2>まとめ</h2>
+<p>日本語CSVで <code>UnicodeDecodeError: &#x27;utf-8&#x27; codec can&#x27;t decode byte</code> が出るのは、Shift_JIS系（cp932）のファイルをUTF-8として読んでいるためです。<code>open()</code> でも <code>pandas.read_csv()</code> でも、<code>encoding=&quot;cp932&quot;</code> を指定すると、この環境では正しく読めました。</p>
+<h3>この手順の次に読む記事</h3>
+<ul>
+<li><a href="/h-0902/">Pythonで ModuleNotFoundError: No module named が出たときの原因と直し方（venv）</a></li>
+</ul>
+<h2>出典・参考にした公式ドキュメント</h2>
+<ul>
+<li>Python ドキュメント「codecs --- codec レジストリと基底クラス」（標準エンコーディング）: <a href="https://docs.python.org/ja/3/library/codecs.html">https://docs.python.org/ja/3/library/codecs.html</a></li>
+<li>Python ドキュメント「組み込み関数」（open）: <a href="https://docs.python.org/ja/3/library/functions.html">https://docs.python.org/ja/3/library/functions.html</a></li>
+<li>pandas ドキュメント「pandas.read_csv」: <a href="https://pandas.pydata.org/docs/reference/api/pandas.read_csv.html">https://pandas.pydata.org/docs/reference/api/pandas.read_csv.html</a></li>
+</ul>
+</main>
+<footer><a href="/p-ad-privacy/">広告の表示とプライバシーポリシー</a><div>© 2026 動かして確かめるプログラミング帳</div></footer>
+</body></html>
