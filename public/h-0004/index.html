@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pythonで SyntaxError: invalid non-printable character U+3000 が出たときの原因と直し方（全角スペース）【実行して確認】 | 動かして確かめるプログラミング帳</title>
+<meta name="description" content="この記事の手順は 2026年11月7日 に下記の環境で実際に実行して確認しました。">
+<link rel="canonical" href="https://ai-dev-notes.cloud-ruto02.workers.dev/h-0004/">
+<meta property="og:title" content="Pythonで SyntaxError: invalid non-printable character U+3000 が出たときの原因と直し方（全角スペース）【実行して確認】"><meta property="og:description" content="この記事の手順は 2026年11月7日 に下記の環境で実際に実行して確認しました。">
+<meta property="og:url" content="https://ai-dev-notes.cloud-ruto02.workers.dev/h-0004/"><meta property="og:site_name" content="動かして確かめるプログラミング帳"><meta property="og:type" content="article">
+<style>
+:root{--bg:#fff;--fg:#1d1d1f;--muted:#6e6e73;--line:#e3e3e8;--accent:#0b62d6;--soft:#f5f6f8}
+@media (prefers-color-scheme:dark){:root{--bg:#161618;--fg:#ececf0;--muted:#a1a1a8;--line:#333338;--accent:#6aa8ff;--soft:#202024}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.85 -apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif}
+a{color:var(--accent)}header,main,footer{max-width:760px;margin:0 auto;padding:0 16px}
+header{padding-top:20px;padding-bottom:12px;border-bottom:1px solid var(--line)}header a{color:var(--fg);text-decoration:none;font-weight:700}
+nav{font-size:14px;margin-top:6px}nav a{margin-right:12px;color:var(--muted)}
+h1{font-size:1.55rem;line-height:1.4;margin:24px 0 8px}h2{font-size:1.25rem;margin-top:2.2em;padding-bottom:4px;border-bottom:2px solid var(--line)}h3{font-size:1.08rem;margin-top:1.8em}
+.meta{color:var(--muted);font-size:13px}.table-wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px;margin:1em 0}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}th{background:var(--soft)}
+blockquote{margin:1em 0;padding:8px 14px;border-left:4px solid var(--line);color:var(--muted)}
+.cards{list-style:none;padding:0}.cards li{padding:10px 0;border-bottom:1px solid var(--line)}.cards .meta{display:block}
+footer{margin-top:48px;padding-top:16px;padding-bottom:32px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}footer a{color:var(--muted);margin-right:12px}
+img{max-width:100%;height:auto}
+.code-label{font-size:12px;color:var(--muted);margin:1em 0 -6px}pre{background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:12px 14px;overflow-x:auto;font-size:13.5px;line-height:1.6}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em}p code,li code,td code{background:var(--soft);padding:1px 5px;border-radius:4px}
+</style><script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "Pythonで SyntaxError: invalid non-printable character U+3000 が出たときの原因と直し方（全角スペース）【実行して確認】", "datePublished": "2026-11-07", "dateModified": "2026-11-07", "mainEntityOfPage": "https://ai-dev-notes.cloud-ruto02.workers.dev/h-0004/"}</script>
+</head><body>
+<header><a href="/">動かして確かめるプログラミング帳</a><nav><a href="/category/howto/">手順・エラー解決</a><a href="/category/guide/">学習ロードマップ</a><a href="/category/tools/">サーバー・ツール</a><a href="/category/school/">スクール</a></nav></header>
+<main>
+<h1>Pythonで SyntaxError: invalid non-printable character U+3000 が出たときの原因と直し方（全角スペース）【実行して確認】</h1>
+<p class="meta">公開日 <time datetime="2026-11-07">2026-11-07</time>　更新日 <time datetime="2026-11-07">2026-11-07</time>　<a href="/category/howto/">手順・エラー解決</a> / <a href="/category/python/">Python</a></p>
+<p>※本記事はアフィリエイト広告（PR）を含みます。</p>
+<p>この記事の手順は 2026年11月7日 に下記の環境で実際に実行して確認しました。</p>
+<h2>結論：コードの中に全角スペースが入っています。半角スペースに置き換えると直ります</h2>
+<p><code>SyntaxError: invalid non-printable character U+3000</code> の U+3000 は「全角スペース」の文字番号です。日本語入力のままスペースキーを押すと入りやすく、見た目では半角スペースと区別がつきません。この環境では、エラーの出た行の全角スペースを半角スペースに置き換えると、プログラムが最後まで動きました。</p>
+<pre><code class="language-bash">sed -i '3s/　/ /g' calc.py</code></pre>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ python3 calc.py
+税込み：1320円</code></pre>
+<h2>検証環境</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>項目</th><th>バージョン</th></tr></thead><tbody>
+<tr><td>OS</td><td>Ubuntu 24.04.5 LTS</td></tr>
+<tr><td>Python</td><td>Python 3.13.18</td></tr>
+</tbody></table></div>
+<p>お使いの環境（OS・バージョン）が違うと、出力やエラー文が少し変わることがあります。</p>
+<h2>エラーの再現：計算式の途中に全角スペースが入っている</h2>
+<p>税込み価格を計算する短いプログラムを用意しました。3行目の <code>*</code> のあとに、全角スペースが1つ入っています。画面で見ると、普通のスペースとほとんど同じに見えます。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ cat calc.py
+# 商品の税込み価格を計算する　（消費税10%）
+price = 1200
+total = price *　110 // 100
+print(f"税込み：{total}円")</code></pre>
+<p>実行すると、次のエラーになりました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ python3 calc.py
+  File "/tmp/run-h-0004/calc.py", line 3
+    total = price *　110 // 100
+                   ^
+SyntaxError: invalid non-printable character U+3000</code></pre>
+<p>エラー文の読み方は次のとおりです。</p>
+<ul>
+<li><code>line 3</code> は、問題のある行の番号です。</li>
+<li><code>^</code> の印は、問題の文字がある位置を指しています。ここでは <code>*</code> のすぐ後ろです。</li>
+<li><code>invalid non-printable character</code> は「（コードとしては）使えない、目に見えない文字」という意味で、<code>U+3000</code> がその文字の番号（全角スペース）です。</li>
+</ul>
+<h2>原因：Pythonは全角スペースを区切りとして扱わない</h2>
+<p>Pythonの公式ドキュメント（字句解析）では、コードの部品と部品のあいだの空白として使えるのは、半角スペース・タブ・改ページ文字だと決められています。全角スペースはこの中に入っていないため、コードの中に出てくると「使えない文字」としてエラーになります。</p>
+<p>全角スペースがどこにあるかは、<code>grep</code> で探せます。検索する文字として全角スペースを1文字入れて実行しました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ grep -n '　' calc.py
+1:# 商品の税込み価格を計算する　（消費税10%）
+3:total = price *　110 // 100</code></pre>
+<p>1行目と3行目の2か所が見つかりました。ただし、エラーになったのは3行目だけです。1行目は <code>#</code> から始まるコメントなので、中に全角スペースがあっても問題になりません。文字列（<code>&quot;</code> で囲んだ部分）の中も同じです。</p>
+<h2>直し方：エラーの行の全角スペースを半角スペースに置き換える</h2>
+<p>エディタで3行目の全角スペースを消して、半角スペースを打ち直すのが一番確実です。ここでは、同じことをコマンドで行いました。<code>sed -i &#x27;3s/　/ /g&#x27;</code> は「3行目の全角スペースをすべて半角スペースに置き換える」という意味です。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ sed -i '3s/　/ /g' calc.py
+
+$ cat calc.py
+# 商品の税込み価格を計算する　（消費税10%）
+price = 1200
+total = price * 110 // 100
+print(f"税込み：{total}円")
+
+$ python3 calc.py
+税込み：1320円</code></pre>
+<p>エラーが消えて、計算結果が表示されました。置き換えたあとにもう一度探すと、コメントの全角スペースだけが残っています。コメントの中なので、このままで動きます。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ grep -n '　' calc.py
+1:# 商品の税込み価格を計算する　（消費税10%）</code></pre>
+<p>行番号を付けずにファイル全体を置き換えると、文字列の中の全角スペース（表示したい文章の一部）まで変わってしまいます。置き換えはエラーの出た行に絞るのがおすすめです。</p>
+<h2>うまくいかないとき</h2>
+<ul>
+<li><strong>字下げ（インデント）に全角スペースを使っている場合</strong>も、同じエラーになりました。この場合、<code>^</code> の印は行の先頭を指します。</li>
+</ul>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ cat greet.py
+def greet(name):
+　　return f"こんにちは、{name}さん"
+
+print(greet("山田　太郎"))
+
+$ python3 greet.py
+  File "/tmp/run-h-0004/greet.py", line 2
+    　　return f"こんにちは、{name}さん"
+    ^
+SyntaxError: invalid non-printable character U+3000</code></pre>
+<p>全角スペース1つを半角スペース2つに置き換え、半角スペース4つの字下げにすると動きました。4行目の文字列の中の全角スペース（「山田　太郎」）は、置き換えずにそのまま表示されています。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ sed -i '2s/　/  /g' greet.py
+
+$ cat greet.py
+def greet(name):
+    return f"こんにちは、{name}さん"
+
+print(greet("山田　太郎"))
+
+$ python3 greet.py
+こんにちは、山田　太郎さん</code></pre>
+<ul>
+<li>全角スペースを直しても、同じ行で別の文字のエラーが出ることがあります。全角のかっこ・コロン・イコールなど、ほかの全角記号もコードの中では使えません。この記事では全角スペース以外は実行して確かめていません。使える文字の決まりは、Python公式ドキュメントの「字句解析」をご確認ください。</li>
+<li>エディタの設定で全角スペースを目に見える記号で表示できるものがあります。設定の方法はお使いのエディタの公式ドキュメントをご確認ください。</li>
+</ul>
+<h2>まとめ</h2>
+<p><code>SyntaxError: invalid non-printable character U+3000</code> は、コードの中に全角スペースが入っているときのエラーです。エラー文の行番号と <code>^</code> の位置で場所を確かめ、その行の全角スペースを半角スペースに置き換えると、この環境ではプログラムが動きました。コメントと文字列の中の全角スペースはそのままで問題ありません。</p>
+<h3>この手順の次に読む記事</h3>
+<ul>
+<li><a href="/h-0901/">Pythonで UnicodeDecodeError: &#x27;utf-8&#x27; codec can&#x27;t decode byte が出たときの原因と直し方（日本語CSV）</a></li>
+<li><a href="/h-0902/">Pythonで ModuleNotFoundError: No module named が出たときの原因と直し方（venv）</a></li>
+</ul>
+<h2>出典・参考にした公式ドキュメント</h2>
+<ul>
+<li>Python ドキュメント「字句解析」（行構造・トークン間の空白）: <a href="https://docs.python.org/ja/3/reference/lexical_analysis.html">https://docs.python.org/ja/3/reference/lexical_analysis.html</a></li>
+</ul>
+<h2>関連記事</h2><ul class="cards"><li><a href="/h-0901/">Pythonで UnicodeDecodeError: &#x27;utf-8&#x27; codec can&#x27;t decode byte が出たときの原因と直し方（日本語CSV）【実行して確認】</a><span class="meta">更新日 2026-11-07</span></li><li><a href="/h-0902/">Pythonで ModuleNotFoundError: No module named が出たときの原因と直し方（venv）【実行して確認】</a><span class="meta">更新日 2026-11-07</span></li><li><a href="/h-0903/">pip install で error: externally-managed-environment が出たときの原因と直し方（Ubuntu 24.04）【実行して確認】</a><span class="meta">更新日 2026-11-07</span></li></ul>
+</main>
+<footer><a href="/p-ad-privacy/">広告の表示とプライバシーポリシー</a><a href="/p-about/">運営者情報とこのサイトの作り方</a><div>© 2026 動かして確かめるプログラミング帳</div></footer>
+</body></html>
