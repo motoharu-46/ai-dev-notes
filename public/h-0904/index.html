@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>git pull で fatal: refusing to merge unrelated histories が出たときの原因と直し方【実行して確認】 | 動かして確かめるプログラミング帳</title>
+<meta name="description" content="この記事の手順は 2026年11月6日 に下記の環境で実際に実行して確認しました。">
+<link rel="canonical" href="https://ai-dev-notes.cloud-ruto02.workers.dev/h-0904/">
+<meta property="og:title" content="git pull で fatal: refusing to merge unrelated histories が出たときの原因と直し方【実行して確認】"><meta property="og:description" content="この記事の手順は 2026年11月6日 に下記の環境で実際に実行して確認しました。">
+<meta property="og:url" content="https://ai-dev-notes.cloud-ruto02.workers.dev/h-0904/"><meta property="og:site_name" content="動かして確かめるプログラミング帳"><meta property="og:type" content="article">
+<style>
+:root{--bg:#fff;--fg:#1d1d1f;--muted:#6e6e73;--line:#e3e3e8;--accent:#0b62d6;--soft:#f5f6f8}
+@media (prefers-color-scheme:dark){:root{--bg:#161618;--fg:#ececf0;--muted:#a1a1a8;--line:#333338;--accent:#6aa8ff;--soft:#202024}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.85 -apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif}
+a{color:var(--accent)}header,main,footer{max-width:760px;margin:0 auto;padding:0 16px}
+header{padding-top:20px;padding-bottom:12px;border-bottom:1px solid var(--line)}header a{color:var(--fg);text-decoration:none;font-weight:700}
+nav{font-size:14px;margin-top:6px}nav a{margin-right:12px;color:var(--muted)}
+h1{font-size:1.55rem;line-height:1.4;margin:24px 0 8px}h2{font-size:1.25rem;margin-top:2.2em;padding-bottom:4px;border-bottom:2px solid var(--line)}h3{font-size:1.08rem;margin-top:1.8em}
+.meta{color:var(--muted);font-size:13px}.table-wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px;margin:1em 0}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}th{background:var(--soft)}
+blockquote{margin:1em 0;padding:8px 14px;border-left:4px solid var(--line);color:var(--muted)}
+.cards{list-style:none;padding:0}.cards li{padding:10px 0;border-bottom:1px solid var(--line)}.cards .meta{display:block}
+footer{margin-top:48px;padding-top:16px;padding-bottom:32px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}footer a{color:var(--muted);margin-right:12px}
+img{max-width:100%;height:auto}
+.code-label{font-size:12px;color:var(--muted);margin:1em 0 -6px}pre{background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:12px 14px;overflow-x:auto;font-size:13.5px;line-height:1.6}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em}p code,li code,td code{background:var(--soft);padding:1px 5px;border-radius:4px}
+</style><script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "git pull で fatal: refusing to merge unrelated histories が出たときの原因と直し方【実行して確認】", "datePublished": "2026-11-07", "dateModified": "2026-11-07", "mainEntityOfPage": "https://ai-dev-notes.cloud-ruto02.workers.dev/h-0904/"}</script>
+</head><body>
+<header><a href="/">動かして確かめるプログラミング帳</a><nav><a href="/category/howto/">手順・エラー解決</a><a href="/category/guide/">学習ロードマップ</a><a href="/category/tools/">サーバー・ツール</a><a href="/category/school/">スクール</a></nav></header>
+<main>
+<h1>git pull で fatal: refusing to merge unrelated histories が出たときの原因と直し方【実行して確認】</h1>
+<p class="meta">公開日 <time datetime="2026-11-07">2026-11-07</time>　更新日 <time datetime="2026-11-07">2026-11-07</time>　<a href="/category/howto/">手順・エラー解決</a> / <a href="/category/devenv/">Git・開発環境</a></p>
+<p>※本記事はアフィリエイト広告（PR）を含みます。</p>
+<p>この記事の手順は 2026年11月6日 に下記の環境で実際に実行して確認しました。</p>
+<h2>結論：共通の祖先がない2つの履歴を、Gitが自動では合わせないためです</h2>
+<p>手元で作ったリポジトリを、READMEつきで作ったGitHubのリポジトリにつなぐと、<code>git pull</code> で <code>fatal: refusing to merge unrelated histories</code> が出ることがあります。手元とGitHubの履歴に共通のコミットがないため、Gitが合わせるのを止めています。この環境では、<code>--allow-unrelated-histories</code> を付けて pull したところ、2つの履歴がマージされました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ git pull --no-rebase origin main --allow-unrelated-histories
+From ../remote
+ * branch            main       -&gt; FETCH_HEAD
+Merge made by the 'ort' strategy.
+ README.md | 1 +
+ 1 file changed, 1 insertion(+)
+ create mode 100644 README.md</code></pre>
+<h2>検証環境</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>項目</th><th>バージョン</th></tr></thead><tbody>
+<tr><td>OS</td><td>Ubuntu 24.04.5 LTS</td></tr>
+<tr><td>Git</td><td>git version 2.43.0</td></tr>
+</tbody></table></div>
+<p>GitHubの代わりに、同じパソコンの中に作ったリモート用のリポジトリ（<code>../remote.git</code>）を使っています。中身は「READMEを追加」して作ったGitHubのリポジトリと同じで、<code>Initial commit</code> というコミットが1つだけあります。お使いの環境（OS・バージョン）が違うと、出力やエラー文が少し変わることがあります。</p>
+<h2>エラーの再現：手元で作ったリポジトリを、別に作ったリモートにつなぐ</h2>
+<p>手元で新しくリポジトリを作り、最初のコミットをしました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ mkdir myapp &amp;&amp; cd myapp &amp;&amp; git init -q &amp;&amp; echo "print(\"hello\")" &gt; app.py &amp;&amp; git add app.py &amp;&amp; git commit -q -m "first commit" &amp;&amp; git log --oneline
+cb5c153 first commit</code></pre>
+<p>リモートを登録して pull すると、まず次のメッセージで止まりました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ git remote add origin ../remote.git
+
+$ git pull origin main
+From ../remote
+ * branch            main       -&gt; FETCH_HEAD
+ * [new branch]      main       -&gt; origin/main
+hint: You have divergent branches and need to specify how to reconcile them.
+hint: You can do so by running one of the following commands sometime before
+hint: your next pull:
+hint: 
+hint:   git config pull.rebase false  # merge
+hint:   git config pull.rebase true   # rebase
+hint:   git config pull.ff only       # fast-forward only
+hint: 
+hint: You can replace "git config" with "git config --global" to set a default
+hint: preference for all repositories. You can also pass --rebase, --no-rebase,
+hint: or --ff-only on the command line to override the configured default per
+hint: invocation.
+fatal: Need to specify how to reconcile divergent branches.</code></pre>
+<p>これは「手元とリモートの履歴が分かれているので、マージかリベースかを選んでください」という案内です。マージを選ぶ <code>--no-rebase</code> を付けてもう一度 pull すると、今回のエラーが出ました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ git pull --no-rebase origin main
+From ../remote
+ * branch            main       -&gt; FETCH_HEAD
+fatal: refusing to merge unrelated histories</code></pre>
+<h2>原因：2つの履歴に共通のコミットがない</h2>
+<p>ふつうのマージは、2つのブランチが分かれる前の共通のコミットを起点に、変更を合わせます。今回は、手元の <code>first commit</code> とリモートの <code>Initial commit</code> がそれぞれ別に作られたため、共通の起点がありません。Gitの公式ドキュメントでは、このような関係のない履歴のマージは既定で拒否され、<code>--allow-unrelated-histories</code> を付けたときだけ許可されると説明されています。別のプロジェクトを間違って混ぜてしまう事故を防ぐためです。</p>
+<h2>直し方：--allow-unrelated-histories を付けて pull する</h2>
+<p>つなぎたいリモートが正しいことを確かめてから、<code>--allow-unrelated-histories</code> を付けて pull しました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ git pull --no-rebase origin main --allow-unrelated-histories
+From ../remote
+ * branch            main       -&gt; FETCH_HEAD
+Merge made by the 'ort' strategy.
+ README.md | 1 +
+ 1 file changed, 1 insertion(+)
+ create mode 100644 README.md</code></pre>
+<p>手元のファイルとリモートのREADMEが、両方そろいました。履歴を見ると、2つのコミットがマージコミットでつながっています。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ ls
+README.md
+app.py
+
+$ git log --oneline --graph
+*   0c7ed63 Merge branch 'main' of ../remote
+|\  
+| * 4c21aa3 Initial commit
+* cb5c153 first commit</code></pre>
+<p>この後は、ふつうに <code>git push origin main</code> でリモートに送れます。</p>
+<h2>うまくいかないとき</h2>
+<ul>
+<li>手元とリモートに同じ名前のファイル（例: どちらにも README.md がある）があると、マージのときに衝突（コンフリクト）します。この記事の環境ではファイル名が重ならなかったため、衝突の解消は実行して確かめていません。手順は Git の公式ドキュメント（git-merge の「HOW TO RESOLVE CONFLICTS」）をご確認ください。</li>
+<li>つなぐ先のリポジトリを間違えていると、関係のないプロジェクトが混ざります。<code>git remote -v</code> で登録したURLを確かめてから実行してください。</li>
+<li>pull のたびに <code>--no-rebase</code> を付けるのが手間な場合は、最初のエラーの hint にあるとおり、<code>git config pull.rebase false</code> で「pull はマージで合わせる」を既定にできます。この記事では設定を変えず、コマンドごとに指定して実行しました。</li>
+<li>リベースで合わせたい場合（<code>--rebase</code>）は、関係のない履歴どうしでどう動くかをこの記事では確かめていません。迷ったら、この記事と同じマージの方法をおすすめします。</li>
+<li>次から GitHub でリポジトリを作るときは、READMEなどを追加せずに空のまま作ると、この状況になりません。</li>
+</ul>
+<h2>まとめ</h2>
+<p><code>fatal: refusing to merge unrelated histories</code> は、共通のコミットがない2つの履歴をGitが自動で合わせないためのエラーです。つなぐ先が正しいことを確かめてから <code>git pull --no-rebase origin main --allow-unrelated-histories</code> を実行すると、この環境では2つの履歴がマージされました。</p>
+<h2>出典・参考にした公式ドキュメント</h2>
+<ul>
+<li>Git ドキュメント「git-pull」: <a href="https://git-scm.com/docs/git-pull">https://git-scm.com/docs/git-pull</a></li>
+<li>Git ドキュメント「git-merge」（--allow-unrelated-histories）: <a href="https://git-scm.com/docs/git-merge">https://git-scm.com/docs/git-merge</a></li>
+</ul>
+</main>
+<footer><a href="/p-ad-privacy/">広告の表示とプライバシーポリシー</a><div>© 2026 動かして確かめるプログラミング帳</div></footer>
+</body></html>
