@@ -7,4 +7,4 @@ AI・プログラミング実践ブログの公開用リポジトリです。Clo
 
 記事の追加・更新は、定期実行のスクリプト（`publish.py`）が自動で commit / push します。
 
-Cloudflare Pages の設定: ビルドコマンドなし、ビルド出力ディレクトリ `public`。
+Cloudflare の設定: `wrangler.jsonc` で `public/` を静的アセットとして配信（Workers）。ビルドコマンドなし、デプロイコマンド `npx wrangler deploy`。

@@ -1,0 +1,9 @@
+{
+  // Cloudflare Workers の静的アセット配信。public/ をそのまま公開する（ビルドなし）
+  "name": "ai-dev-notes",
+  "compatibility_date": "2026-11-01",
+  "assets": {
+    "directory": "./public",
+    "not_found_handling": "404-page"
+  }
+}
