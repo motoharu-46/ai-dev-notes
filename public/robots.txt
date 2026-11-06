@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://ai-dev-notes.pages.dev/sitemap.xml
+Sitemap: https://ai-dev-notes.cloud-ruto02.workers.dev/sitemap.xml
