@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pythonで IndentationError: unexpected indent が出たときの原因と直し方【実行して確認】 | 動かして確かめるプログラミング帳</title>
+<meta name="description" content="この記事の手順は 2026年11月7日 に下記の環境で実際に実行して確認しました。">
+<link rel="canonical" href="https://ai-dev-notes.cloud-ruto02.workers.dev/h-0005/">
+<meta property="og:title" content="Pythonで IndentationError: unexpected indent が出たときの原因と直し方【実行して確認】"><meta property="og:description" content="この記事の手順は 2026年11月7日 に下記の環境で実際に実行して確認しました。">
+<meta property="og:url" content="https://ai-dev-notes.cloud-ruto02.workers.dev/h-0005/"><meta property="og:site_name" content="動かして確かめるプログラミング帳"><meta property="og:type" content="article">
+<style>
+:root{--bg:#fff;--fg:#1d1d1f;--muted:#6e6e73;--line:#e3e3e8;--accent:#0b62d6;--soft:#f5f6f8}
+@media (prefers-color-scheme:dark){:root{--bg:#161618;--fg:#ececf0;--muted:#a1a1a8;--line:#333338;--accent:#6aa8ff;--soft:#202024}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.85 -apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif}
+a{color:var(--accent)}header,main,footer{max-width:760px;margin:0 auto;padding:0 16px}
+header{padding-top:20px;padding-bottom:12px;border-bottom:1px solid var(--line)}header a{color:var(--fg);text-decoration:none;font-weight:700}
+nav{font-size:14px;margin-top:6px}nav a{margin-right:12px;color:var(--muted)}
+h1{font-size:1.55rem;line-height:1.4;margin:24px 0 8px}h2{font-size:1.25rem;margin-top:2.2em;padding-bottom:4px;border-bottom:2px solid var(--line)}h3{font-size:1.08rem;margin-top:1.8em}
+.meta{color:var(--muted);font-size:13px}.pr-note{color:var(--muted);font-size:12px;margin:4px 0 0}.table-wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px;margin:1em 0}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}th{background:var(--soft)}
+blockquote{margin:1em 0;padding:8px 14px;border-left:4px solid var(--line);color:var(--muted)}
+.cards{list-style:none;padding:0}.cards li{padding:10px 0;border-bottom:1px solid var(--line)}.cards .meta{display:block}
+footer{margin-top:48px;padding-top:16px;padding-bottom:32px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}footer a{color:var(--muted);margin-right:12px}
+img{max-width:100%;height:auto}
+.code-label{font-size:12px;color:var(--muted);margin:1em 0 -6px}pre{background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:12px 14px;overflow-x:auto;font-size:13.5px;line-height:1.6}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em}p code,li code,td code{background:var(--soft);padding:1px 5px;border-radius:4px}
+</style><script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "Pythonで IndentationError: unexpected indent が出たときの原因と直し方【実行して確認】", "datePublished": "2026-11-08", "dateModified": "2026-11-08", "mainEntityOfPage": "https://ai-dev-notes.cloud-ruto02.workers.dev/h-0005/"}</script>
+</head><body>
+<header><a href="/">動かして確かめるプログラミング帳</a><nav><a href="/category/howto/">手順・エラー解決</a><a href="/category/guide/">学習ロードマップ</a><a href="/category/tools/">サーバー・ツール</a><a href="/category/school/">スクール</a></nav></header>
+<main>
+<h1>Pythonで IndentationError: unexpected indent が出たときの原因と直し方【実行して確認】</h1>
+<p class="meta">公開日 <time datetime="2026-11-08">2026-11-08</time>　更新日 <time datetime="2026-11-08">2026-11-08</time>　<a href="/category/howto/">手順・エラー解決</a> / <a href="/category/python/">Python</a></p>
+<p>この記事の手順は 2026年11月7日 に下記の環境で実際に実行して確認しました。</p>
+<h2>結論：字下げが不要な行に字下げが入っています。行頭のスペースを消すと直ります</h2>
+<p><code>IndentationError: unexpected indent</code> は「ここで字下げ（インデント）が始まるはずがないのに、行の先頭にスペースがある」という意味のエラーです。コードを別の場所からコピーして貼り付けたときに起きやすく、エラー文の <code>line</code> に出ている行の先頭に余計なスペースがあります。この環境では、その行の先頭のスペースを消すと、プログラムが最後まで動きました。</p>
+<pre><code class="language-bash">sed -i '2,3s/^    //' sales.py</code></pre>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ python3 sales.py
+合計：500円、平均：166円</code></pre>
+<h2>検証環境</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>項目</th><th>バージョン</th></tr></thead><tbody>
+<tr><td>OS</td><td>Ubuntu 24.04.5 LTS</td></tr>
+<tr><td>Python</td><td>Python 3.13.18</td></tr>
+</tbody></table></div>
+<p>お使いの環境（OS・バージョン）が違うと、出力やエラー文が少し変わることがあります。</p>
+<h2>エラーの再現：貼り付けたコードの字下げがそのまま残っている</h2>
+<p>商品の合計と平均を計算する短いプログラムを用意しました。2行目と3行目は、関数の中から切り出して貼り付けたつもりで、先頭に半角スペースが4つ残っています。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ cat sales.py
+prices = [120, 80, 300]
+    total = sum(prices)
+    average = total // len(prices)
+print(f"合計：{total}円、平均：{average}円")</code></pre>
+<p>実行すると、次のエラーになりました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ python3 sales.py
+  File "/tmp/run-h-0005/sales.py", line 2
+    total = sum(prices)
+IndentationError: unexpected indent</code></pre>
+<p>エラー文の読み方は次のとおりです。</p>
+<ul>
+<li><code>line 2</code> は、問題のある行の番号です。3行目も同じように字下げされていますが、Pythonは最初に見つけた1か所でエラーを出して止まるため、表示されるのは2行目だけです。</li>
+<li><code>unexpected indent</code> は「予期しない字下げ」という意味です。</li>
+</ul>
+<h2>原因：Pythonでは字下げが「ブロック」の区切りになっている</h2>
+<p>Pythonでは、行の先頭の字下げに意味があります。公式ドキュメント（字句解析）の説明では、字下げが深くなるのは <code>if</code>・<code>for</code>・<code>def</code> などの行末の <code>:</code> に続くブロックの中だけで、それ以外の場所で字下げが深くなると <code>IndentationError</code> になります。今回の2行目の前の行（<code>prices = [120, 80, 300]</code>）は <code>:</code> で終わっていないので、2行目を字下げする理由がありません。</p>
+<p>行の先頭にスペースがある行は、<code>grep</code> で探せます。<code>&quot;^ &quot;</code> は「行の先頭が半角スペース」という意味です。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ grep -n "^ " sales.py
+2:    total = sum(prices)
+3:    average = total // len(prices)</code></pre>
+<p>2行目と3行目が見つかりました。どちらも、ブロックの中ではないのに字下げされている行です。</p>
+<h2>直し方：余計な字下げを消して、前の行と先頭をそろえる</h2>
+<p>エディタで2行目と3行目の先頭のスペースを消し、1行目と同じ位置から書き始めるようにします。ここでは、同じことをコマンドで行いました。<code>sed -i &#x27;2,3s/^    //&#x27;</code> は「2〜3行目の先頭にある半角スペース4つを消す」という意味です。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ sed -i '2,3s/^    //' sales.py
+
+$ cat sales.py
+prices = [120, 80, 300]
+total = sum(prices)
+average = total // len(prices)
+print(f"合計：{total}円、平均：{average}円")
+
+$ python3 sales.py
+合計：500円、平均：166円</code></pre>
+<p>エラーが消えて、合計と平均が表示されました。大事なのは、字下げを消す行を「本来はブロックの外にある行」に限ることです。<code>for</code> や <code>if</code> の中身として字下げしてある行まで消すと、今度は別のエラーになったり、意図と違う動きになったりします。</p>
+<h2>うまくいかないとき</h2>
+<ul>
+<li><strong>字下げを戻すときに、深さが前の行とそろっていない場合</strong>は、<code>unexpected indent</code> ではなく <code>unindent does not match any outer indentation level</code> というエラーになりました。次の例では、5行目の <code>return</code> を半角スペース2つで書いています。関数の中身は半角スペース4つで字下げしているので、2つではどのブロックの深さとも合いません。</li>
+</ul>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ cat func.py
+def total_price(prices):
+    total = 0
+    for p in prices:
+        total += p
+  return total
+
+print(total_price([120, 80, 300]))
+
+$ python3 func.py
+  File "/tmp/run-h-0005/func.py", line 5
+    return total
+                ^
+IndentationError: unindent does not match any outer indentation level</code></pre>
+<p><code>return</code> の先頭を半角スペース4つにして、<code>total = 0</code> と同じ深さにそろえると動きました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ sed -i '5s/^  return/    return/' func.py
+
+$ cat func.py
+def total_price(prices):
+    total = 0
+    for p in prices:
+        total += p
+    return total
+
+print(total_price([120, 80, 300]))
+
+$ python3 func.py
+500</code></pre>
+<ul>
+<li><strong>見た目はそろっているのに、タブとスペースが混ざっている場合</strong>は、<code>TabError: inconsistent use of tabs and spaces in indentation</code> になりました。エディタによってはタブがスペース4つ分の幅で表示されるため、画面では違いが分かりません。<code>cat -A</code> で表示すると、タブは <code>^I</code>、行末は <code>$</code> として見えます。</li>
+</ul>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ cat tab.py
+def average(prices):
+    total = sum(prices)
+	return total // len(prices)
+
+print(average([120, 80, 300]))
+
+$ python3 tab.py
+  File "/tmp/run-h-0005/tab.py", line 3
+    	return total // len(prices)
+    ^
+TabError: inconsistent use of tabs and spaces in indentation
+
+$ cat -A tab.py
+def average(prices):$
+    total = sum(prices)$
+^Ireturn total // len(prices)$
+$
+print(average([120, 80, 300]))$</code></pre>
+<p>3行目だけがタブ（<code>^I</code>）で字下げされていました。タブを半角スペース4つに置き換えると動きました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ sed -i 's/\t/    /' tab.py
+
+$ cat -A tab.py
+def average(prices):$
+    total = sum(prices)$
+    return total // len(prices)$
+$
+print(average([120, 80, 300]))$
+
+$ python3 tab.py
+166</code></pre>
+<ul>
+<li>字下げは半角スペース4つにそろえるのが、Pythonの公式スタイルガイド（PEP 8）の推奨です。エディタにタブを自動でスペースに変える設定があれば、使うと混ざりにくくなります。設定の方法は、お使いのエディタの公式ドキュメントをご確認ください。</li>
+<li>字下げに全角スペースが入っている場合は、<code>IndentationError</code> ではなく <code>SyntaxError: invalid non-printable character U+3000</code> になります。直し方は関連記事にまとめています。</li>
+</ul>
+<h2>まとめ</h2>
+<p><code>IndentationError: unexpected indent</code> は、ブロックの中ではない行に字下げが入っているときのエラーです。エラー文の行番号で場所を確かめ、その行の先頭のスペースを消して前の行と書き始めの位置をそろえると、この環境ではプログラムが動きました。似たエラーの <code>unindent does not match</code> は字下げの深さのずれ、<code>TabError</code> はタブとスペースの混在が原因でした。</p>
+<h3>この手順の次に読む記事</h3>
+<ul>
+<li><a href="/h-0004/">Pythonで SyntaxError: invalid non-printable character U+3000 が出たときの原因と直し方（全角スペース）</a></li>
+<li><a href="/h-0902/">Pythonで ModuleNotFoundError: No module named が出たときの原因と直し方（venv）</a></li>
+</ul>
+<h2>出典・参考にした公式ドキュメント</h2>
+<ul>
+<li>Python ドキュメント「字句解析」（インデント）: <a href="https://docs.python.org/ja/3/reference/lexical_analysis.html">https://docs.python.org/ja/3/reference/lexical_analysis.html</a></li>
+<li>Python ドキュメント「組み込み例外」（IndentationError・TabError）: <a href="https://docs.python.org/ja/3/library/exceptions.html">https://docs.python.org/ja/3/library/exceptions.html</a></li>
+<li>PEP 8（Python コードのスタイルガイド）「インデント」: <a href="https://peps.python.org/pep-0008/">https://peps.python.org/pep-0008/</a></li>
+</ul>
+<h2>関連記事</h2><ul class="cards"><li><a href="/h-0004/">Pythonで SyntaxError: invalid non-printable character U+3000 が出たときの原因と直し方（全角スペース）【実行して確認】</a><span class="meta">更新日 2026-11-07</span></li><li><a href="/h-0902/">Pythonで ModuleNotFoundError: No module named が出たときの原因と直し方（venv）【実行して確認】</a><span class="meta">更新日 2026-11-07</span></li><li><a href="/h-0903/">pip install で error: externally-managed-environment が出たときの原因と直し方（Ubuntu 24.04）【実行して確認】</a><span class="meta">更新日 2026-11-07</span></li></ul>
+</main>
+<footer><a href="/p-contact/">お問い合わせについて</a><a href="/p-ad-privacy/">広告の表示とプライバシーポリシー</a><a href="/p-about/">運営者情報とこのサイトの作り方</a><div>© 2026 動かして確かめるプログラミング帳</div></footer>
+</body></html>
