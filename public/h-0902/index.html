@@ -14,7 +14,7 @@ a{color:var(--accent)}header,main,footer{max-width:760px;margin:0 auto;padding:0
 header{padding-top:20px;padding-bottom:12px;border-bottom:1px solid var(--line)}header a{color:var(--fg);text-decoration:none;font-weight:700}
 nav{font-size:14px;margin-top:6px}nav a{margin-right:12px;color:var(--muted)}
 h1{font-size:1.55rem;line-height:1.4;margin:24px 0 8px}h2{font-size:1.25rem;margin-top:2.2em;padding-bottom:4px;border-bottom:2px solid var(--line)}h3{font-size:1.08rem;margin-top:1.8em}
-.meta{color:var(--muted);font-size:13px}.table-wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px;margin:1em 0}
+.meta{color:var(--muted);font-size:13px}.pr-note{color:var(--muted);font-size:12px;margin:4px 0 0}.table-wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px;margin:1em 0}
 th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}th{background:var(--soft)}
 blockquote{margin:1em 0;padding:8px 14px;border-left:4px solid var(--line);color:var(--muted)}
 .cards{list-style:none;padding:0}.cards li{padding:10px 0;border-bottom:1px solid var(--line)}.cards .meta{display:block}
@@ -28,7 +28,6 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
 <main>
 <h1>Pythonで ModuleNotFoundError: No module named が出たときの原因と直し方（venv）【実行して確認】</h1>
 <p class="meta">公開日 <time datetime="2026-11-07">2026-11-07</time>　更新日 <time datetime="2026-11-07">2026-11-07</time>　<a href="/category/howto/">手順・エラー解決</a> / <a href="/category/python/">Python</a></p>
-<p>※本記事はアフィリエイト広告（PR）を含みます。</p>
 <p>この記事の手順は 2026年11月6日 に下記の環境で実際に実行して確認しました。</p>
 <h2>結論：動かしているPythonと、モジュールを入れたPythonが別物です</h2>
 <p>「インストールしたのに <code>ModuleNotFoundError: No module named &#x27;requests&#x27;</code> が出る」ときは、スクリプトを動かしているPythonに、そのモジュールが入っていません。仮想環境（venv）を使っている場合、パソコン全体のPythonに入れたモジュールは、仮想環境からは見えません。この環境では、仮想環境のPythonで <code>python -m pip install requests</code> を実行したところ、エラーが消えました。</p>
