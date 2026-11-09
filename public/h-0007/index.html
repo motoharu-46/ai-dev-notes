@@ -2,9 +2,9 @@
 <html lang="ja"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>pandasで KeyError: &#x27;列名&#x27; が出たときの原因と直し方（列は存在するのに）【実行して確認】 | 動かして確かめるプログラミング帳</title>
-<meta name="description" content="この記事の手順は 2026年11月9日 に下記の環境で実際に実行して確認しました。">
+<meta name="description" content="この記事の手順は 2026年11月10日 に下記の環境で実際に実行して確認しました。">
 <link rel="canonical" href="https://ai-dev-notes.cloud-ruto02.workers.dev/h-0007/">
-<meta property="og:title" content="pandasで KeyError: &#x27;列名&#x27; が出たときの原因と直し方（列は存在するのに）【実行して確認】"><meta property="og:description" content="この記事の手順は 2026年11月9日 に下記の環境で実際に実行して確認しました。">
+<meta property="og:title" content="pandasで KeyError: &#x27;列名&#x27; が出たときの原因と直し方（列は存在するのに）【実行して確認】"><meta property="og:description" content="この記事の手順は 2026年11月10日 に下記の環境で実際に実行して確認しました。">
 <meta property="og:url" content="https://ai-dev-notes.cloud-ruto02.workers.dev/h-0007/"><meta property="og:site_name" content="動かして確かめるプログラミング帳"><meta property="og:type" content="article">
 <style>
 :root{--bg:#fff;--fg:#1d1d1f;--muted:#6e6e73;--line:#e3e3e8;--accent:#0b62d6;--soft:#f5f6f8}
@@ -29,7 +29,7 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
 <h1>pandasで KeyError: &#x27;列名&#x27; が出たときの原因と直し方（列は存在するのに）【実行して確認】</h1>
 <p class="pr-note">※本記事はアフィリエイト広告（PR）を含みます。</p>
 <p class="meta">公開日 <time datetime="2026-11-10">2026-11-10</time>　更新日 <time datetime="2026-11-10">2026-11-10</time>　<a href="/category/howto/">手順・エラー解決</a> / <a href="/category/python/">Python</a></p>
-<p>この記事の手順は 2026年11月9日 に下記の環境で実際に実行して確認しました。</p>
+<p>この記事の手順は 2026年11月10日 に下記の環境で実際に実行して確認しました。</p>
 <h2>結論：列名の前に見えない空白が付いています。空白を取り除いて読み込むと直ります</h2>
 <p><code>print(df)</code> では「金額」という列が表示されているのに、<code>df[&quot;金額&quot;]</code> で <code>KeyError: &#x27;金額&#x27;</code> になることがあります。この環境で調べたところ、CSVの見出し行がカンマのあとに空白を入れて書かれていたため、列名が <code>&#x27; 金額&#x27;</code>（先頭に半角スペース付き）として読み込まれていました。<code>pd.read_csv()</code> に <code>skipinitialspace=True</code> を付けるか、読み込んだあとに <code>df.columns = df.columns.str.strip()</code> で空白を取ると、エラーが消えて合計が計算できました。</p>
 <pre><code class="language-python">df = pd.read_csv("sales.csv", skipinitialspace=True)</code></pre>
