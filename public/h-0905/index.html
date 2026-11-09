@@ -22,12 +22,13 @@ footer{margin-top:48px;padding-top:16px;padding-bottom:32px;border-top:1px solid
 img{max-width:100%;height:auto}
 .code-label{font-size:12px;color:var(--muted);margin:1em 0 -6px}pre{background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:12px 14px;overflow-x:auto;font-size:13.5px;line-height:1.6}
 code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em}p code,li code,td code{background:var(--soft);padding:1px 5px;border-radius:4px}
-</style><script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "Node.jsで SyntaxError: Cannot use import statement outside a module が出たときの原因と直し方【実行して確認】", "datePublished": "2026-11-07", "dateModified": "2026-11-07", "mainEntityOfPage": "https://ai-dev-notes.cloud-ruto02.workers.dev/h-0905/"}</script>
+</style><script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "Node.jsで SyntaxError: Cannot use import statement outside a module が出たときの原因と直し方【実行して確認】", "datePublished": "2026-11-07", "dateModified": "2026-11-09", "mainEntityOfPage": "https://ai-dev-notes.cloud-ruto02.workers.dev/h-0905/"}</script>
 </head><body>
 <header><a href="/">動かして確かめるプログラミング帳</a><nav><a href="/category/howto/">手順・エラー解決</a><a href="/category/guide/">学習ロードマップ</a><a href="/category/tools/">サーバー・ツール</a><a href="/category/school/">スクール</a></nav></header>
 <main>
 <h1>Node.jsで SyntaxError: Cannot use import statement outside a module が出たときの原因と直し方【実行して確認】</h1>
-<p class="meta">公開日 <time datetime="2026-11-07">2026-11-07</time>　更新日 <time datetime="2026-11-07">2026-11-07</time>　<a href="/category/howto/">手順・エラー解決</a> / <a href="/category/javascript/">JavaScript</a></p>
+<p class="pr-note">※本記事はアフィリエイト広告（PR）を含みます。</p>
+<p class="meta">公開日 <time datetime="2026-11-07">2026-11-07</time>　更新日 <time datetime="2026-11-09">2026-11-09</time>　<a href="/category/howto/">手順・エラー解決</a> / <a href="/category/javascript/">JavaScript</a></p>
 <p>この記事の手順は 2026年11月6日 に下記の環境で実際に実行して確認しました。</p>
 <h2>結論：package.json の "type" が "commonjs" だと、import 文を使えません</h2>
 <p>Node.jsで <code>SyntaxError: Cannot use import statement outside a module</code> が出たら、そのファイルが「CommonJS（require を使う古い書き方）」として読まれています。この環境では、package.json に <code>&quot;type&quot;: &quot;commonjs&quot;</code> があるとエラーになり、<code>&quot;type&quot;: &quot;module&quot;</code> に変えると import 文がそのまま動きました。</p>
@@ -114,6 +115,9 @@ To eliminate this warning, add "type": "module" to /home/dev/work/node-esm/packa
 <li>古いバージョンのNode.jsでは、"type" がないと中身を見ずに CommonJS として読むため、package.json がなくても同じエラーになることがあります。この記事では Node.js 22 以外は実行して確かめていません。お使いのバージョンの動きは、Node.js 公式ドキュメントの「Modules: Packages」をご確認ください。</li>
 <li>プロジェクトの他の部分が require を使っていて "type" を変えられない場合は、import を使うファイルだけ拡張子を <code>.mjs</code> にする方法もあります（エラー前の Warning に書かれている方法です）。</li>
 </ul>
+<p>独学で詰まったときに質問できる環境がほしい場合は、現役エンジニアにチャットで質問できるオンラインスクールもあります。</p>
+<a href="https://px.a8.net/svt/ejp?a8mat=4BGGBN+13ANH6+4K3S+5ZEMQ" rel="nofollow">質問し放題のオンラインプログラミングスクール｜SkillHacks(スキルハックス) </a>
+<img border="0" width="1" height="1" src="https://www17.a8.net/0.gif?a8mat=4BGGBN+13ANH6+4K3S+5ZEMQ" alt="">
 <h2>まとめ</h2>
 <p><code>SyntaxError: Cannot use import statement outside a module</code> は、.js ファイルが CommonJS として読まれているときのエラーです。package.json の "type" を "module" にすると、この環境では import 文がそのまま動きました。</p>
 <h2>出典・参考にした公式ドキュメント</h2>
