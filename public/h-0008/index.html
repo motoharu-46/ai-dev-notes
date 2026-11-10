@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>pandasで SettingWithCopyWarning が出たときの原因と消し方（.copy() と .loc）【実行して確認】 | 動かして確かめるプログラミング帳</title>
+<meta name="description" content="この記事の手順は 2026年11月11日 に下記の環境で実際に実行して確認しました。">
+<link rel="canonical" href="https://ai-dev-notes.cloud-ruto02.workers.dev/h-0008/">
+<meta property="og:title" content="pandasで SettingWithCopyWarning が出たときの原因と消し方（.copy() と .loc）【実行して確認】"><meta property="og:description" content="この記事の手順は 2026年11月11日 に下記の環境で実際に実行して確認しました。">
+<meta property="og:url" content="https://ai-dev-notes.cloud-ruto02.workers.dev/h-0008/"><meta property="og:site_name" content="動かして確かめるプログラミング帳"><meta property="og:type" content="article">
+<style>
+:root{--bg:#fff;--fg:#1d1d1f;--muted:#6e6e73;--line:#e3e3e8;--accent:#0b62d6;--soft:#f5f6f8}
+@media (prefers-color-scheme:dark){:root{--bg:#161618;--fg:#ececf0;--muted:#a1a1a8;--line:#333338;--accent:#6aa8ff;--soft:#202024}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.85 -apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif}
+a{color:var(--accent)}header,main,footer{max-width:760px;margin:0 auto;padding:0 16px}
+header{padding-top:20px;padding-bottom:12px;border-bottom:1px solid var(--line)}header a{color:var(--fg);text-decoration:none;font-weight:700}
+nav{font-size:14px;margin-top:6px}nav a{margin-right:12px;color:var(--muted)}
+h1{font-size:1.55rem;line-height:1.4;margin:24px 0 8px}h2{font-size:1.25rem;margin-top:2.2em;padding-bottom:4px;border-bottom:2px solid var(--line)}h3{font-size:1.08rem;margin-top:1.8em}
+.meta{color:var(--muted);font-size:13px}.pr-note{color:var(--muted);font-size:12px;margin:4px 0 0}.table-wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px;margin:1em 0}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}th{background:var(--soft)}
+blockquote{margin:1em 0;padding:8px 14px;border-left:4px solid var(--line);color:var(--muted)}
+.cards{list-style:none;padding:0}.cards li{padding:10px 0;border-bottom:1px solid var(--line)}.cards .meta{display:block}
+footer{margin-top:48px;padding-top:16px;padding-bottom:32px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}footer a{color:var(--muted);margin-right:12px}
+img{max-width:100%;height:auto}
+.code-label{font-size:12px;color:var(--muted);margin:1em 0 -6px}pre{background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:12px 14px;overflow-x:auto;font-size:13.5px;line-height:1.6}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em}p code,li code,td code{background:var(--soft);padding:1px 5px;border-radius:4px}
+</style><script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "pandasで SettingWithCopyWarning が出たときの原因と消し方（.copy() と .loc）【実行して確認】", "datePublished": "2026-11-11", "dateModified": "2026-11-11", "mainEntityOfPage": "https://ai-dev-notes.cloud-ruto02.workers.dev/h-0008/"}</script>
+</head><body>
+<header><a href="/">動かして確かめるプログラミング帳</a><nav><a href="/category/howto/">手順・エラー解決</a><a href="/category/guide/">学習ロードマップ</a><a href="/category/tools/">サーバー・ツール</a><a href="/category/school/">スクール</a></nav></header>
+<main>
+<h1>pandasで SettingWithCopyWarning が出たときの原因と消し方（.copy() と .loc）【実行して確認】</h1>
+<p class="pr-note">※本記事はアフィリエイト広告（PR）を含みます。</p>
+<p class="meta">公開日 <time datetime="2026-11-11">2026-11-11</time>　更新日 <time datetime="2026-11-11">2026-11-11</time>　<a href="/category/howto/">手順・エラー解決</a> / <a href="/category/python/">Python</a></p>
+<p>この記事の手順は 2026年11月11日 に下記の環境で実際に実行して確認しました。</p>
+<h2>結論：絞り込んだ表に代入しているのが原因です。.copy() するか .loc で1回で代入すると消えます</h2>
+<p><code>SettingWithCopyWarning</code> は、<code>df[条件]</code> で絞り込んだ結果に、あとから列を足したり値を入れたりしたときに pandas 2.x が出す警告です。絞り込んだ結果を別の表として使いたいなら <code>df[条件].copy()</code> で明示的にコピーし、元の表の値を書き換えたいなら <code>df.loc[条件, &quot;列名&quot;] = 値</code> の形で1回で代入します。この環境では、どちらの書き方でも警告が出なくなり、意図どおりの結果になりました。</p>
+<pre><code class="language-python">high = df[df["金額"] &gt;= 100].copy()</code></pre>
+<pre><code class="language-python">df.loc[df["金額"] &gt;= 100, "金額"] = 0</code></pre>
+<h2>検証環境</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>項目</th><th>バージョン</th></tr></thead><tbody>
+<tr><td>OS</td><td>Ubuntu 24.04.5 LTS</td></tr>
+<tr><td>Python</td><td>Python 3.13.18</td></tr>
+<tr><td>pandas</td><td>pandas 2.3.3（比較用に pandas 3.1.1）</td></tr>
+</tbody></table></div>
+<p>お使いの環境（OS・バージョン）が違うと、出力やエラー文が少し変わることがあります。この警告は pandas 2.x までのもので、pandas 3.0 以降では出ません（後半で pandas 3.1.1 の結果も載せています）。</p>
+<h2>エラーの再現：絞り込んだ表に列を足すと警告が出る</h2>
+<p>商品と金額だけの小さなCSVを用意し、金額が100円以上の行だけを取り出して、税込の金額の列を足すプログラムを書きました。pandas を学び始めたころによく書く形です。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ cat sales.csv
+商品,金額
+りんご,120
+バナナ,80
+メロン,980
+
+$ cat warn.py
+import pandas as pd
+
+df = pd.read_csv("sales.csv")
+high = df[df["金額"] &gt;= 100]
+high["税込"] = high["金額"] * 1.1
+print(high)</code></pre>
+<p>pandas 2.3.3 で実行すると、結果は表示されるものの、その前に次の警告が出ました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ python warn.py
+/tmp/run-h-0008/warn.py:5: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  high["税込"] = high["金額"] * 1.1
+    商品   金額      税込
+0  りんご  120   132.0
+2  メロン  980  1078.0</code></pre>
+<p>1行目の <code>warn.py:5</code> が、警告の原因になった行（5行目の <code>high[&quot;税込&quot;] = ...</code>）です。2行目は「DataFrameから切り出したもの（のコピー）に値を入れようとしています」という意味です。エラーではなく警告なので、プログラムは最後まで動いています。</p>
+<h2>原因：元の表の一部なのか、コピーなのかがはっきりしない</h2>
+<p><code>df[df[&quot;金額&quot;] &gt;= 100]</code> の結果は、元の <code>df</code> とつながった「一部分」なのか、切り離された「コピー」なのかが、pandas 2.x では場合によって変わります。そのため、そこに代入したときに「元の表も変わってほしいのか」「変わらなくてよいのか」を pandas が判断できず、念のため警告を出しています。</p>
+<p>本当に困るのは、元の表を書き換えるつもりで書いたのに、書き換わっていない場合です。次のように、絞り込みと列の指定を <code>[ ]</code> で2回続けて書くと（連鎖代入と呼ばれます）、同じ警告が出たうえで、元の表は変わっていませんでした。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ cat chain.py
+import pandas as pd
+
+df = pd.read_csv("sales.csv")
+df[df["金額"] &gt;= 100]["金額"] = 0
+print(df)
+
+$ python chain.py
+/tmp/run-h-0008/chain.py:4: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  df[df["金額"] &gt;= 100]["金額"] = 0
+    商品   金額
+0  りんご  120
+1  バナナ   80
+2  メロン  980</code></pre>
+<p>100円以上の金額を0にしたつもりでも、りんごは120、メロンは980のままです。値が入ったのは途中で作られたコピーのほうで、そのコピーはすぐに捨てられています。この警告は、こうした「書き換えたつもりで書き換わっていない」ミスを知らせるためのものです。</p>
+<h2>直し方：やりたいことに合わせて書き分ける</h2>
+<h3>絞り込んだ表を別の表として使うなら .copy()</h3>
+<p><code>warn.py</code> のように、元の表は変えずに、取り出した行だけで計算したい場合は、絞り込んだ直後に <code>.copy()</code> を付けます。「これは元の表とは別物です」とはっきりさせる書き方です。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ cat fix_copy.py
+import pandas as pd
+
+df = pd.read_csv("sales.csv")
+high = df[df["金額"] &gt;= 100].copy()
+high["税込"] = high["金額"] * 1.1
+print(high)
+
+$ python fix_copy.py
+    商品   金額      税込
+0  りんご  120   132.0
+2  メロン  980  1078.0</code></pre>
+<p>警告が消え、結果は同じでした。</p>
+<h3>元の表を書き換えるなら .loc で1回で代入</h3>
+<p><code>chain.py</code> のように元の表の値を変えたい場合は、<code>[ ]</code> を2回続けずに、<code>.loc[行の条件, &quot;列名&quot;]</code> の形で行と列を一度に指定して代入します。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ cat fix_loc.py
+import pandas as pd
+
+df = pd.read_csv("sales.csv")
+df.loc[df["金額"] &gt;= 100, "金額"] = 0
+print(df)
+
+$ python fix_loc.py
+    商品  金額
+0  りんご   0
+1  バナナ  80
+2  メロン   0</code></pre>
+<p>警告が出なくなり、100円以上だったりんごとメロンの金額が0に書き換わりました。</p>
+<h2>うまくいかないとき</h2>
+<ul>
+<li><strong>警告を表示しない設定もありますが、おすすめしません。</strong> <code>pd.options.mode.chained_assignment = None</code> を書くと、この環境でも警告は出なくなりました。ただし、次のとおり元の表が書き換わっていない問題はそのまま残ります。警告が出ないぶん、ミスに気づきにくくなります。</li>
+</ul>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ cat hide.py
+import pandas as pd
+
+pd.options.mode.chained_assignment = None
+df = pd.read_csv("sales.csv")
+df[df["金額"] &gt;= 100]["金額"] = 0
+print(df)
+
+$ python hide.py
+    商品   金額
+0  りんご  120
+1  バナナ   80
+2  メロン  980</code></pre>
+<ul>
+<li><strong>pandas 3.0 以降では、この警告は出ません。</strong> pandas 3.0 から Copy-on-Write という仕組みが標準になり、絞り込んだ結果は常に元の表とは別物として扱われます。同じ <code>warn.py</code> を pandas 3.1.1 で実行すると、警告なしで動きました。一方、<code>chain.py</code> の連鎖代入は <code>ChainedAssignmentError</code> という別の警告になり、やはり元の表は変わりませんでした。<code>.loc</code> で1回で代入する <code>fix_loc.py</code> は、pandas 3.1.1 でも同じ結果でした。</li>
+</ul>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ python -c "import pandas; print(pandas.__version__)"
+3.1.1
+
+$ python warn.py
+    商品   金額      税込
+0  りんご  120   132.0
+2  メロン  980  1078.0
+
+$ python chain.py
+/tmp/run-h-0008/chain.py:4: ChainedAssignmentError: A value is being set on a copy of a DataFrame or Series through chained assignment.
+Such chained assignment never works to update the original DataFrame or Series, because the intermediate object on which we are setting values always behaves as a copy (due to Copy-on-Write).
+
+Try using '.loc[row_indexer, col_indexer] = value' instead, to perform the assignment in a single step.
+
+See the documentation for a more detailed explanation: https://pandas.pydata.org/docs/dev/user_guide/migration.html#chained-assignment
+  df[df["金額"] &gt;= 100]["金額"] = 0
+    商品   金額
+0  りんご  120
+1  バナナ   80
+2  メロン  980
+
+$ python fix_loc.py
+    商品  金額
+0  りんご   0
+1  バナナ  80
+2  メロン   0</code></pre>
+<p>どのバージョンでも、「別の表にするなら <code>.copy()</code>、元の表を変えるなら <code>.loc</code> で1回で代入」と書いておけば、同じように動きます。</p>
+<ul>
+<li>自分の pandas のバージョンは <code>python -c &quot;import pandas; print(pandas.__version__)&quot;</code> で確かめられます。pandas が見つからないエラーになる場合は、<a href="/h-0902/">Pythonで ModuleNotFoundError: No module named が出たときの原因と直し方（venv）</a> をご覧ください。</li>
+</ul>
+<p>独学で詰まったときに質問できる環境がほしい場合は、現役エンジニアにチャットで質問できるオンラインスクールもあります。</p>
+<a href="https://px.a8.net/svt/ejp?a8mat=4BGGBN+13ANH6+4K3S+5ZEMQ" rel="nofollow">質問し放題のオンラインプログラミングスクール｜SkillHacks(スキルハックス) </a>
+<img border="0" width="1" height="1" src="https://www17.a8.net/0.gif?a8mat=4BGGBN+13ANH6+4K3S+5ZEMQ" alt="">
+<h2>まとめ</h2>
+<p><code>SettingWithCopyWarning</code> は、pandas 2.x で <code>df[条件]</code> の結果に代入したときに、「元の表が変わるかどうか分からない」ことを知らせる警告です。この環境では、取り出した行を別の表として使うなら <code>.copy()</code>、元の表を書き換えるなら <code>.loc[条件, &quot;列名&quot;] = 値</code> と書くことで、警告が消えて意図どおりの結果になりました。</p>
+<h3>この手順の次に読む記事</h3>
+<ul>
+<li><a href="/h-0007/">pandasで KeyError: &#x27;列名&#x27; が出たときの原因と直し方（列は存在するのに）</a></li>
+<li><a href="/h-0902/">Pythonで ModuleNotFoundError: No module named が出たときの原因と直し方（venv）</a></li>
+</ul>
+<h2>出典・参考にした公式ドキュメント</h2>
+<ul>
+<li>pandas User Guide「Returning a view versus a copy」: <a href="https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy">https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy</a></li>
+<li>pandas User Guide「Copy-on-Write (CoW)」: <a href="https://pandas.pydata.org/docs/user_guide/copy_on_write.html">https://pandas.pydata.org/docs/user_guide/copy_on_write.html</a></li>
+<li>pandas API リファレンス「pandas.DataFrame.loc」: <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.loc.html">https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.loc.html</a></li>
+<li>pandas API リファレンス「pandas.DataFrame.copy」: <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.copy.html">https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.copy.html</a></li>
+</ul>
+<h2>関連記事</h2><ul class="cards"><li><a href="/h-0007/">pandasで KeyError: &#x27;列名&#x27; が出たときの原因と直し方（列は存在するのに）【実行して確認】</a><span class="meta">更新日 2026-11-10</span></li><li><a href="/h-0902/">Pythonで ModuleNotFoundError: No module named が出たときの原因と直し方（venv）【実行して確認】</a><span class="meta">更新日 2026-11-09</span></li><li><a href="/h-0006/">Pythonで TypeError: &#x27;NoneType&#x27; object is not subscriptable が出たときの原因と直し方【実行して確認】</a><span class="meta">更新日 2026-11-09</span></li></ul>
+</main>
+<footer><a href="/p-contact/">お問い合わせについて</a><a href="/p-ad-privacy/">広告の表示とプライバシーポリシー</a><a href="/p-about/">運営者情報とこのサイトの作り方</a><div>© 2026 動かして確かめるプログラミング帳</div></footer>
+</body></html>
