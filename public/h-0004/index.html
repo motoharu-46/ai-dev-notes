@@ -22,13 +22,13 @@ footer{margin-top:48px;padding-top:16px;padding-bottom:32px;border-top:1px solid
 img{max-width:100%;height:auto}
 .code-label{font-size:12px;color:var(--muted);margin:1em 0 -6px}pre{background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:12px 14px;overflow-x:auto;font-size:13.5px;line-height:1.6}
 code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em}p code,li code,td code{background:var(--soft);padding:1px 5px;border-radius:4px}
-</style><script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "Pythonで SyntaxError: invalid non-printable character U+3000 が出たときの原因と直し方（全角スペース）【実行して確認】", "datePublished": "2026-11-07", "dateModified": "2026-11-09", "mainEntityOfPage": "https://ai-dev-notes.cloud-ruto02.workers.dev/h-0004/"}</script>
+</style><script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "Pythonで SyntaxError: invalid non-printable character U+3000 が出たときの原因と直し方（全角スペース）【実行して確認】", "datePublished": "2026-11-07", "dateModified": "2026-11-11", "mainEntityOfPage": "https://ai-dev-notes.cloud-ruto02.workers.dev/h-0004/"}</script>
 </head><body>
 <header><a href="/">動かして確かめるプログラミング帳</a><nav><a href="/category/howto/">手順・エラー解決</a><a href="/category/guide/">学習ロードマップ</a><a href="/category/tools/">サーバー・ツール</a><a href="/category/school/">スクール</a></nav></header>
 <main>
 <h1>Pythonで SyntaxError: invalid non-printable character U+3000 が出たときの原因と直し方（全角スペース）【実行して確認】</h1>
 <p class="pr-note">※本記事はアフィリエイト広告（PR）を含みます。</p>
-<p class="meta">公開日 <time datetime="2026-11-07">2026-11-07</time>　更新日 <time datetime="2026-11-09">2026-11-09</time>　<a href="/category/howto/">手順・エラー解決</a> / <a href="/category/python/">Python</a></p>
+<p class="meta">公開日 <time datetime="2026-11-07">2026-11-07</time>　更新日 <time datetime="2026-11-11">2026-11-11</time>　<a href="/category/howto/">手順・エラー解決</a> / <a href="/category/python/">Python</a></p>
 <p>この記事の手順は 2026年11月7日 に下記の環境で実際に実行して確認しました。</p>
 <h2>結論：コードの中に全角スペースが入っています。半角スペースに置き換えると直ります</h2>
 <p><code>SyntaxError: invalid non-printable character U+3000</code> の U+3000 は「全角スペース」の文字番号です。日本語入力のままスペースキーを押すと入りやすく、見た目では半角スペースと区別がつきません。この環境では、エラーの出た行の全角スペースを半角スペースに置き換えると、プログラムが最後まで動きました。</p>
@@ -122,9 +122,9 @@ $ python3 greet.py
 <li>全角スペースを直しても、同じ行で別の文字のエラーが出ることがあります。全角のかっこ・コロン・イコールなど、ほかの全角記号もコードの中では使えません。この記事では全角スペース以外は実行して確かめていません。使える文字の決まりは、Python公式ドキュメントの「字句解析」をご確認ください。</li>
 <li>エディタの設定で全角スペースを目に見える記号で表示できるものがあります。設定の方法はお使いのエディタの公式ドキュメントをご確認ください。</li>
 </ul>
-<p>独学で詰まったときに質問できる環境がほしい場合は、現役エンジニアにチャットで質問できるオンラインスクールもあります。</p>
-<a href="https://px.a8.net/svt/ejp?a8mat=4BGGBN+13ANH6+4K3S+5ZEMQ" rel="nofollow">質問し放題のオンラインプログラミングスクール｜SkillHacks(スキルハックス) </a>
-<img border="0" width="1" height="1" src="https://www17.a8.net/0.gif?a8mat=4BGGBN+13ANH6+4K3S+5ZEMQ" alt="">
+<p>独学で行き詰まったときに、講座で体系的に学び直したい場合は、オンラインのプログラミングスクールもあります。</p>
+<a href="https://px.a8.net/svt/ejp?a8mat=4BGGBN+16V93U+5IZ2+5YRHE" rel="nofollow">『デイトラ』で仕事につながるWebスキルを身につけよう！</a>
+<img border="0" width="1" height="1" src="https://www11.a8.net/0.gif?a8mat=4BGGBN+16V93U+5IZ2+5YRHE" alt="">
 <h2>まとめ</h2>
 <p><code>SyntaxError: invalid non-printable character U+3000</code> は、コードの中に全角スペースが入っているときのエラーです。エラー文の行番号と <code>^</code> の位置で場所を確かめ、その行の全角スペースを半角スペースに置き換えると、この環境ではプログラムが動きました。コメントと文字列の中の全角スペースはそのままで問題ありません。</p>
 <h3>この手順の次に読む記事</h3>
