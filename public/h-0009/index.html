@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pythonで FileNotFoundError: [Errno 2] No such file or directory が出たときの原因と直し方（相対パスと実行場所）【実行して確認】 | 動かして確かめるプログラミング帳</title>
+<meta name="description" content="この記事の手順は 2026年11月12日 に下記の環境で実際に実行して確認しました。">
+<link rel="canonical" href="https://ai-dev-notes.cloud-ruto02.workers.dev/h-0009/">
+<meta property="og:title" content="Pythonで FileNotFoundError: [Errno 2] No such file or directory が出たときの原因と直し方（相対パスと実行場所）【実行して確認】"><meta property="og:description" content="この記事の手順は 2026年11月12日 に下記の環境で実際に実行して確認しました。">
+<meta property="og:url" content="https://ai-dev-notes.cloud-ruto02.workers.dev/h-0009/"><meta property="og:site_name" content="動かして確かめるプログラミング帳"><meta property="og:type" content="article">
+<style>
+:root{--bg:#fff;--fg:#1d1d1f;--muted:#6e6e73;--line:#e3e3e8;--accent:#0b62d6;--soft:#f5f6f8}
+@media (prefers-color-scheme:dark){:root{--bg:#161618;--fg:#ececf0;--muted:#a1a1a8;--line:#333338;--accent:#6aa8ff;--soft:#202024}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.85 -apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif}
+a{color:var(--accent)}header,main,footer{max-width:760px;margin:0 auto;padding:0 16px}
+header{padding-top:20px;padding-bottom:12px;border-bottom:1px solid var(--line)}header a{color:var(--fg);text-decoration:none;font-weight:700}
+nav{font-size:14px;margin-top:6px}nav a{margin-right:12px;color:var(--muted)}
+h1{font-size:1.55rem;line-height:1.4;margin:24px 0 8px}h2{font-size:1.25rem;margin-top:2.2em;padding-bottom:4px;border-bottom:2px solid var(--line)}h3{font-size:1.08rem;margin-top:1.8em}
+.meta{color:var(--muted);font-size:13px}.pr-note{color:var(--muted);font-size:12px;margin:4px 0 0}.table-wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px;margin:1em 0}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}th{background:var(--soft)}
+blockquote{margin:1em 0;padding:8px 14px;border-left:4px solid var(--line);color:var(--muted)}
+.cards{list-style:none;padding:0}.cards li{padding:10px 0;border-bottom:1px solid var(--line)}.cards .meta{display:block}
+footer{margin-top:48px;padding-top:16px;padding-bottom:32px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}footer a{color:var(--muted);margin-right:12px}
+img{max-width:100%;height:auto}
+.code-label{font-size:12px;color:var(--muted);margin:1em 0 -6px}pre{background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:12px 14px;overflow-x:auto;font-size:13.5px;line-height:1.6}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em}p code,li code,td code{background:var(--soft);padding:1px 5px;border-radius:4px}
+</style><script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "Pythonで FileNotFoundError: [Errno 2] No such file or directory が出たときの原因と直し方（相対パスと実行場所）【実行して確認】", "datePublished": "2026-11-12", "dateModified": "2026-11-12", "mainEntityOfPage": "https://ai-dev-notes.cloud-ruto02.workers.dev/h-0009/"}</script>
+</head><body>
+<header><a href="/">動かして確かめるプログラミング帳</a><nav><a href="/category/howto/">手順・エラー解決</a><a href="/category/guide/">学習ロードマップ</a><a href="/category/tools/">サーバー・ツール</a><a href="/category/school/">スクール</a></nav></header>
+<main>
+<h1>Pythonで FileNotFoundError: [Errno 2] No such file or directory が出たときの原因と直し方（相対パスと実行場所）【実行して確認】</h1>
+<p class="pr-note">※本記事はアフィリエイト広告（PR）を含みます。</p>
+<p class="meta">公開日 <time datetime="2026-11-12">2026-11-12</time>　更新日 <time datetime="2026-11-12">2026-11-12</time>　<a href="/category/howto/">手順・エラー解決</a> / <a href="/category/python/">Python</a></p>
+<p>この記事の手順は 2026年11月12日 に下記の環境で実際に実行して確認しました。</p>
+<h2>結論：相対パスは「スクリプトの場所」ではなく「実行した場所」から探されます。スクリプトの場所を基準にしたパスに変えると直ります</h2>
+<p><code>open(&quot;data.csv&quot;)</code> のような相対パスは、Pythonを実行したときの作業ディレクトリ（カレントディレクトリ）から探されます。スクリプトと同じフォルダにファイルがあっても、別のフォルダから <code>python3 sales/total.py</code> のように実行すると見つからず、<code>FileNotFoundError</code> になります。この環境では、<code>Path(__file__).resolve().parent</code> でスクリプトの場所を取り、そこからファイルのパスを作ることで、どこから実行しても読み込めるようになりました。</p>
+<pre><code class="language-python">BASE_DIR = Path(__file__).resolve().parent
+csv_path = BASE_DIR / "data.csv"</code></pre>
+<h2>検証環境</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>項目</th><th>バージョン</th></tr></thead><tbody>
+<tr><td>OS</td><td>Ubuntu 24.04.5 LTS</td></tr>
+<tr><td>Python</td><td>Python 3.13.18</td></tr>
+</tbody></table></div>
+<p>お使いの環境（OS・バージョン）が違うと、出力やエラー文が少し変わることがあります。</p>
+<h2>エラーの再現：ファイルはあるのに別のフォルダから実行すると見つからない</h2>
+<p><code>sales</code> というフォルダに、商品と値段を書いた <code>data.csv</code> と、その合計を出す <code>total.py</code> を置きました。<code>total.py</code> は <code>data.csv</code> を相対パスで開いています。作業ディレクトリは、<code>sales</code> の1つ上の <code>/tmp/run-h-0009</code> です。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ pwd
+/tmp/run-h-0009
+
+$ ls sales
+data.csv
+total.py
+
+$ cat sales/total.py
+import csv
+
+with open("data.csv", encoding="utf-8") as f:
+    rows = list(csv.DictReader(f))
+
+total = sum(int(row["price"]) for row in rows)
+print("合計:", total, "円")</code></pre>
+<p>この場所から <code>total.py</code> を実行すると、次のエラーになりました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ python3 sales/total.py
+Traceback (most recent call last):
+  File "/tmp/run-h-0009/sales/total.py", line 3, in &lt;module&gt;
+    with open("data.csv", encoding="utf-8") as f:
+         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'data.csv'</code></pre>
+<p>エラー文の読み方は次のとおりです。</p>
+<ul>
+<li><code>line 3</code> は、エラーが起きた行の番号です。3行目の <code>open(&quot;data.csv&quot;, ...)</code> で失敗しています。</li>
+<li><code>[Errno 2] No such file or directory</code> は「そのファイルもフォルダも見つからない」という意味です。</li>
+<li>最後の <code>&#x27;data.csv&#x27;</code> は、Pythonが実際に開こうとしたパスです。ここがフォルダ名のない <code>data.csv</code> だけになっているのがポイントです。</li>
+</ul>
+<p><code>ls sales</code> の結果のとおり、<code>data.csv</code> は <code>total.py</code> と同じフォルダにちゃんとあります。それでも見つからないのは、Pythonが別の場所を探しているからです。</p>
+<h2>原因：相対パスは作業ディレクトリから探される</h2>
+<p>Pythonが相対パスをどこから探しているのかを確かめるために、作業ディレクトリ（<code>os.getcwd()</code>）、<code>data.csv</code> を絶対パスに直した結果、スクリプトそのものの場所を表示するプログラムを用意しました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ cat sales/debug.py
+import os
+from pathlib import Path
+
+print("作業ディレクトリ:", os.getcwd())
+print("data.csv の探し先:", Path("data.csv").resolve())
+print("スクリプトの場所:", Path(__file__).resolve().parent)
+
+$ python3 sales/debug.py
+作業ディレクトリ: /tmp/run-h-0009
+data.csv の探し先: /tmp/run-h-0009/data.csv
+スクリプトの場所: /tmp/run-h-0009/sales</code></pre>
+<p>スクリプトは <code>/tmp/run-h-0009/sales</code> にありますが、<code>data.csv</code> は作業ディレクトリの <code>/tmp/run-h-0009</code> の直下で探されていました。そこには <code>data.csv</code> がないため、エラーになります。</p>
+<p>試しに <code>sales</code> フォルダに移動してから同じように実行すると、作業ディレクトリとスクリプトの場所が一致し、元の <code>total.py</code> もそのまま動きました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ cd sales
+
+$ python3 debug.py
+作業ディレクトリ: /tmp/run-h-0009/sales
+data.csv の探し先: /tmp/run-h-0009/sales/data.csv
+スクリプトの場所: /tmp/run-h-0009/sales
+
+$ python3 total.py
+合計: 500 円</code></pre>
+<p>「自分のパソコンでは動くのに、別の場所から実行したり、エディタの実行ボタンで動かしたりすると失敗する」という場合は、多くがこの作業ディレクトリの違いです。エディタによっては、開いているプロジェクトのフォルダを作業ディレクトリにして実行するため、スクリプトのあるフォルダと食い違うことがあります。</p>
+<h2>直し方：スクリプトの場所を基準にパスを作る</h2>
+<p>毎回 <code>cd</code> してから実行する方法でも動きますが、実行する場所を気にしなくて済むように、スクリプトの中でパスを作ります。<code>__file__</code> には実行中のスクリプトのパスが入っているので、<code>Path(__file__).resolve().parent</code> でスクリプトのあるフォルダが分かります。そこに <code>/ &quot;data.csv&quot;</code> をつなげると、スクリプトと同じフォルダの <code>data.csv</code> を指すパスになります。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ cat sales/total.py
+import csv
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent
+csv_path = BASE_DIR / "data.csv"
+
+with open(csv_path, encoding="utf-8") as f:
+    rows = list(csv.DictReader(f))
+
+total = sum(int(row["price"]) for row in rows)
+print("合計:", total, "円")
+
+$ python3 sales/total.py
+合計: 500 円</code></pre>
+<p><code>sales</code> の1つ上の <code>/tmp/run-h-0009</code> から実行して、エラーが消えて合計が表示されました。さらに別の場所（<code>/tmp</code>）に移動してから実行しても、同じ結果になりました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ cd /tmp
+
+$ python3 run-h-0009/sales/total.py
+合計: 500 円</code></pre>
+<p><code>resolve()</code> は、パスを絶対パスに直すためのものです。付けておくと、<code>python3 sales/total.py</code> のように相対パスでスクリプトを指定して実行した場合でも、正しくスクリプトのフォルダが取れます。</p>
+<h2>うまくいかないとき</h2>
+<ul>
+<li><strong>ファイル名やフォルダ名の打ち間違い</strong>でも、同じエラーになります。次の例では、<code>data.csv</code> を <code>date.csv</code> と書き間違えています。エラー文の最後に表示されるパスと、<code>ls</code> で表示される実際のファイル名を見比べると、違いが分かりました。</li>
+</ul>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ python3 -c 'open("sales/date.csv")' 2&gt;&amp;1 | tail -n 1
+FileNotFoundError: [Errno 2] No such file or directory: 'sales/date.csv'
+
+$ ls sales/*.csv
+sales/data.csv</code></pre>
+<ul>
+<li>作業ディレクトリの考え方や <code>os.getcwd()</code>・<code>os.chdir()</code> については、公式ドキュメントの os モジュールの「ファイルとディレクトリ」の項目をご確認ください。パスの組み立て方（<code>/</code> でつなぐ書き方や <code>resolve()</code>）は pathlib のページに説明があります。</li>
+<li>Jupyter Notebook のように <code>__file__</code> が使えない実行方法では、この直し方はそのままでは使えません。その場合は <code>os.getcwd()</code> で作業ディレクトリを確かめてから、そこからの相対パスを書いてください。</li>
+</ul>
+<p>独学で行き詰まったときに、講座で体系的に学び直したい場合は、オンラインのプログラミングスクールもあります。</p>
+<a href="https://px.a8.net/svt/ejp?a8mat=4BGGBN+16V93U+5IZ2+5YRHE" rel="nofollow">『デイトラ』で仕事につながるWebスキルを身につけよう！</a>
+<img border="0" width="1" height="1" src="https://www11.a8.net/0.gif?a8mat=4BGGBN+16V93U+5IZ2+5YRHE" alt="">
+<h2>まとめ</h2>
+<p><code>FileNotFoundError: [Errno 2] No such file or directory</code> は、ファイルがあるのに出る場合、相対パスがスクリプトの場所ではなく作業ディレクトリから探されていることが原因でした。この環境では、<code>Path(__file__).resolve().parent</code> を基準にしたパスに書き換えると、どのフォルダから実行してもファイルを読み込めました。</p>
+<h3>この手順の次に読む記事</h3>
+<ul>
+<li><a href="/h-0901/">Pythonで UnicodeDecodeError: &#x27;utf-8&#x27; codec can&#x27;t decode byte が出たときの原因と直し方（日本語CSV）</a></li>
+<li><a href="/h-0902/">Pythonで ModuleNotFoundError: No module named が出たときの原因と直し方（venv）</a></li>
+<li><a href="/h-0006/">Pythonで TypeError: &#x27;NoneType&#x27; object is not subscriptable が出たときの原因と直し方</a></li>
+</ul>
+<h2>出典・参考にした公式ドキュメント</h2>
+<ul>
+<li>Python ドキュメント「os --- 雑多なオペレーティングシステムインターフェース」（os.getcwd）: <a href="https://docs.python.org/ja/3/library/os.html">https://docs.python.org/ja/3/library/os.html</a></li>
+<li>Python ドキュメント「pathlib --- オブジェクト指向のファイルシステムパス」（Path.resolve）: <a href="https://docs.python.org/ja/3/library/pathlib.html">https://docs.python.org/ja/3/library/pathlib.html</a></li>
+<li>Python 言語リファレンス「インポートシステム」（<code>__file__</code>）: <a href="https://docs.python.org/ja/3/reference/import.html">https://docs.python.org/ja/3/reference/import.html</a></li>
+</ul>
+<h2>関連記事</h2><ul class="cards"><li><a href="/h-0901/">Pythonで UnicodeDecodeError: &#x27;utf-8&#x27; codec can&#x27;t decode byte が出たときの原因と直し方（日本語CSV）【実行して確認】</a><span class="meta">更新日 2026-11-11</span></li><li><a href="/h-0902/">Pythonで ModuleNotFoundError: No module named が出たときの原因と直し方（venv）【実行して確認】</a><span class="meta">更新日 2026-11-11</span></li><li><a href="/h-0006/">Pythonで TypeError: &#x27;NoneType&#x27; object is not subscriptable が出たときの原因と直し方【実行して確認】</a><span class="meta">更新日 2026-11-09</span></li></ul>
+</main>
+<footer><a href="/p-contact/">お問い合わせについて</a><a href="/p-ad-privacy/">広告の表示とプライバシーポリシー</a><a href="/p-about/">運営者情報とこのサイトの作り方</a><div>© 2026 動かして確かめるプログラミング帳</div></footer>
+</body></html>
