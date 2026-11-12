@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pythonで ImportError: cannot import name from partially initialized module（循環インポート）が出たときの原因と直し方【実行して確認】 | 動かして確かめるプログラミング帳</title>
+<meta name="description" content="この記事の手順は 2026年11月13日 に下記の環境で実際に実行して確認しました。">
+<link rel="canonical" href="https://ai-dev-notes.cloud-ruto02.workers.dev/h-0010/">
+<meta property="og:title" content="Pythonで ImportError: cannot import name from partially initialized module（循環インポート）が出たときの原因と直し方【実行して確認】"><meta property="og:description" content="この記事の手順は 2026年11月13日 に下記の環境で実際に実行して確認しました。">
+<meta property="og:url" content="https://ai-dev-notes.cloud-ruto02.workers.dev/h-0010/"><meta property="og:site_name" content="動かして確かめるプログラミング帳"><meta property="og:type" content="article">
+<style>
+:root{--bg:#fff;--fg:#1d1d1f;--muted:#6e6e73;--line:#e3e3e8;--accent:#0b62d6;--soft:#f5f6f8}
+@media (prefers-color-scheme:dark){:root{--bg:#161618;--fg:#ececf0;--muted:#a1a1a8;--line:#333338;--accent:#6aa8ff;--soft:#202024}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.85 -apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif}
+a{color:var(--accent)}header,main,footer{max-width:760px;margin:0 auto;padding:0 16px}
+header{padding-top:20px;padding-bottom:12px;border-bottom:1px solid var(--line)}header a{color:var(--fg);text-decoration:none;font-weight:700}
+nav{font-size:14px;margin-top:6px}nav a{margin-right:12px;color:var(--muted)}
+h1{font-size:1.55rem;line-height:1.4;margin:24px 0 8px}h2{font-size:1.25rem;margin-top:2.2em;padding-bottom:4px;border-bottom:2px solid var(--line)}h3{font-size:1.08rem;margin-top:1.8em}
+.meta{color:var(--muted);font-size:13px}.pr-note{color:var(--muted);font-size:12px;margin:4px 0 0}.table-wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px;margin:1em 0}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}th{background:var(--soft)}
+blockquote{margin:1em 0;padding:8px 14px;border-left:4px solid var(--line);color:var(--muted)}
+.cards{list-style:none;padding:0}.cards li{padding:10px 0;border-bottom:1px solid var(--line)}.cards .meta{display:block}
+footer{margin-top:48px;padding-top:16px;padding-bottom:32px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}footer a{color:var(--muted);margin-right:12px}
+img{max-width:100%;height:auto}
+.code-label{font-size:12px;color:var(--muted);margin:1em 0 -6px}pre{background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:12px 14px;overflow-x:auto;font-size:13.5px;line-height:1.6}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em}p code,li code,td code{background:var(--soft);padding:1px 5px;border-radius:4px}
+</style><script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "Pythonで ImportError: cannot import name from partially initialized module（循環インポート）が出たときの原因と直し方【実行して確認】", "datePublished": "2026-11-13", "dateModified": "2026-11-13", "mainEntityOfPage": "https://ai-dev-notes.cloud-ruto02.workers.dev/h-0010/"}</script>
+</head><body>
+<header><a href="/">動かして確かめるプログラミング帳</a><nav><a href="/category/howto/">手順・エラー解決</a><a href="/category/guide/">学習ロードマップ</a><a href="/category/tools/">サーバー・ツール</a><a href="/category/school/">スクール</a></nav></header>
+<main>
+<h1>Pythonで ImportError: cannot import name from partially initialized module（循環インポート）が出たときの原因と直し方【実行して確認】</h1>
+<p class="pr-note">※本記事はアフィリエイト広告（PR）を含みます。</p>
+<p class="meta">公開日 <time datetime="2026-11-13">2026-11-13</time>　更新日 <time datetime="2026-11-13">2026-11-13</time>　<a href="/category/howto/">手順・エラー解決</a> / <a href="/category/python/">Python</a></p>
+<p>この記事の手順は 2026年11月13日 に下記の環境で実際に実行して確認しました。</p>
+<h2>結論：2つのファイルがお互いをimportし合っているのが原因です。片方の依存をなくして「一方通行」にすると直ります</h2>
+<p><code>ImportError: cannot import name &#x27;Item&#x27; from partially initialized module &#x27;shop.models&#x27; (most likely due to a circular import)</code> は、ファイルAがファイルBをimportし、ファイルBもファイルAをimportしている（循環インポート）ときに出ます。この環境では、Bの中でAを必要としていた関数を別のファイルに移し、importの向きをA→Bの一方通行にしたところ、エラーが消えて正しく動きました。直した後の <code>shop/utils.py</code> は、次のように <code>models</code> を import しない形です。</p>
+<pre><code class="language-python">def format_price(price):
+    return f"{price:,}円"</code></pre>
+<h2>検証環境</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>項目</th><th>バージョン</th></tr></thead><tbody>
+<tr><td>OS</td><td>Ubuntu 24.04.5 LTS</td></tr>
+<tr><td>Python</td><td>Python 3.13.18</td></tr>
+</tbody></table></div>
+<p>お使いの環境（OS・バージョン）が違うと、出力やエラー文が少し変わることがあります。</p>
+<h2>エラーの再現：2つのファイルがお互いをimportしている</h2>
+<p><code>shop</code> というパッケージ（フォルダ）に、商品を表すクラス <code>Item</code> を書いた <code>models.py</code> と、値段を「1,200円」の形にする関数などを書いた <code>utils.py</code> を置きました。<code>models.py</code> は値段の表示に <code>utils.py</code> の <code>format_price</code> を使い、<code>utils.py</code> はサンプルの商品を作るために <code>models.py</code> の <code>Item</code> を使っています。つまり、2つのファイルがお互いを import しています。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ ls shop
+__init__.py
+models.py
+utils.py
+
+$ cat shop/models.py
+from shop.utils import format_price
+
+
+class Item:
+    def __init__(self, name, price):
+        self.name = name
+        self.price = price
+
+    def label(self):
+        return f"{self.name}: {format_price(self.price)}"
+
+$ cat shop/utils.py
+from shop.models import Item
+
+
+def format_price(price):
+    return f"{price:,}円"
+
+
+def make_sample():
+    return Item("ノート", 1200)
+
+$ cat main.py
+from shop.models import Item
+
+item = Item("ペン", 150)
+print(item.label())</code></pre>
+<p><code>main.py</code> を実行すると、次のエラーになりました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ python3 main.py
+Traceback (most recent call last):
+  File "/tmp/run-h-0010/main.py", line 1, in &lt;module&gt;
+    from shop.models import Item
+  File "/tmp/run-h-0010/shop/models.py", line 1, in &lt;module&gt;
+    from shop.utils import format_price
+  File "/tmp/run-h-0010/shop/utils.py", line 1, in &lt;module&gt;
+    from shop.models import Item
+ImportError: cannot import name 'Item' from partially initialized module 'shop.models' (most likely due to a circular import) (/tmp/run-h-0010/shop/models.py)</code></pre>
+<p>エラー文の読み方は次のとおりです。</p>
+<ul>
+<li>トレースバックは上から順に「main.py が models.py を読み込み → models.py が utils.py を読み込み → utils.py が models.py を読み込もうとした」という流れを表しています。ファイル名が1周して元に戻っているのが、循環インポートの目印です。</li>
+<li><code>partially initialized module &#x27;shop.models&#x27;</code> は「shop.models はまだ読み込みの途中（初期化が終わっていない）」という意味です。</li>
+<li><code>most likely due to a circular import</code> は、Python自身が「おそらく循環インポートが原因」と教えてくれている部分です。</li>
+</ul>
+<h2>原因：読み込み途中のモジュールからは名前を取り出せない</h2>
+<p>Pythonはファイルを import するとき、ファイルの先頭から1行ずつ実行していき、最後まで実行し終わって初めて、その中のクラスや関数が使える状態になります。</p>
+<p>今回の流れでは、<code>models.py</code> の1行目（<code>from shop.utils import format_price</code>）を実行した時点で <code>utils.py</code> の読み込みに移ります。<code>utils.py</code> の1行目で <code>models.py</code> から <code>Item</code> を取り出そうとしますが、<code>models.py</code> はまだ1行目で止まっていて、<code>class Item</code> の行まで進んでいません。そのため「読み込み途中の shop.models には Item という名前がない」というエラーになります。</p>
+<p>どちらのファイルから読み込み始めるかで、エラーに出てくる名前も変わります。<code>utils.py</code> から先に import すると、今度は <code>format_price</code> が見つからないというエラーになりました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ python3 -c "import shop.utils" 2&gt;&amp;1 | tail -n 1
+ImportError: cannot import name 'format_price' from partially initialized module 'shop.utils' (most likely due to a circular import) (/tmp/run-h-0010/shop/utils.py)</code></pre>
+<p>エラーに出る名前は違っても、原因は同じ「2つのファイルがお互いを必要としていること」です。片方のファイルの名前を直しても解決しないので、importの関係そのものを見直します。</p>
+<h2>直し方：importを一方通行にする</h2>
+<p><code>utils.py</code> が <code>models.py</code> を必要としていたのは、<code>make_sample</code> 関数の1か所だけでした。そこで <code>make_sample</code> を新しいファイル <code>shop/samples.py</code> に移し、<code>utils.py</code> からは <code>models.py</code> の import を消しました。これで「models → utils」「samples → models」という一方通行になり、ぐるっと1周する経路がなくなります。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ cat shop/utils.py
+def format_price(price):
+    return f"{price:,}円"
+
+$ cat shop/samples.py
+from shop.models import Item
+
+
+def make_sample():
+    return Item("ノート", 1200)</code></pre>
+<p>この状態で実行すると、エラーが消えて値段つきの表示が出ました。移した <code>make_sample</code> も、<code>utils.py</code> 単体の import も問題なく動きました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ python3 main.py
+ペン: 150円
+
+$ python3 -c "from shop.samples import make_sample; print(make_sample().label())"
+ノート: 1,200円
+
+$ python3 -c "import shop.utils; print(shop.utils.format_price(98000))"
+98,000円</code></pre>
+<p>一般に、<code>utils.py</code> のような「どこからでも使われる小さな部品」のファイルは、ほかの自作ファイルを import しない形にしておくと、循環インポートが起きにくくなります。</p>
+<h2>うまくいかないとき</h2>
+<ul>
+<li><strong>ファイルを分けられない場合</strong>は、import を関数の中に移す方法もあります。関数の中の import は、その関数が呼ばれたときに実行されるため、ファイルを読み込む時点では循環が起きません。元の <code>utils.py</code> の <code>make_sample</code> の中に import を移したところ、こちらでも動きました。ただし、どのファイルが何に依存しているかが見えにくくなるので、まずは上の「一方通行にする」方法をおすすめします。</li>
+</ul>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ cd alt &amp;&amp; cat shop/utils.py
+def format_price(price):
+    return f"{price:,}円"
+
+
+def make_sample():
+    from shop.models import Item
+
+    return Item("ノート", 1200)
+
+$ cd alt &amp;&amp; python3 main.py
+ペン: 150円
+
+$ cd alt &amp;&amp; python3 -c "from shop.utils import make_sample; print(make_sample().label())"
+ノート: 1,200円</code></pre>
+<ul>
+<li>自分で作ったファイルの名前が、標準ライブラリやインストールしたライブラリと同じ（例: <code>random.py</code>、<code>csv.py</code>）場合も、<code>partially initialized module</code> を含む似たエラーになることがあります。この場合は自分のファイル名を変えてください（この記事では確認していません）。モジュールがどこから探されるかは、公式チュートリアルの「モジュール検索パス」をご確認ください。</li>
+<li>import がどういう順番で実行されるかの詳しい仕組みは、公式ドキュメントの「インポートシステム」に説明があります。</li>
+</ul>
+<p>独学で行き詰まったときに、講座で体系的に学び直したい場合は、オンラインのプログラミングスクールもあります。</p>
+<a href="https://px.a8.net/svt/ejp?a8mat=4BGGBN+16V93U+5IZ2+5YRHE" rel="nofollow">『デイトラ』で仕事につながるWebスキルを身につけよう！</a>
+<img border="0" width="1" height="1" src="https://www11.a8.net/0.gif?a8mat=4BGGBN+16V93U+5IZ2+5YRHE" alt="">
+<h2>まとめ</h2>
+<p><code>ImportError: cannot import name ... from partially initialized module (most likely due to a circular import)</code> は、2つのファイルがお互いを import していて、片方が読み込み途中のまま名前を取り出そうとしたときに出ていました。この環境では、片方にだけ必要だった関数を別のファイルに移して import を一方通行にすると、エラーが消えて正しく動きました。</p>
+<h3>この手順の次に読む記事</h3>
+<ul>
+<li><a href="/h-0902/">Pythonで ModuleNotFoundError: No module named が出たときの原因と直し方（venv）</a></li>
+<li>[Pythonで FileNotFoundError: [Errno 2] No such file or directory が出たときの原因と直し方（相対パスと実行場所）](/h-0009/)</li>
+<li><a href="/h-0006/">Pythonで TypeError: &#x27;NoneType&#x27; object is not subscriptable が出たときの原因と直し方</a></li>
+</ul>
+<h2>出典・参考にした公式ドキュメント</h2>
+<ul>
+<li>Python 言語リファレンス「インポートシステム」: <a href="https://docs.python.org/ja/3/reference/import.html">https://docs.python.org/ja/3/reference/import.html</a></li>
+<li>Python チュートリアル「モジュール」（モジュール検索パス）: <a href="https://docs.python.org/ja/3/tutorial/modules.html">https://docs.python.org/ja/3/tutorial/modules.html</a></li>
+<li>Python よくある質問「プログラミング FAQ」（モジュールで import を使う際の「グッドプラクティス」）: <a href="https://docs.python.org/ja/3/faq/programming.html">https://docs.python.org/ja/3/faq/programming.html</a></li>
+</ul>
+<h2>関連記事</h2><ul class="cards"><li><a href="/h-0902/">Pythonで ModuleNotFoundError: No module named が出たときの原因と直し方（venv）【実行して確認】</a><span class="meta">更新日 2026-11-11</span></li><li><a href="/h-0009/">Pythonで FileNotFoundError: [Errno 2] No such file or directory が出たときの原因と直し方（相対パスと実行場所）【実行して確認】</a><span class="meta">更新日 2026-11-12</span></li><li><a href="/h-0006/">Pythonで TypeError: &#x27;NoneType&#x27; object is not subscriptable が出たときの原因と直し方【実行して確認】</a><span class="meta">更新日 2026-11-09</span></li></ul>
+</main>
+<footer><a href="/p-contact/">お問い合わせについて</a><a href="/p-ad-privacy/">広告の表示とプライバシーポリシー</a><a href="/p-about/">運営者情報とこのサイトの作り方</a><div>© 2026 動かして確かめるプログラミング帳</div></footer>
+</body></html>
