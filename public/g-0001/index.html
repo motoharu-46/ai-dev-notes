@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pythonを独学で業務自動化まで進める順番（実行して確認した手順つき） | 動かして確かめるプログラミング帳</title>
+<meta name="description" content="この記事は 2026年11月14日 時点の情報です。紹介している手順記事は、それぞれの記事に書いた環境で実際に実行して確認しています。">
+<link rel="canonical" href="https://ai-dev-notes.cloud-ruto02.workers.dev/g-0001/">
+<meta property="og:title" content="Pythonを独学で業務自動化まで進める順番（実行して確認した手順つき）"><meta property="og:description" content="この記事は 2026年11月14日 時点の情報です。紹介している手順記事は、それぞれの記事に書いた環境で実際に実行して確認しています。">
+<meta property="og:url" content="https://ai-dev-notes.cloud-ruto02.workers.dev/g-0001/"><meta property="og:site_name" content="動かして確かめるプログラミング帳"><meta property="og:type" content="article">
+<style>
+:root{--bg:#fff;--fg:#1d1d1f;--muted:#6e6e73;--line:#e3e3e8;--accent:#0b62d6;--soft:#f5f6f8}
+@media (prefers-color-scheme:dark){:root{--bg:#161618;--fg:#ececf0;--muted:#a1a1a8;--line:#333338;--accent:#6aa8ff;--soft:#202024}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.85 -apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif}
+a{color:var(--accent)}header,main,footer{max-width:760px;margin:0 auto;padding:0 16px}
+header{padding-top:20px;padding-bottom:12px;border-bottom:1px solid var(--line)}header a{color:var(--fg);text-decoration:none;font-weight:700}
+nav{font-size:14px;margin-top:6px}nav a{margin-right:12px;color:var(--muted)}
+h1{font-size:1.55rem;line-height:1.4;margin:24px 0 8px}h2{font-size:1.25rem;margin-top:2.2em;padding-bottom:4px;border-bottom:2px solid var(--line)}h3{font-size:1.08rem;margin-top:1.8em}
+.meta{color:var(--muted);font-size:13px}.pr-note{color:var(--muted);font-size:12px;margin:4px 0 0}.table-wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px;margin:1em 0}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}th{background:var(--soft)}
+blockquote{margin:1em 0;padding:8px 14px;border-left:4px solid var(--line);color:var(--muted)}
+.cards{list-style:none;padding:0}.cards li{padding:10px 0;border-bottom:1px solid var(--line)}.cards .meta{display:block}
+footer{margin-top:48px;padding-top:16px;padding-bottom:32px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}footer a{color:var(--muted);margin-right:12px}
+img{max-width:100%;height:auto}
+.code-label{font-size:12px;color:var(--muted);margin:1em 0 -6px}pre{background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:12px 14px;overflow-x:auto;font-size:13.5px;line-height:1.6}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em}p code,li code,td code{background:var(--soft);padding:1px 5px;border-radius:4px}
+</style><script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "Pythonを独学で業務自動化まで進める順番（実行して確認した手順つき）", "datePublished": "2026-11-14", "dateModified": "2026-11-14", "mainEntityOfPage": "https://ai-dev-notes.cloud-ruto02.workers.dev/g-0001/"}</script>
+</head><body>
+<header><a href="/">動かして確かめるプログラミング帳</a><nav><a href="/category/howto/">手順・エラー解決</a><a href="/category/guide/">学習ロードマップ</a><a href="/category/tools/">サーバー・ツール</a><a href="/category/school/">スクール</a></nav></header>
+<main>
+<h1>Pythonを独学で業務自動化まで進める順番（実行して確認した手順つき）</h1>
+<p class="pr-note">※本記事はアフィリエイト広告（PR）を含みます。</p>
+<p class="meta">公開日 <time datetime="2026-11-14">2026-11-14</time>　更新日 <time datetime="2026-11-14">2026-11-14</time>　<a href="/category/guide/">学習ロードマップ</a> / <a href="/category/python/">Python</a></p>
+<p>この記事は 2026年11月14日 時点の情報です。紹介している手順記事は、それぞれの記事に書いた環境で実際に実行して確認しています。</p>
+<h2>結論：環境づくり → 文法とエラーの読み方 → ファイル操作 → モジュール分け → pandas → スクリプト化の順に進めます</h2>
+<p>業務自動化で使うPythonは、「決まった場所のファイルを読み、集計や変換をして、別のファイルに書き出す」処理が中心です。そのため、文法をひととおり覚えたら早めにファイルとパスの扱いに進み、そのあとで表データを扱う pandas を学ぶ順番にすると、途中で目的を見失いにくくなります。最初の一歩は、仮想環境（venv）を作ってその中でパッケージを入れられるようにすることです。</p>
+<p>この記事では、学ぶ内容を6つのステップに分け、それぞれで「できるようになること」「つまずきやすい所」「参考になる公式ドキュメント」を並べました。つまずきやすい所には、このサイトで実際にエラーを再現し、直し方を実行して確かめた手順記事をつないでいます。エラーが出たときに、そのステップに戻って読み返す使い方を想定しています。</p>
+<h2>全体の順番</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>ステップ</th><th>できるようになること</th><th>このサイトの手順記事</th></tr></thead><tbody>
+<tr><td>1. 環境を用意する</td><td>venv を作り、その中に pip でパッケージを入れる</td><td><a href="/h-0902/">ModuleNotFoundError（venv）</a>、<a href="/h-0903/">externally-managed-environment</a></td></tr>
+<tr><td>2. 文法とエラー文の読み方</td><td>変数・条件分岐・繰り返し・関数を書き、エラー文から原因の行を探す</td><td><a href="/h-0004/">全角スペースの SyntaxError</a>、<a href="/h-0005/">IndentationError</a>、<a href="/h-0006/">NoneType の TypeError</a></td></tr>
+<tr><td>3. ファイルとパスの扱い</td><td>テキストやCSVを読み書きし、実行場所に左右されないパスを書く</td><td><a href="/h-0009/">FileNotFoundError</a>、<a href="/h-0901/">UnicodeDecodeError（日本語CSV）</a></td></tr>
+<tr><td>4. コードを複数ファイルに分ける</td><td>自分の関数をモジュールにまとめ、import で使い回す</td><td><a href="/h-0010/">循環インポートの ImportError</a></td></tr>
+<tr><td>5. pandas で表データを扱う</td><td>CSVやExcelを読み込み、列の絞り込み・集計・書き出しをする</td><td><a href="/h-0007/">pandas の KeyError</a>、<a href="/h-0008/">SettingWithCopyWarning</a></td></tr>
+<tr><td>6. 業務で回せるスクリプトにする</td><td>引数で入力ファイルを切り替え、決まった手順で何度でも実行できる形にする</td><td>公式ドキュメント（argparse）</td></tr>
+</tbody></table></div>
+<h2>ステップ1：環境を用意する</h2>
+<p>Pythonを入れたら、まず作業用のフォルダごとに仮想環境（venv）を作る方法を覚えます。業務自動化では pandas や Excel を扱うライブラリなど、標準ライブラリ以外のパッケージを使う場面が多く、仮想環境を使うと、プロジェクトごとに入れたパッケージが混ざらずに済みます。</p>
+<p>ここでよく起きるのが、「pip install したのに import できない」という食い違いです。原因の多くは、パッケージを入れた Python と、スクリプトを実行している Python が別物であることです。また Ubuntu 24.04 などでは、仮想環境の外で pip install を実行すると、OSのPythonを守るためにエラーで止められます。どちらも venv を作って有効にし、その中で入れ直すことで解決できることを、手順記事で確かめています。</p>
+<ul>
+<li>つまずきやすい所: <a href="/h-0902/">Pythonで ModuleNotFoundError: No module named が出たときの原因と直し方（venv）</a>、<a href="/h-0903/">pip install で error: externally-managed-environment が出たときの原因と直し方（Ubuntu 24.04）</a></li>
+<li>公式ドキュメント: <a href="https://docs.python.org/ja/3/tutorial/venv.html">https://docs.python.org/ja/3/tutorial/venv.html</a></li>
+</ul>
+<h2>ステップ2：文法とエラー文の読み方</h2>
+<p>変数、リストと辞書、if 文、for 文、関数の定義までを、公式チュートリアルの順に進めます。業務自動化で使う処理の多くは、この範囲の組み合わせで書けます。クラスやデコレーターなどは、必要になった時点で戻ってくれば十分です。</p>
+<p>この段階で身につけておきたいのが、エラー文（トレースバック）の読み方です。最後の行にエラーの種類と説明があり、その少し上に、エラーが起きたファイル名と行番号が出ます。日本語の入力に慣れていると、全角スペースが紛れ込んで SyntaxError になったり、インデントの揃え方で IndentationError になったりします。また、関数が値を返し忘れて None になり、それを添字で読もうとして TypeError になるのも、初めのうちに出会いやすいエラーです。</p>
+<ul>
+<li>つまずきやすい所: <a href="/h-0004/">Pythonで SyntaxError: invalid non-printable character U+3000 が出たときの原因と直し方（全角スペース）</a>、<a href="/h-0005/">Pythonで IndentationError: unexpected indent が出たときの原因と直し方</a>、<a href="/h-0006/">Pythonで TypeError: &#x27;NoneType&#x27; object is not subscriptable が出たときの原因と直し方</a></li>
+<li>公式ドキュメント: <a href="https://docs.python.org/ja/3/tutorial/index.html">https://docs.python.org/ja/3/tutorial/index.html</a> 、<a href="https://docs.python.org/ja/3/tutorial/errors.html">https://docs.python.org/ja/3/tutorial/errors.html</a></li>
+</ul>
+<h2>ステップ3：ファイルとパスの扱い</h2>
+<p>業務自動化の入口は、ファイルを読むことと書くことです。open() でテキストを読み書きする方法と、with 文でファイルを閉じ忘れない書き方を覚えたら、pathlib でパスを組み立てる方法に進みます。</p>
+<p>ここでつまずきやすいのは、「ファイルはあるのに FileNotFoundError になる」場面です。相対パスは、スクリプトの置き場所ではなく、実行したときの作業フォルダを基準に解決されるため、実行する場所を変えただけで見つからなくなります。また、Windows の Excel などで作った日本語のCSVは Shift_JIS 系の文字コードで保存されていることがあり、そのまま読むと UnicodeDecodeError になります。どちらも、このサイトの手順記事で再現と解決を確かめています。</p>
+<ul>
+<li>つまずきやすい所: [Pythonで FileNotFoundError: [Errno 2] No such file or directory が出たときの原因と直し方（相対パスと実行場所）](/h-0009/)、<a href="/h-0901/">Pythonで UnicodeDecodeError: &#x27;utf-8&#x27; codec can&#x27;t decode byte が出たときの原因と直し方（日本語CSV）</a></li>
+<li>公式ドキュメント: <a href="https://docs.python.org/ja/3/tutorial/inputoutput.html">https://docs.python.org/ja/3/tutorial/inputoutput.html</a> 、<a href="https://docs.python.org/ja/3/library/pathlib.html">https://docs.python.org/ja/3/library/pathlib.html</a></li>
+</ul>
+<h2>ステップ4：コードを複数ファイルに分ける</h2>
+<p>処理が増えてくると、1つのファイルに全部を書くと読みにくくなります。よく使う関数を別のファイル（モジュール）に移し、import で呼び出せるようにすると、別の業務のスクリプトでも同じ関数を使い回せます。</p>
+<p>このとき起きやすいのが、ファイルAがファイルBを import し、ファイルBもファイルAを import してしまう循環インポートです。エラー文に partially initialized module と出たら、import の向きが一方通行になっているかを確認します。また、自分で作ったファイルに標準ライブラリやパッケージと同じ名前（たとえば pandas.py）を付けると、そちらが先に読み込まれて思わぬエラーになるので、ファイル名の付け方にも気をつけます。</p>
+<ul>
+<li>つまずきやすい所: <a href="/h-0010/">Pythonで ImportError: cannot import name from partially initialized module（循環インポート）が出たときの原因と直し方</a></li>
+<li>公式ドキュメント: <a href="https://docs.python.org/ja/3/tutorial/modules.html">https://docs.python.org/ja/3/tutorial/modules.html</a></li>
+</ul>
+<h2>ステップ5：pandas で表データを扱う</h2>
+<p>CSVやExcelの集計・変換は、pandas を使うと短いコードで書けます。read_csv で読み込み、列を選び、条件で行を絞り込み、groupby で集計し、to_csv や to_excel で書き出す、という流れが基本形です。ステップ3で扱った文字コードの指定は、pandas の read_csv でも同じように必要になります。</p>
+<p>pandas でつまずきやすいのは、「列はあるはずなのに KeyError になる」場面です。見出しの前後に空白が入っていたり、全角と半角が混ざっていたりすると、見た目は同じでも別の列名として扱われます。また、絞り込んだ結果に値を代入したときに出る SettingWithCopyWarning は、元のデータが変わらないまま処理が進むことがあるので、無視せずに .copy() や .loc を使った書き方に直しておくと安心です。</p>
+<ul>
+<li>つまずきやすい所: <a href="/h-0007/">pandasで KeyError: &#x27;列名&#x27; が出たときの原因と直し方（列は存在するのに）</a>、<a href="/h-0008/">pandasで SettingWithCopyWarning が出たときの原因と消し方（.copy() と .loc）</a></li>
+<li>公式ドキュメント: <a href="https://pandas.pydata.org/docs/getting_started/index.html">https://pandas.pydata.org/docs/getting_started/index.html</a></li>
+</ul>
+<h2>ステップ6：業務で回せるスクリプトにする</h2>
+<p>最後に、書いた処理を「毎回同じ手順で動かせる道具」の形に整えます。入力ファイルや出力先をコードに直接書くのではなく、argparse でコマンドライン引数として受け取るようにすると、対象の月や部署が変わってもコードを書き換えずに実行できます。あわせて、ステップ1で作った venv と、使ったパッケージの一覧（requirements.txt など）を残しておくと、別のパソコンでも同じ環境を作り直せます。</p>
+<p>このステップの手順記事はまだこのサイトにないため、公式ドキュメントへのリンクを置いています。手順記事を公開したら、この表と本文に追加していきます。</p>
+<ul>
+<li>公式ドキュメント: <a href="https://docs.python.org/ja/3/library/argparse.html">https://docs.python.org/ja/3/library/argparse.html</a></li>
+</ul>
+<h2>独学で進めるか、スクールを使うか</h2>
+<p>ここまでの6ステップは、公式チュートリアル・公式ドキュメントと、このサイトの手順記事で独学で進められるように並べています。エラーが出たら、エラー文の最後の行で検索し、該当するステップの手順記事に戻って、原因と直し方を確かめる進め方が基本です。</p>
+<p>一方で、エラー文を読んでも原因の見当がつかないときや、自分の業務にどう当てはめればよいか相談したいときは、質問できる環境があると先に進みやすくなります。その選択肢として、オンラインで学べるプログラミングスクールがあります。このサイトでは各スクールを受講して確かめてはいないため、ここではリンクの紹介にとどめます。コースの内容、料金、質問サポートの条件は、申し込む前に各公式サイトで確認してください。</p>
+<a href="https://px.a8.net/svt/ejp?a8mat=4BGGBN+16V93U+5IZ2+5YRHE" rel="nofollow">『デイトラ』で仕事につながるWebスキルを身につけよう！</a>
+<img border="0" width="1" height="1" src="https://www11.a8.net/0.gif?a8mat=4BGGBN+16V93U+5IZ2+5YRHE" alt="">
+<a href="https://px.a8.net/svt/ejp?a8mat=4BGGBN+13ANH6+4K3S+5ZEMQ" rel="nofollow">質問し放題のオンラインプログラミングスクール｜SkillHacks(スキルハックス) </a>
+<img border="0" width="1" height="1" src="https://www17.a8.net/0.gif?a8mat=4BGGBN+13ANH6+4K3S+5ZEMQ" alt="">
+<h2>まとめ</h2>
+<p>Pythonで業務自動化を目指すなら、環境づくりと文法を済ませたら、早めにファイル操作と pandas に進み、最後に引数で動かせるスクリプトに整える順番がおすすめです。途中でエラーが出たら、そのステップの手順記事に戻って、実行ログと見比べながら原因を確かめてください。このページは、手順記事が増えるたびに表と本文を更新します。</p>
+<h2>出典・参考にした公式ドキュメント</h2>
+<ul>
+<li>Python チュートリアル: <a href="https://docs.python.org/ja/3/tutorial/index.html">https://docs.python.org/ja/3/tutorial/index.html</a></li>
+<li>仮想環境とパッケージ: <a href="https://docs.python.org/ja/3/tutorial/venv.html">https://docs.python.org/ja/3/tutorial/venv.html</a></li>
+<li>エラーと例外: <a href="https://docs.python.org/ja/3/tutorial/errors.html">https://docs.python.org/ja/3/tutorial/errors.html</a></li>
+<li>入力と出力: <a href="https://docs.python.org/ja/3/tutorial/inputoutput.html">https://docs.python.org/ja/3/tutorial/inputoutput.html</a></li>
+<li>pathlib: <a href="https://docs.python.org/ja/3/library/pathlib.html">https://docs.python.org/ja/3/library/pathlib.html</a></li>
+<li>モジュール: <a href="https://docs.python.org/ja/3/tutorial/modules.html">https://docs.python.org/ja/3/tutorial/modules.html</a></li>
+<li>pandas Getting started: <a href="https://pandas.pydata.org/docs/getting_started/index.html">https://pandas.pydata.org/docs/getting_started/index.html</a></li>
+<li>argparse: <a href="https://docs.python.org/ja/3/library/argparse.html">https://docs.python.org/ja/3/library/argparse.html</a></li>
+</ul>
+<h2>関連記事</h2><ul class="cards"><li><a href="/h-0902/">Pythonで ModuleNotFoundError: No module named が出たときの原因と直し方（venv）【実行して確認】</a><span class="meta">更新日 2026-11-11</span></li><li><a href="/h-0009/">Pythonで FileNotFoundError: [Errno 2] No such file or directory が出たときの原因と直し方（相対パスと実行場所）【実行して確認】</a><span class="meta">更新日 2026-11-12</span></li><li><a href="/h-0007/">pandasで KeyError: &#x27;列名&#x27; が出たときの原因と直し方（列は存在するのに）【実行して確認】</a><span class="meta">更新日 2026-11-11</span></li></ul>
+</main>
+<footer><a href="/p-contact/">お問い合わせについて</a><a href="/p-ad-privacy/">広告の表示とプライバシーポリシー</a><a href="/p-about/">運営者情報とこのサイトの作り方</a><div>© 2026 動かして確かめるプログラミング帳</div></footer>
+</body></html>
