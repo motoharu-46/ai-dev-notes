@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-<url><loc>https://ai-dev-notes.cloud-ruto02.workers.dev/</loc><lastmod>2026-11-14</lastmod></url>
+<url><loc>https://ai-dev-notes.cloud-ruto02.workers.dev/</loc><lastmod>2026-11-15</lastmod></url>
+<url><loc>https://ai-dev-notes.cloud-ruto02.workers.dev/g-0002/</loc><lastmod>2026-11-15</lastmod></url>
 <url><loc>https://ai-dev-notes.cloud-ruto02.workers.dev/g-0001/</loc><lastmod>2026-11-14</lastmod></url>
 <url><loc>https://ai-dev-notes.cloud-ruto02.workers.dev/h-0010/</loc><lastmod>2026-11-13</lastmod></url>
 <url><loc>https://ai-dev-notes.cloud-ruto02.workers.dev/h-0009/</loc><lastmod>2026-11-12</lastmod></url>
@@ -18,8 +19,9 @@
 <url><loc>https://ai-dev-notes.cloud-ruto02.workers.dev/h-0901/</loc><lastmod>2026-11-11</lastmod></url>
 <url><loc>https://ai-dev-notes.cloud-ruto02.workers.dev/h-0004/</loc><lastmod>2026-11-11</lastmod></url>
 <url><loc>https://ai-dev-notes.cloud-ruto02.workers.dev/category/howto/</loc><lastmod>2026-11-13</lastmod></url>
-<url><loc>https://ai-dev-notes.cloud-ruto02.workers.dev/category/guide/</loc><lastmod>2026-11-14</lastmod></url>
+<url><loc>https://ai-dev-notes.cloud-ruto02.workers.dev/category/guide/</loc><lastmod>2026-11-15</lastmod></url>
 <url><loc>https://ai-dev-notes.cloud-ruto02.workers.dev/category/python/</loc><lastmod>2026-11-14</lastmod></url>
 <url><loc>https://ai-dev-notes.cloud-ruto02.workers.dev/category/javascript/</loc><lastmod>2026-11-11</lastmod></url>
+<url><loc>https://ai-dev-notes.cloud-ruto02.workers.dev/category/genai/</loc><lastmod>2026-11-15</lastmod></url>
 <url><loc>https://ai-dev-notes.cloud-ruto02.workers.dev/category/devenv/</loc><lastmod>2026-11-07</lastmod></url>
 </urlset>
