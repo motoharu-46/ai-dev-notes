@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pythonで json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0) が出たときの原因と直し方【実行して確認】 | 動かして確かめるプログラミング帳</title>
+<meta name="description" content="この記事の手順は 2026年11月17日 に下記の環境で実際に実行して確認しました。">
+<link rel="canonical" href="https://ai-dev-notes.cloud-ruto02.workers.dev/h-0012/">
+<meta property="og:title" content="Pythonで json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0) が出たときの原因と直し方【実行して確認】"><meta property="og:description" content="この記事の手順は 2026年11月17日 に下記の環境で実際に実行して確認しました。">
+<meta property="og:url" content="https://ai-dev-notes.cloud-ruto02.workers.dev/h-0012/"><meta property="og:site_name" content="動かして確かめるプログラミング帳"><meta property="og:type" content="article">
+<style>
+:root{--bg:#fff;--fg:#1d1d1f;--muted:#6e6e73;--line:#e3e3e8;--accent:#0b62d6;--soft:#f5f6f8}
+@media (prefers-color-scheme:dark){:root{--bg:#161618;--fg:#ececf0;--muted:#a1a1a8;--line:#333338;--accent:#6aa8ff;--soft:#202024}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.85 -apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif}
+a{color:var(--accent)}header,main,footer{max-width:760px;margin:0 auto;padding:0 16px}
+header{padding-top:20px;padding-bottom:12px;border-bottom:1px solid var(--line)}header a{color:var(--fg);text-decoration:none;font-weight:700}
+nav{font-size:14px;margin-top:6px}nav a{margin-right:12px;color:var(--muted)}
+h1{font-size:1.55rem;line-height:1.4;margin:24px 0 8px}h2{font-size:1.25rem;margin-top:2.2em;padding-bottom:4px;border-bottom:2px solid var(--line)}h3{font-size:1.08rem;margin-top:1.8em}
+.meta{color:var(--muted);font-size:13px}.pr-note{color:var(--muted);font-size:12px;margin:4px 0 0}.table-wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px;margin:1em 0}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}th{background:var(--soft)}
+blockquote{margin:1em 0;padding:8px 14px;border-left:4px solid var(--line);color:var(--muted)}
+.cards{list-style:none;padding:0}.cards li{padding:10px 0;border-bottom:1px solid var(--line)}.cards .meta{display:block}
+footer{margin-top:48px;padding-top:16px;padding-bottom:32px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}footer a{color:var(--muted);margin-right:12px}
+img{max-width:100%;height:auto}
+.code-label{font-size:12px;color:var(--muted);margin:1em 0 -6px}pre{background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:12px 14px;overflow-x:auto;font-size:13.5px;line-height:1.6}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em}p code,li code,td code{background:var(--soft);padding:1px 5px;border-radius:4px}
+</style><script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "Pythonで json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0) が出たときの原因と直し方【実行して確認】", "datePublished": "2026-11-17", "dateModified": "2026-11-17", "mainEntityOfPage": "https://ai-dev-notes.cloud-ruto02.workers.dev/h-0012/"}</script>
+</head><body>
+<header><a href="/">動かして確かめるプログラミング帳</a><nav><a href="/category/howto/">手順・エラー解決</a><a href="/category/guide/">学習ロードマップ</a><a href="/category/tools/">サーバー・ツール</a><a href="/category/school/">スクール</a></nav></header>
+<main>
+<h1>Pythonで json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0) が出たときの原因と直し方【実行して確認】</h1>
+<p class="pr-note">※本記事はアフィリエイト広告（PR）を含みます。</p>
+<p class="meta">公開日 <time datetime="2026-11-17">2026-11-17</time>　更新日 <time datetime="2026-11-17">2026-11-17</time>　<a href="/category/howto/">手順・エラー解決</a> / <a href="/category/python/">Python</a></p>
+<p>この記事の手順は 2026年11月17日 に下記の環境で実際に実行して確認しました。</p>
+<h2>結論：読み込もうとした文字列がJSONではない（空、またはHTML）のが原因です。中身を確かめてからJSONとして読むと解決します</h2>
+<p><code>JSONDecodeError: Expecting value: line 1 column 1 (char 0)</code> は、「1行目の1文字目に、JSONの値が来るはずなのに来なかった」という意味です。つまり、渡した文字列が最初の1文字からJSONになっていません。この環境では、よくある2つの場面「JSONファイルが空だった」「APIのつもりで受け取った中身が404エラーのHTMLだった」の両方でこのエラーを再現し、ファイルに正しいJSONを書く、受け取った中身のステータスとContent-Typeを確かめてから読む、という直し方でエラーが消えることを確認しました。</p>
+<pre><code class="language-python">if "application/json" not in content_type:
+    print(f"JSONではありません（Content-Type: {content_type}）")
+    print(text[:100])
+    raise SystemExit(1)
+
+data = json.loads(text)</code></pre>
+<h2>検証環境</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>項目</th><th>バージョン</th></tr></thead><tbody>
+<tr><td>OS</td><td>Ubuntu 24.04.5 LTS</td></tr>
+<tr><td>Python</td><td>Python 3.13.18</td></tr>
+</tbody></table></div>
+<p>お使いの環境（OS・バージョン）が違うと、出力やエラー文が少し変わることがあります。</p>
+<h2>エラーの再現1：設定ファイル（config.json）を読み込むとエラーになる</h2>
+<p>設定を <code>config.json</code> に置いて、<code>json.load()</code> で読み込むだけのスクリプトです。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ cat load_config.py
+import json
+
+with open("config.json", encoding="utf-8") as f:
+    config = json.load(f)
+
+print(config["name"])</code></pre>
+<p>実行すると、次のエラーになりました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ ls -l config.json
+-rw-rw-r-- 1 ubuntu ubuntu 0 Nov 16 23:04 config.json
+
+$ python3 load_config.py
+Traceback (most recent call last):
+  File "/tmp/run-h-0012/load_config.py", line 4, in &lt;module&gt;
+    config = json.load(f)
+  File "/usr/local/lib/python3.13/json/__init__.py", line 298, in load
+    return loads(fp.read(),
+        cls=cls, object_hook=object_hook,
+        parse_float=parse_float, parse_int=parse_int,
+        parse_constant=parse_constant, object_pairs_hook=object_pairs_hook, **kw)
+  File "/usr/local/lib/python3.13/json/__init__.py", line 352, in loads
+    return _default_decoder.decode(s)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "/usr/local/lib/python3.13/json/decoder.py", line 345, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/json/decoder.py", line 363, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)</code></pre>
+<p>エラー文の読み方は次のとおりです。</p>
+<ul>
+<li>トレースバックのうち、自分で書いたファイルは一番上の <code>load_config.py</code>, <code>line 4</code> だけです。その下の <code>json/__init__.py</code> や <code>json/decoder.py</code> はPython本体の中なので、そこを直す必要はありません。</li>
+<li>最後の行の <code>Expecting value</code> は「値（<code>{</code>、<code>[</code>、数字、文字列など）が来るはずだった」、<code>line 1 column 1 (char 0)</code> は「その場所が1行目の1文字目（先頭から0文字目）だった」という意味です。先頭からつまずいているので、中身がまるごとJSONになっていないと考えられます。</li>
+</ul>
+<h2>原因1：ファイルが空（0バイト）だった</h2>
+<p>上の <code>ls -l</code> の結果にあるとおり、<code>config.json</code> のサイズは0でした。文字数を数えても0です。空の文字列はJSONとして正しくないため、先頭の1文字目で <code>Expecting value</code> になります。保存し忘れたファイルや、書き込みの途中で止まったファイルで起きやすい形です。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ wc -c config.json
+0 config.json</code></pre>
+<h2>直し方1：ファイルに正しいJSONを書く</h2>
+<p><code>config.json</code> にJSONを書き込んでから、同じスクリプトをもう一度実行しました。今度はエラーにならず、<code>name</code> の値が表示されました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ cat config.json
+{"name": "山田"}
+
+$ python3 load_config.py
+山田</code></pre>
+<h2>エラーの再現2：APIの応答をjson.loadsするとエラーになる</h2>
+<p>次は、Web APIから受け取った文字列をJSONとして読む場面です。外部のサイトには接続せず、同じパソコンの中（127.0.0.1）にテスト用のサーバーを立てました。<code>/api/user</code> にだけJSONを返し、それ以外のURLには404のHTMLを返します。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ cat server.py
+from http.server import BaseHTTPRequestHandler, HTTPServer
+
+
+class Handler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        if self.path == "/api/user":
+            body = '{"name": "山田", "age": 30}'.encode("utf-8")
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+        else:
+            body = b"&lt;!DOCTYPE html&gt;&lt;html&gt;&lt;body&gt;&lt;h1&gt;404 Not Found&lt;/h1&gt;&lt;/body&gt;&lt;/html&gt;"
+            self.send_response(404)
+            self.send_header("Content-Type", "text/html")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
+    def log_message(self, *args):
+        pass
+
+
+HTTPServer(("127.0.0.1", 8000), Handler).serve_forever()</code></pre>
+<p>このサーバーに対して、受け取った文字列をそのまま <code>json.loads()</code> に渡すクライアントを動かしました。URLは <code>/api/user</code> のつもりで、<code>/api/users</code> と1文字多く書いてしまっています。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ cat client.py
+import json
+import urllib.error
+import urllib.request
+
+url = "http://127.0.0.1:8000/api/users"
+try:
+    with urllib.request.urlopen(url) as resp:
+        text = resp.read().decode("utf-8")
+except urllib.error.HTTPError as e:
+    text = e.read().decode("utf-8")
+
+data = json.loads(text)
+print(data["name"])
+
+$ python3 client.py
+Traceback (most recent call last):
+  File "/tmp/run-h-0012/client.py", line 12, in &lt;module&gt;
+    data = json.loads(text)
+  File "/usr/local/lib/python3.13/json/__init__.py", line 352, in loads
+    return _default_decoder.decode(s)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "/usr/local/lib/python3.13/json/decoder.py", line 345, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/json/decoder.py", line 363, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)</code></pre>
+<p>ファイルのときと同じ <code>Expecting value: line 1 column 1 (char 0)</code> になりました。</p>
+<h2>原因2：受け取った中身がJSONではなく404エラーのHTMLだった</h2>
+<p>何を受け取っていたのかを確かめるため、ステータスコード、Content-Type、本文の先頭60文字を表示するスクリプトを動かしました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ cat debug.py
+import urllib.error
+import urllib.request
+
+url = "http://127.0.0.1:8000/api/users"
+try:
+    resp = urllib.request.urlopen(url)
+except urllib.error.HTTPError as e:
+    resp = e
+
+print("status:", resp.status)
+print("Content-Type:", resp.headers.get("Content-Type"))
+print("body:", repr(resp.read().decode("utf-8")[:60]))
+
+$ python3 debug.py
+status: 404
+Content-Type: text/html
+body: '&lt;!DOCTYPE html&gt;&lt;html&gt;&lt;body&gt;&lt;h1&gt;404 Not Found&lt;/h1&gt;&lt;/body&gt;&lt;/ht'</code></pre>
+<p>ステータスは404、Content-Typeは <code>text/html</code> で、本文は `<!DOCTYPE html><code> から始まるHTMLでした。JSONの先頭に </code>&lt;<code> は来られないため、1文字目で </code>Expecting value<code> になったことが分かります。URLの打ち間違いのほか、サーバー側のエラーページやログイン画面が返ってきたときも同じ形になります。エラーが出たら、まず </code>print(repr(text[:100]))` のように中身の先頭を表示すると、原因の見当がつきます。</p>
+<h2>直し方2：ステータスとContent-Typeを確かめてから読む</h2>
+<p>URLを正しい <code>/api/user</code> に直したうえで、HTTPエラーのときと、Content-TypeがJSONでないときは <code>json.loads()</code> を呼ばずに、分かりやすいメッセージを出して止めるようにしました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ cat client_fixed.py
+import json
+import sys
+import urllib.error
+import urllib.request
+
+url = sys.argv[1] if len(sys.argv) &gt; 1 else "http://127.0.0.1:8000/api/user"
+try:
+    with urllib.request.urlopen(url) as resp:
+        content_type = resp.headers.get("Content-Type", "")
+        text = resp.read().decode("utf-8")
+except urllib.error.HTTPError as e:
+    print(f"HTTPエラー {e.code}: {url}")
+    raise SystemExit(1)
+
+if "application/json" not in content_type:
+    print(f"JSONではありません（Content-Type: {content_type}）")
+    print(text[:100])
+    raise SystemExit(1)
+
+data = json.loads(text)
+print(data["name"])</code></pre>
+<p>正しいURLではJSONを読めて名前が表示され、間違ったURLを渡したときは <code>JSONDecodeError</code> ではなく「HTTPエラー 404」と、何が起きたのかが分かるメッセージで止まりました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ python3 client_fixed.py
+山田
+
+$ python3 client_fixed.py http://127.0.0.1:8000/api/users
+HTTPエラー 404: http://127.0.0.1:8000/api/users</code></pre>
+<h2>うまくいかないとき</h2>
+<ul>
+<li><strong>json.loads() にファイル名を渡していないか</strong>確認してください。<code>json.loads()</code> は「JSONの文字列」を受け取る関数なので、<code>json.loads(&quot;config.json&quot;)</code> と書くと、<code>config.json</code> という文字そのものをJSONとして読もうとして、同じエラーになりました。ファイルから読むときは、<code>open()</code> で開いて <code>json.load()</code>（末尾に s がない方）に渡すと直りました。</li>
+</ul>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ cd alt &amp;&amp; cat wrong_loads.py
+import json
+
+data = json.loads("config.json")
+print(data)
+
+$ cd alt &amp;&amp; python3 wrong_loads.py 2&gt;&amp;1 | tail -n 1
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)</code></pre>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ cd alt &amp;&amp; cat right_load.py
+import json
+
+with open("config.json", encoding="utf-8") as f:
+    data = json.load(f)
+print(data)
+
+$ cd alt &amp;&amp; python3 right_load.py
+{'name': '鈴木'}</code></pre>
+<ul>
+<li><strong>エラー文の場所が line 1 column 1 以外</strong>（例: <code>line 3 column 5</code>）のときは、先頭はJSONとして読めていて、途中に書き方の誤りがあります。表示された行と列の付近を見直してください。JSONの書き方の決まりは、公式ドキュメントの json モジュールのページで確認できます。</li>
+</ul>
+<p>独学で行き詰まったときに、講座で体系的に学び直したい場合は、オンラインのプログラミングスクールもあります。</p>
+<a href="https://px.a8.net/svt/ejp?a8mat=4BGGBN+16V93U+5IZ2+5YRHE" rel="nofollow">『デイトラ』で仕事につながるWebスキルを身につけよう！</a>
+<img border="0" width="1" height="1" src="https://www11.a8.net/0.gif?a8mat=4BGGBN+16V93U+5IZ2+5YRHE" alt="">
+<h2>まとめ</h2>
+<p><code>JSONDecodeError: Expecting value: line 1 column 1 (char 0)</code> は、読み込もうとした中身が先頭からJSONになっていないときに出ていました。この環境では、空のファイル、404エラーのHTML、ファイル名をそのまま <code>json.loads()</code> に渡した場合の3つで再現し、正しいJSONを書く、ステータスとContent-Typeを確かめてから読む、<code>json.load()</code> でファイルを読む、という直し方でそれぞれエラーが消えました。</p>
+<h3>この手順の次に読む記事</h3>
+<ul>
+<li><a href="/g-0001/">Pythonを独学で業務自動化まで進める順番（実行して確認した手順つき）</a></li>
+<li>[Pythonで FileNotFoundError: [Errno 2] No such file or directory が出たときの原因と直し方（相対パスと実行場所）](/h-0009/)</li>
+<li><a href="/h-0901/">Pythonで UnicodeDecodeError: &#x27;utf-8&#x27; codec can&#x27;t decode byte が出たときの原因と直し方（日本語CSV）</a></li>
+</ul>
+<h2>出典・参考にした公式ドキュメント</h2>
+<ul>
+<li>Python 標準ライブラリ「json --- JSON エンコーダおよびデコーダ」: <a href="https://docs.python.org/ja/3/library/json.html">https://docs.python.org/ja/3/library/json.html</a></li>
+<li>Python 標準ライブラリ「urllib.request --- URL を開くための拡張可能なライブラリ」: <a href="https://docs.python.org/ja/3/library/urllib.request.html">https://docs.python.org/ja/3/library/urllib.request.html</a></li>
+<li>Python 標準ライブラリ「http.server --- HTTP サーバー」: <a href="https://docs.python.org/ja/3/library/http.server.html">https://docs.python.org/ja/3/library/http.server.html</a></li>
+</ul>
+<h2>関連記事</h2><ul class="cards"><li><a href="/g-0001/">Pythonを独学で業務自動化まで進める順番（実行して確認した手順つき）</a><span class="meta">更新日 2026-11-14</span></li><li><a href="/h-0009/">Pythonで FileNotFoundError: [Errno 2] No such file or directory が出たときの原因と直し方（相対パスと実行場所）【実行して確認】</a><span class="meta">更新日 2026-11-12</span></li><li><a href="/h-0901/">Pythonで UnicodeDecodeError: &#x27;utf-8&#x27; codec can&#x27;t decode byte が出たときの原因と直し方（日本語CSV）【実行して確認】</a><span class="meta">更新日 2026-11-11</span></li><li><a href="/h-0011/">Pythonで RecursionError: maximum recursion depth exceeded が出たときの原因と直し方【実行して確認】</a><span class="meta">更新日 2026-11-16</span></li></ul>
+</main>
+<footer><a href="/p-contact/">お問い合わせについて</a><a href="/p-ad-privacy/">広告の表示とプライバシーポリシー</a><a href="/p-about/">運営者情報とこのサイトの作り方</a><div>© 2026 動かして確かめるプログラミング帳</div></footer>
+</body></html>
