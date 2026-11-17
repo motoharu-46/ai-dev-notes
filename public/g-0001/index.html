@@ -22,13 +22,13 @@ footer{margin-top:48px;padding-top:16px;padding-bottom:32px;border-top:1px solid
 img{max-width:100%;height:auto}
 .code-label{font-size:12px;color:var(--muted);margin:1em 0 -6px}pre{background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:12px 14px;overflow-x:auto;font-size:13.5px;line-height:1.6}
 code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em}p code,li code,td code{background:var(--soft);padding:1px 5px;border-radius:4px}
-</style><script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "Pythonを独学で業務自動化まで進める順番（実行して確認した手順つき）", "datePublished": "2026-11-14", "dateModified": "2026-11-14", "mainEntityOfPage": "https://ai-dev-notes.cloud-ruto02.workers.dev/g-0001/"}</script>
+</style><script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "Pythonを独学で業務自動化まで進める順番（実行して確認した手順つき）", "datePublished": "2026-11-14", "dateModified": "2026-11-17", "mainEntityOfPage": "https://ai-dev-notes.cloud-ruto02.workers.dev/g-0001/"}</script>
 </head><body>
 <header><a href="/">動かして確かめるプログラミング帳</a><nav><a href="/category/howto/">手順・エラー解決</a><a href="/category/guide/">学習ロードマップ</a><a href="/category/tools/">サーバー・ツール</a><a href="/category/school/">スクール</a></nav></header>
 <main>
 <h1>Pythonを独学で業務自動化まで進める順番（実行して確認した手順つき）</h1>
 <p class="pr-note">※本記事はアフィリエイト広告（PR）を含みます。</p>
-<p class="meta">公開日 <time datetime="2026-11-14">2026-11-14</time>　更新日 <time datetime="2026-11-14">2026-11-14</time>　<a href="/category/guide/">学習ロードマップ</a> / <a href="/category/python/">Python</a></p>
+<p class="meta">公開日 <time datetime="2026-11-14">2026-11-14</time>　更新日 <time datetime="2026-11-17">2026-11-17</time>　<a href="/category/guide/">学習ロードマップ</a> / <a href="/category/python/">Python</a></p>
 <p>この記事は 2026年11月14日 時点の情報です。紹介している手順記事は、それぞれの記事に書いた環境で実際に実行して確認しています。</p>
 <h2>結論：環境づくり → 文法とエラーの読み方 → ファイル操作 → モジュール分け → pandas → スクリプト化の順に進めます</h2>
 <p>業務自動化で使うPythonは、「決まった場所のファイルを読み、集計や変換をして、別のファイルに書き出す」処理が中心です。そのため、文法をひととおり覚えたら早めにファイルとパスの扱いに進み、そのあとで表データを扱う pandas を学ぶ順番にすると、途中で目的を見失いにくくなります。最初の一歩は、仮想環境（venv）を作ってその中でパッケージを入れられるようにすることです。</p>
@@ -86,11 +86,9 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
 </ul>
 <h2>独学で進めるか、スクールを使うか</h2>
 <p>ここまでの6ステップは、公式チュートリアル・公式ドキュメントと、このサイトの手順記事で独学で進められるように並べています。エラーが出たら、エラー文の最後の行で検索し、該当するステップの手順記事に戻って、原因と直し方を確かめる進め方が基本です。</p>
-<p>一方で、エラー文を読んでも原因の見当がつかないときや、自分の業務にどう当てはめればよいか相談したいときは、質問できる環境があると先に進みやすくなります。その選択肢として、オンラインで学べるプログラミングスクールがあります。このサイトでは各スクールを受講して確かめてはいないため、ここではリンクの紹介にとどめます。コースの内容、料金、質問サポートの条件は、申し込む前に各公式サイトで確認してください。</p>
+<p>一方で、エラー文を読んでも原因の見当がつかないときや、自分の業務にどう当てはめればよいか相談したいときは、質問できる環境があると先に進みやすくなります。その選択肢として、オンラインで学べるプログラミングスクールがあります。このサイトではスクールを受講して確かめてはいないため、ここではリンクの紹介にとどめます。コースの内容、料金、質問サポートの条件は、申し込む前に公式サイトで確認してください。</p>
 <a href="https://px.a8.net/svt/ejp?a8mat=4BGGBN+16V93U+5IZ2+5YRHE" rel="nofollow">『デイトラ』で仕事につながるWebスキルを身につけよう！</a>
 <img border="0" width="1" height="1" src="https://www11.a8.net/0.gif?a8mat=4BGGBN+16V93U+5IZ2+5YRHE" alt="">
-<a href="https://px.a8.net/svt/ejp?a8mat=4BGGBN+13ANH6+4K3S+5ZEMQ" rel="nofollow">質問し放題のオンラインプログラミングスクール｜SkillHacks(スキルハックス) </a>
-<img border="0" width="1" height="1" src="https://www17.a8.net/0.gif?a8mat=4BGGBN+13ANH6+4K3S+5ZEMQ" alt="">
 <h2>まとめ</h2>
 <p>Pythonで業務自動化を目指すなら、環境づくりと文法を済ませたら、早めにファイル操作と pandas に進み、最後に引数で動かせるスクリプトに整える順番がおすすめです。途中でエラーが出たら、そのステップの手順記事に戻って、実行ログと見比べながら原因を確かめてください。このページは、手順記事が増えるたびに表と本文を更新します。</p>
 <h2>出典・参考にした公式ドキュメント</h2>
