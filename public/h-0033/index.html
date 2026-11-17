@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>npm install で ERESOLVE unable to resolve dependency tree が出たときの原因と直し方【実行して確認】 | 動かして確かめるプログラミング帳</title>
+<meta name="description" content="この記事の手順は 2026年11月18日 に下記の環境で実際に実行して確認しました。">
+<link rel="canonical" href="https://ai-dev-notes.cloud-ruto02.workers.dev/h-0033/">
+<meta property="og:title" content="npm install で ERESOLVE unable to resolve dependency tree が出たときの原因と直し方【実行して確認】"><meta property="og:description" content="この記事の手順は 2026年11月18日 に下記の環境で実際に実行して確認しました。">
+<meta property="og:url" content="https://ai-dev-notes.cloud-ruto02.workers.dev/h-0033/"><meta property="og:site_name" content="動かして確かめるプログラミング帳"><meta property="og:type" content="article">
+<style>
+:root{--bg:#fff;--fg:#1d1d1f;--muted:#6e6e73;--line:#e3e3e8;--accent:#0b62d6;--soft:#f5f6f8}
+@media (prefers-color-scheme:dark){:root{--bg:#161618;--fg:#ececf0;--muted:#a1a1a8;--line:#333338;--accent:#6aa8ff;--soft:#202024}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.85 -apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif}
+a{color:var(--accent)}header,main,footer{max-width:760px;margin:0 auto;padding:0 16px}
+header{padding-top:20px;padding-bottom:12px;border-bottom:1px solid var(--line)}header a{color:var(--fg);text-decoration:none;font-weight:700}
+nav{font-size:14px;margin-top:6px}nav a{margin-right:12px;color:var(--muted)}
+h1{font-size:1.55rem;line-height:1.4;margin:24px 0 8px}h2{font-size:1.25rem;margin-top:2.2em;padding-bottom:4px;border-bottom:2px solid var(--line)}h3{font-size:1.08rem;margin-top:1.8em}
+.meta{color:var(--muted);font-size:13px}.pr-note{color:var(--muted);font-size:12px;margin:4px 0 0}.table-wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px;margin:1em 0}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}th{background:var(--soft)}
+blockquote{margin:1em 0;padding:8px 14px;border-left:4px solid var(--line);color:var(--muted)}
+.cards{list-style:none;padding:0}.cards li{padding:10px 0;border-bottom:1px solid var(--line)}.cards .meta{display:block}
+footer{margin-top:48px;padding-top:16px;padding-bottom:32px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}footer a{color:var(--muted);margin-right:12px}
+img{max-width:100%;height:auto}
+.code-label{font-size:12px;color:var(--muted);margin:1em 0 -6px}pre{background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:12px 14px;overflow-x:auto;font-size:13.5px;line-height:1.6}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em}p code,li code,td code{background:var(--soft);padding:1px 5px;border-radius:4px}
+</style><script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "npm install で ERESOLVE unable to resolve dependency tree が出たときの原因と直し方【実行して確認】", "datePublished": "2026-11-18", "dateModified": "2026-11-18", "mainEntityOfPage": "https://ai-dev-notes.cloud-ruto02.workers.dev/h-0033/"}</script>
+</head><body>
+<header><a href="/">動かして確かめるプログラミング帳</a><nav><a href="/category/howto/">手順・エラー解決</a><a href="/category/guide/">学習ロードマップ</a><a href="/category/tools/">サーバー・ツール</a><a href="/category/school/">スクール</a></nav></header>
+<main>
+<h1>npm install で ERESOLVE unable to resolve dependency tree が出たときの原因と直し方【実行して確認】</h1>
+<p class="pr-note">※本記事はアフィリエイト広告（PR）を含みます。</p>
+<p class="meta">公開日 <time datetime="2026-11-18">2026-11-18</time>　更新日 <time datetime="2026-11-18">2026-11-18</time>　<a href="/category/howto/">手順・エラー解決</a> / <a href="/category/javascript/">JavaScript</a></p>
+<p>この記事の手順は 2026年11月18日 に下記の環境で実際に実行して確認しました。</p>
+<h2>結論：パッケージ同士が求めるバージョンが食い違っています。相手が求めるバージョンにそろえると解決します</h2>
+<p><code>npm error code ERESOLVE</code> と <code>unable to resolve dependency tree</code> は、「あるパッケージが一緒に使う相手（peer dependency）として求めるバージョン」と、実際に入れようとしているバージョンが合わないときに出ます。この環境では、react 18 と react-dom 17 を同時に入れようとしてこのエラーを再現し、react-dom を react と同じ 18 系にそろえることでインストールが通り、プログラムも動くことを確認しました。古い npm（バージョン 6〜9 ごろ）では、同じエラーが <code>npm ERR! code ERESOLVE</code> と表示されます。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ npm install react-dom@^18.3.1
+
+added 5 packages, and audited 6 packages in 637ms
+
+found 0 vulnerabilities</code></pre>
+<h2>検証環境</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>項目</th><th>バージョン</th></tr></thead><tbody>
+<tr><td>OS</td><td>Ubuntu 24.04.5 LTS</td></tr>
+<tr><td>Node.js</td><td>Node.js v22.23.5</td></tr>
+<tr><td>npm</td><td>npm 10.9.9</td></tr>
+</tbody></table></div>
+<p>お使いの環境（OS・バージョン）が違うと、出力やエラー文が少し変わることがあります。</p>
+<h2>エラーの再現：react だけ 18 に上げたプロジェクトで npm install する</h2>
+<p>React のプロジェクトで、<code>react</code> だけを新しいバージョンに書き換え、<code>react-dom</code> を古いままにした、という場面を想定しました。package.json は次のとおりです。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ cat package.json
+{
+  "name": "myapp",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^17.0.2"
+  }
+}</code></pre>
+<p>この状態で <code>npm install</code> を実行すると、次のエラーになりました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ npm install
+npm error code ERESOLVE
+npm error ERESOLVE unable to resolve dependency tree
+npm error
+npm error While resolving: myapp@1.0.0
+npm error Found: react@18.3.1
+npm error node_modules/react
+npm error   react@"^18.3.1" from the root project
+npm error
+npm error Could not resolve dependency:
+npm error peer react@"17.0.2" from react-dom@17.0.2
+npm error node_modules/react-dom
+npm error   react-dom@"^17.0.2" from the root project
+npm error
+npm error Fix the upstream dependency conflict, or retry
+npm error this command with --force or --legacy-peer-deps
+npm error to accept an incorrect (and potentially broken) dependency resolution.
+npm error
+npm error
+npm error For a full report see:
+npm error /tmp/run-h-0033/.npm/_logs/2026-11-17T21_49_03_058Z-eresolve-report.txt
+npm error A complete log of this run can be found in: /tmp/run-h-0033/.npm/_logs/2026-11-17T21_49_03_058Z-debug-0.log
+
+$ ls
+package.json</code></pre>
+<p>エラーのあとに <code>ls</code> を実行すると package.json しかなく、node_modules は作られていませんでした。npm は食い違いを見つけた時点で、何もインストールせずに止まっています。</p>
+<p>エラー文は長いですが、読むところは2か所です。</p>
+<ul>
+<li><code>Found: react@18.3.1</code>：プロジェクトに入ろうとしている react は 18.3.1 です。</li>
+<li><code>Could not resolve dependency:</code> の次の行 <code>peer react@&quot;17.0.2&quot; from react-dom@17.0.2</code>：react-dom 17.0.2 は「一緒に使う react は 17.0.2 でなければならない」と求めています。</li>
+</ul>
+<p>つまり「react は 18 なのに、react-dom は react 17 を求めている」という食い違いです。自分のプロジェクトでエラーが出たときも、<code>Found:</code> の行と <code>peer ... from ...</code> の行を見比べると、どのパッケージ同士がぶつかっているかが分かります。</p>
+<h2>原因：react-dom 17 が react 17 を相手に指定している（peerDependencies）</h2>
+<p>パッケージは、自分と一緒に使う相手のパッケージとそのバージョンを <code>peerDependencies</code> として package.json に書いています。npm 7 以降は、この指定に合わないとインストールを止めるようになりました。それぞれのバージョンが何を求めているかは、<code>npm view</code> で確かめられます。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ npm view react-dom@17.0.2 peerDependencies
+{ react: '17.0.2' }
+
+$ npm view react-dom@18.3.1 peerDependencies
+{ react: '^18.3.1' }</code></pre>
+<p>react-dom 17.0.2 は react 17.0.2 だけ、react-dom 18.3.1 は react 18.3.1 以上の 18 系を求めていることが分かりました。react 18 と一緒に使えるのは react-dom 18 系です。</p>
+<h2>直し方：react-dom を react と同じ 18 系にそろえる</h2>
+<p>求められているバージョンに合わせて、react-dom を 18 系で入れ直しました。<code>npm install パッケージ名@バージョン</code> で入れると、package.json の指定も自動で書き換わります。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ npm install react-dom@^18.3.1
+
+added 5 packages, and audited 6 packages in 637ms
+
+found 0 vulnerabilities
+
+$ cat package.json
+{
+  "name": "myapp",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  }
+}</code></pre>
+<p>エラーにならずにインストールが終わり、package.json の react-dom が <code>^18.3.1</code> に変わりました。入ったバージョンの組み合わせは <code>npm ls</code> で確かめられます。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ npm ls react react-dom
+myapp@1.0.0 /tmp/run-h-0033/myapp
+├─┬ react-dom@18.3.1
+│ └── react@18.3.1 deduped
+└── react@18.3.1</code></pre>
+<p>react-dom 18.3.1 が react 18.3.1 を使っていて、<code>invalid</code> などの警告はありません。最後に、react と react-dom を読み込んで HTML を1行作るだけの小さなプログラムを動かし、実際に使えることを確認しました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ cat index.js
+const React = require("react");
+const { renderToString } = require("react-dom/server");
+
+const html = renderToString(React.createElement("h1", null, "Hello"));
+console.log(html);
+console.log("react:", React.version);
+
+$ node index.js
+&lt;h1&gt;Hello&lt;/h1&gt;
+react: 18.3.1</code></pre>
+<h2>うまくいかないとき</h2>
+<ul>
+<li><strong>エラー文が勧める --legacy-peer-deps について</strong>：エラー文には「--force か --legacy-peer-deps を付けて再実行すれば通る」と書かれています。同じ package.json（react 18・react-dom 17）で <code>npm install --legacy-peer-deps</code> を実行したところ、インストール自体は終わりました。ただし、そのあと <code>npm ls</code> で確かめると、react に <code>invalid</code> の印が付き、<code>npm error code ELSPROBLEMS</code> が出ました。食い違いが直ったわけではなく、チェックを外して入れただけです。エラー文にもあるとおり、壊れた組み合わせになることがあるため、まずはバージョンをそろえる方法を試してください。</li>
+</ul>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ npm install --legacy-peer-deps
+
+added 6 packages, and audited 7 packages in 564ms
+
+found 0 vulnerabilities
+
+$ npm ls react react-dom
+alt@1.0.0 /tmp/run-h-0033/alt
+├─┬ react-dom@17.0.2
+│ └── react@18.3.1 deduped invalid: "17.0.2" from node_modules/react-dom
+└── react@18.3.1 invalid: "17.0.2" from node_modules/react-dom
+
+npm error code ELSPROBLEMS
+npm error invalid: react@18.3.1 /tmp/run-h-0033/alt/node_modules/react</code></pre>
+<ul>
+<li><strong>ぶつかっている相手が react 以外のとき</strong>：考え方は同じです。エラー文の <code>peer ○○@&quot;バージョン&quot; from △△@バージョン</code> から、△△ が求める ○○ のバージョンを読み取り、<code>npm view △△ peerDependencies</code> で新しいバージョンの △△ が何を求めているかを確かめて、どちらかにそろえてください。この環境で確かめたのは react と react-dom の組み合わせだけです。オプションの詳しい意味は、公式ドキュメントの npm install のページで確認できます。</li>
+</ul>
+<p>独学で行き詰まったときに、講座で体系的に学び直したい場合は、オンラインのプログラミングスクールもあります。</p>
+<a href="https://px.a8.net/svt/ejp?a8mat=4BGGBN+16V93U+5IZ2+5YRHE" rel="nofollow">『デイトラ』で仕事につながるWebスキルを身につけよう！</a>
+<img border="0" width="1" height="1" src="https://www11.a8.net/0.gif?a8mat=4BGGBN+16V93U+5IZ2+5YRHE" alt="">
+<h2>まとめ</h2>
+<p><code>npm error code ERESOLVE</code>（<code>unable to resolve dependency tree</code>）は、パッケージが求める相手のバージョン（peerDependencies）と、実際に入れようとしたバージョンが食い違っているときに出ていました。この環境では、react 18 と react-dom 17 の組み合わせで再現し、エラー文の <code>Found:</code> と <code>peer ... from ...</code> の行から食い違いを読み取って、react-dom を 18 系にそろえることでインストールが通り、プログラムも動きました。</p>
+<h3>この手順の次に読む記事</h3>
+<ul>
+<li><a href="/g-0002/">AI時代にプログラミングを独学するなら何から始めるか（実行して確認した手順つき）</a></li>
+<li><a href="/h-0905/">Node.jsで SyntaxError: Cannot use import statement outside a module が出たときの原因と直し方</a></li>
+</ul>
+<h2>出典・参考にした公式ドキュメント</h2>
+<ul>
+<li>npm Docs「npm install」: <a href="https://docs.npmjs.com/cli/v10/commands/npm-install">https://docs.npmjs.com/cli/v10/commands/npm-install</a></li>
+<li>npm Docs「package.json」（peerDependencies）: <a href="https://docs.npmjs.com/cli/v10/configuring-npm/package-json">https://docs.npmjs.com/cli/v10/configuring-npm/package-json</a></li>
+<li>npm Docs「npm ls」: <a href="https://docs.npmjs.com/cli/v10/commands/npm-ls">https://docs.npmjs.com/cli/v10/commands/npm-ls</a></li>
+<li>npm Docs「npm view」: <a href="https://docs.npmjs.com/cli/v10/commands/npm-view">https://docs.npmjs.com/cli/v10/commands/npm-view</a></li>
+</ul>
+<h2>関連記事</h2><ul class="cards"><li><a href="/g-0002/">AI時代にプログラミングを独学するなら何から始めるか（実行して確認した手順つき）</a><span class="meta">更新日 2026-11-15</span></li><li><a href="/h-0905/">Node.jsで SyntaxError: Cannot use import statement outside a module が出たときの原因と直し方【実行して確認】</a><span class="meta">更新日 2026-11-11</span></li></ul>
+</main>
+<footer><a href="/p-contact/">お問い合わせについて</a><a href="/p-ad-privacy/">広告の表示とプライバシーポリシー</a><a href="/p-about/">運営者情報とこのサイトの作り方</a><div>© 2026 動かして確かめるプログラミング帳</div></footer>
+</body></html>
