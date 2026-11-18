@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>npm install -g で EACCES: permission denied が出たときの原因と直し方【実行して確認】 | 動かして確かめるプログラミング帳</title>
+<meta name="description" content="この記事の手順は 2026年11月19日 に下記の環境で実際に実行して確認しました。">
+<link rel="canonical" href="https://ai-dev-notes.cloud-ruto02.workers.dev/h-0034/">
+<meta property="og:title" content="npm install -g で EACCES: permission denied が出たときの原因と直し方【実行して確認】"><meta property="og:description" content="この記事の手順は 2026年11月19日 に下記の環境で実際に実行して確認しました。">
+<meta property="og:url" content="https://ai-dev-notes.cloud-ruto02.workers.dev/h-0034/"><meta property="og:site_name" content="動かして確かめるプログラミング帳"><meta property="og:type" content="article">
+<style>
+:root{--bg:#fff;--fg:#1d1d1f;--muted:#6e6e73;--line:#e3e3e8;--accent:#0b62d6;--soft:#f5f6f8}
+@media (prefers-color-scheme:dark){:root{--bg:#161618;--fg:#ececf0;--muted:#a1a1a8;--line:#333338;--accent:#6aa8ff;--soft:#202024}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.85 -apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif}
+a{color:var(--accent)}header,main,footer{max-width:760px;margin:0 auto;padding:0 16px}
+header{padding-top:20px;padding-bottom:12px;border-bottom:1px solid var(--line)}header a{color:var(--fg);text-decoration:none;font-weight:700}
+nav{font-size:14px;margin-top:6px}nav a{margin-right:12px;color:var(--muted)}
+h1{font-size:1.55rem;line-height:1.4;margin:24px 0 8px}h2{font-size:1.25rem;margin-top:2.2em;padding-bottom:4px;border-bottom:2px solid var(--line)}h3{font-size:1.08rem;margin-top:1.8em}
+.meta{color:var(--muted);font-size:13px}.pr-note{color:var(--muted);font-size:12px;margin:4px 0 0}.table-wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px;margin:1em 0}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}th{background:var(--soft)}
+blockquote{margin:1em 0;padding:8px 14px;border-left:4px solid var(--line);color:var(--muted)}
+.cards{list-style:none;padding:0}.cards li{padding:10px 0;border-bottom:1px solid var(--line)}.cards .meta{display:block}
+footer{margin-top:48px;padding-top:16px;padding-bottom:32px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}footer a{color:var(--muted);margin-right:12px}
+img{max-width:100%;height:auto}
+.code-label{font-size:12px;color:var(--muted);margin:1em 0 -6px}pre{background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:12px 14px;overflow-x:auto;font-size:13.5px;line-height:1.6}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em}p code,li code,td code{background:var(--soft);padding:1px 5px;border-radius:4px}
+</style><script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "npm install -g で EACCES: permission denied が出たときの原因と直し方【実行して確認】", "datePublished": "2026-11-19", "dateModified": "2026-11-19", "mainEntityOfPage": "https://ai-dev-notes.cloud-ruto02.workers.dev/h-0034/"}</script>
+</head><body>
+<header><a href="/">動かして確かめるプログラミング帳</a><nav><a href="/category/howto/">手順・エラー解決</a><a href="/category/guide/">学習ロードマップ</a><a href="/category/tools/">サーバー・ツール</a><a href="/category/school/">スクール</a></nav></header>
+<main>
+<h1>npm install -g で EACCES: permission denied が出たときの原因と直し方【実行して確認】</h1>
+<p class="pr-note">※本記事はアフィリエイト広告（PR）を含みます。</p>
+<p class="meta">公開日 <time datetime="2026-11-19">2026-11-19</time>　更新日 <time datetime="2026-11-19">2026-11-19</time>　<a href="/category/howto/">手順・エラー解決</a> / <a href="/category/javascript/">JavaScript</a></p>
+<p>この記事の手順は 2026年11月19日 に下記の環境で実際に実行して確認しました。</p>
+<h2>結論：グローバルの置き場所に書き込む権限がありません。置き場所を自分のホームの下に変えると解決します</h2>
+<p><code>npm error code EACCES</code> と <code>permission denied</code> は、<code>npm install -g</code>（グローバルインストール）の置き場所が root（管理者）の持ち物で、いまのユーザーに書き込む権限がないときに出ます。この環境では、一般ユーザーで <code>npm install -g cowsay</code> を実行してこのエラーを再現し、npm の公式ドキュメントが案内している方法（グローバルの置き場所をホームの下のフォルダに変えて、PATH に足す）でインストールが通り、コマンドも動くことを確認しました。古い npm では、同じエラーが <code>npm ERR! code EACCES</code> と表示されます。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ mkdir -p ~/.npm-global
+
+$ npm config set prefix ~/.npm-global
+
+$ npm config get prefix
+/tmp/run-h-0034/.npm-global
+
+$ npm install -g cowsay
+
+added 41 packages in 1s</code></pre>
+<h2>検証環境</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>項目</th><th>バージョン</th></tr></thead><tbody>
+<tr><td>OS</td><td>Ubuntu 24.04.5 LTS</td></tr>
+<tr><td>Node.js</td><td>Node.js v22.23.5</td></tr>
+<tr><td>npm</td><td>npm 10.9.9</td></tr>
+</tbody></table></div>
+<p>お使いの環境（OS・バージョン）が違うと、出力やエラー文が少し変わることがあります。この記事では、ホームフォルダの場所が <code>/tmp/run-h-0034</code> になっています。お使いの環境では <code>/home/ユーザー名</code> などに読み替えてください。</p>
+<h2>エラーの再現：一般ユーザーで npm install -g を実行する</h2>
+<p>Node.js を管理者権限で入れたパソコンで、一般ユーザーのままコマンドラインツールをグローバルに入れようとした、という場面を想定しました。例として、文字の吹き出しを表示するだけの小さなツール cowsay を使っています。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ whoami
+ubuntu
+
+$ npm install -g cowsay
+npm error code EACCES
+npm error syscall mkdir
+npm error path /opt/node22/lib/node_modules/cowsay
+npm error errno -13
+npm error Error: EACCES: permission denied, mkdir '/opt/node22/lib/node_modules/cowsay'
+npm error     at async mkdir (node:internal/fs/promises:858:10)
+npm error     at async /opt/node22/lib/node_modules/npm/node_modules/@npmcli/arborist/lib/arborist/reify.js:638:20
+npm error     at async Promise.allSettled (index 0)
+npm error     at async [reifyPackages] (/opt/node22/lib/node_modules/npm/node_modules/@npmcli/arborist/lib/arborist/reify.js:334:11)
+npm error     at async Arborist.reify (/opt/node22/lib/node_modules/npm/node_modules/@npmcli/arborist/lib/arborist/reify.js:149:5)
+npm error     at async Install.exec (/opt/node22/lib/node_modules/npm/lib/commands/install.js:150:5)
+npm error     at async Npm.exec (/opt/node22/lib/node_modules/npm/lib/npm.js:207:9)
+npm error     at async module.exports (/opt/node22/lib/node_modules/npm/lib/cli/entry.js:74:5) {
+npm error   errno: -13,
+npm error   code: 'EACCES',
+npm error   syscall: 'mkdir',
+npm error   path: '/opt/node22/lib/node_modules/cowsay'
+npm error }
+npm error
+npm error The operation was rejected by your operating system.
+npm error It is likely you do not have the permissions to access this file as the current user
+npm error
+npm error If you believe this might be a permissions issue, please double-check the
+npm error permissions of the file and its containing directories, or try running
+npm error the command again as root/Administrator.
+npm notice
+npm notice New major version of npm available! 10.9.9 -&gt; 12.2.3
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.3
+npm notice To update run: npm install -g npm@12.2.3
+npm notice
+npm error A complete log of this run can be found in: /tmp/run-h-0034/.npm/_logs/2026-11-18T21_49_32_494Z-debug-0.log</code></pre>
+<p>エラー文は長いですが、読むところは次の2行です。</p>
+<ul>
+<li><code>Error: EACCES: permission denied, mkdir &#x27;/opt/node22/lib/node_modules/cowsay&#x27;</code>：<code>/opt/node22/lib/node_modules</code> の中に cowsay のフォルダを作ろうとして（mkdir）、権限がないと断られています。</li>
+<li><code>It is likely you do not have the permissions to access this file as the current user</code>：いまのユーザーには、このファイルを扱う権限がなさそうだ、という説明です。</li>
+</ul>
+<p><code>at async ...</code> で始まる行は npm の内部の場所を示しているだけなので、読み飛ばしてかまいません。途中の <code>npm notice</code> は npm の新しいバージョンのお知らせで、このエラーとは関係ありません。お使いの環境では、パスが <code>/usr/local/lib/node_modules</code> や <code>/usr/lib/node_modules</code> になっていることがあります。</p>
+<h2>原因：グローバルの置き場所（prefix）が root の持ち物になっている</h2>
+<p><code>npm install -g</code> で入れたパッケージは、npm の設定 <code>prefix</code> が指すフォルダの下（<code>lib/node_modules</code>）に置かれます。いまの置き場所と、その持ち主を確かめました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ npm config get prefix
+/opt/node22
+
+$ ls -ld /opt/node22/lib/node_modules
+drwxr-xr-x 5 root root 4096 Nov 16 19:05 /opt/node22/lib/node_modules</code></pre>
+<p>置き場所は <code>/opt/node22</code> で、その下の <code>lib/node_modules</code> は持ち主が root、権限が <code>drwxr-xr-x</code> でした。この表示は「持ち主（root）だけが書き込めて、ほかのユーザーは読むことしかできない」という意味です。一般ユーザーの ubuntu には書き込む権限がないため、cowsay のフォルダを作れずにエラーになっていました。</p>
+<p>エラー文の最後には「root として実行し直す」ことも書かれていますが、npm の公式ドキュメントは、このエラーへの対処として置き場所を変える方法か、Node のバージョン管理ツールで入れ直す方法を案内しています。この記事では、置き場所を変える方法を実行しました。</p>
+<h2>直し方：グローバルの置き場所をホームの下に変えて、PATH に足す</h2>
+<p>まず、ホームの下にグローバル用のフォルダ <code>.npm-global</code> を作り、<code>npm config set prefix</code> で置き場所をそこに変えます。この設定はホームの <code>.npmrc</code> に保存されるので、次からも有効です。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ mkdir -p ~/.npm-global
+
+$ npm config set prefix ~/.npm-global
+
+$ npm config get prefix
+/tmp/run-h-0034/.npm-global
+
+$ npm install -g cowsay
+
+added 41 packages in 1s
+
+3 packages are looking for funding
+  run `npm fund` for details</code></pre>
+<p>置き場所がホームの下に変わり、同じ <code>npm install -g cowsay</code> がエラーにならずに終わりました。ただし、この時点ではまだコマンドが見つかりません。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ cowsay hello
+bash: line 1: cowsay: command not found</code></pre>
+<p>コマンドの本体は <code>~/.npm-global/bin</code> に置かれますが、このフォルダがまだ PATH（コマンドを探す場所の一覧）に入っていないためです。<code>~/.bashrc</code> の最後に PATH を足す1行を書き、読み込み直しました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ echo 'export PATH="$HOME/.npm-global/bin:$PATH"' &gt;&gt; ~/.bashrc
+
+$ tail -n 1 ~/.bashrc
+export PATH="$HOME/.npm-global/bin:$PATH"
+
+$ source ~/.bashrc &amp;&amp; which cowsay
+/tmp/run-h-0034/.npm-global/bin/cowsay
+
+$ source ~/.bashrc &amp;&amp; cowsay hello
+ _______
+&lt; hello &gt;
+ -------
+        \   ^__^
+         \  (oo)\_______
+            (__)\       )\/\
+                ||----w |
+                ||     ||</code></pre>
+<p><code>which cowsay</code> で <code>~/.npm-global/bin</code> の下のコマンドが見つかり、cowsay が動きました。最後に、グローバルに入っているパッケージを確かめました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ npm ls -g
+/tmp/run-h-0034/.npm-global/lib
+`-- cowsay@1.6.0</code></pre>
+<p>グローバルの置き場所がホームの下の <code>.npm-global/lib</code> になり、cowsay 1.6.0 がそこに入っていることが分かります。新しく開いたターミナルでは <code>~/.bashrc</code> が自動で読み込まれるので、<code>source</code> を打たなくても使えます（bash の場合）。zsh を使っている場合は、<code>~/.zshrc</code> に同じ1行を書いてください。</p>
+<h2>うまくいかないとき</h2>
+<ul>
+<li><strong>グローバルに入れなくてよい場合</strong>：そのプロジェクトの中だけで使うツールなら、<code>-g</code> を付けずにプロジェクトのフォルダで入れ、<code>npx</code> で動かす方法もあります。プロジェクトの中の <code>node_modules</code> に入るので、置き場所の権限は関係ありません。この環境で、prefix の設定とは別のフォルダで試したところ、エラーなく入り、<code>npx</code> で動きました。</li>
+</ul>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ npm init -y &gt; /dev/null &amp;&amp; npm install cowsay
+
+added 41 packages, and audited 42 packages in 960ms
+
+3 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+
+$ npx cowsay local
+ _______
+&lt; local &gt;
+ -------
+        \   ^__^
+         \  (oo)\_______
+            (__)\       )\/\
+                ||----w |
+                ||     ||</code></pre>
+<ul>
+<li><strong>置き場所を変えたのに command not found のまま</strong>：PATH の1行を書いたファイルが、使っているシェルで読み込まれていない可能性があります。<code>echo $SHELL</code> でシェルを確かめ、そのシェルの設定ファイルに書いてから、ターミナルを開き直してください。</li>
+<li><strong>Node のバージョン管理ツールで入れ直す方法</strong>：npm の公式ドキュメントでは、nvm などのバージョン管理ツールで Node.js を入れ直す方法がいちばんのおすすめとして案内されています。この記事では確かめていないため、手順は公式ドキュメント「Resolving EACCES permissions errors when installing packages globally」をご確認ください。Windows では置き場所の仕組みが違うため、同じ手順にはなりません。</li>
+</ul>
+<p>独学で行き詰まったときに、講座で体系的に学び直したい場合は、オンラインのプログラミングスクールもあります。</p>
+<a href="https://px.a8.net/svt/ejp?a8mat=4BGGBN+16V93U+5IZ2+5YRHE" rel="nofollow">『デイトラ』で仕事につながるWebスキルを身につけよう！</a>
+<img border="0" width="1" height="1" src="https://www11.a8.net/0.gif?a8mat=4BGGBN+16V93U+5IZ2+5YRHE" alt="">
+<h2>まとめ</h2>
+<p><code>npm error code EACCES</code>（<code>permission denied</code>）は、<code>npm install -g</code> の置き場所（prefix）が root の持ち物で、一般ユーザーに書き込む権限がないときに出ていました。この環境では、<code>npm config set prefix ~/.npm-global</code> で置き場所をホームの下に変え、<code>~/.npm-global/bin</code> を PATH に足すことで、インストールが通り、コマンドも動きました。プロジェクトの中だけで使うツールなら、<code>-g</code> を付けずに入れて <code>npx</code> で動かす方法でも、権限のエラーは出ませんでした。</p>
+<h3>この手順の次に読む記事</h3>
+<ul>
+<li><a href="/g-0002/">AI時代にプログラミングを独学するなら何から始めるか（実行して確認した手順つき）</a></li>
+<li><a href="/h-0033/">npm install で ERESOLVE unable to resolve dependency tree が出たときの原因と直し方</a></li>
+<li><a href="/h-0905/">Node.jsで SyntaxError: Cannot use import statement outside a module が出たときの原因と直し方</a></li>
+</ul>
+<h2>出典・参考にした公式ドキュメント</h2>
+<ul>
+<li>npm Docs「Resolving EACCES permissions errors when installing packages globally」: <a href="https://docs.npmjs.com/resolving-eacces-permissions-errors-when-installing-packages-globally">https://docs.npmjs.com/resolving-eacces-permissions-errors-when-installing-packages-globally</a></li>
+<li>npm Docs「npm install」: <a href="https://docs.npmjs.com/cli/v10/commands/npm-install">https://docs.npmjs.com/cli/v10/commands/npm-install</a></li>
+<li>npm Docs「npm config」: <a href="https://docs.npmjs.com/cli/v10/commands/npm-config">https://docs.npmjs.com/cli/v10/commands/npm-config</a></li>
+<li>npm Docs「npx」: <a href="https://docs.npmjs.com/cli/v10/commands/npx">https://docs.npmjs.com/cli/v10/commands/npx</a></li>
+</ul>
+<h2>関連記事</h2><ul class="cards"><li><a href="/g-0002/">AI時代にプログラミングを独学するなら何から始めるか（実行して確認した手順つき）</a><span class="meta">更新日 2026-11-15</span></li><li><a href="/h-0033/">npm install で ERESOLVE unable to resolve dependency tree が出たときの原因と直し方【実行して確認】</a><span class="meta">更新日 2026-11-18</span></li><li><a href="/h-0905/">Node.jsで SyntaxError: Cannot use import statement outside a module が出たときの原因と直し方【実行して確認】</a><span class="meta">更新日 2026-11-11</span></li></ul>
+</main>
+<footer><a href="/p-contact/">お問い合わせについて</a><a href="/p-ad-privacy/">広告の表示とプライバシーポリシー</a><a href="/p-about/">運営者情報とこのサイトの作り方</a><div>© 2026 動かして確かめるプログラミング帳</div></footer>
+</body></html>
