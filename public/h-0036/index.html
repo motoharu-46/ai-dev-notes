@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Node.jsで ReferenceError: require is not defined in ES module scope が出たときの原因と直し方【実行して確認】 | 動かして確かめるプログラミング帳</title>
+<meta name="description" content="この記事の手順は 2026年11月20日 に下記の環境で実際に実行して確認しました。">
+<link rel="canonical" href="https://ai-dev-notes.cloud-ruto02.workers.dev/h-0036/">
+<meta property="og:title" content="Node.jsで ReferenceError: require is not defined in ES module scope が出たときの原因と直し方【実行して確認】"><meta property="og:description" content="この記事の手順は 2026年11月20日 に下記の環境で実際に実行して確認しました。">
+<meta property="og:url" content="https://ai-dev-notes.cloud-ruto02.workers.dev/h-0036/"><meta property="og:site_name" content="動かして確かめるプログラミング帳"><meta property="og:type" content="article">
+<style>
+:root{--bg:#fff;--fg:#1d1d1f;--muted:#6e6e73;--line:#e3e3e8;--accent:#0b62d6;--soft:#f5f6f8}
+@media (prefers-color-scheme:dark){:root{--bg:#161618;--fg:#ececf0;--muted:#a1a1a8;--line:#333338;--accent:#6aa8ff;--soft:#202024}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.85 -apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif}
+a{color:var(--accent)}header,main,footer{max-width:760px;margin:0 auto;padding:0 16px}
+header{padding-top:20px;padding-bottom:12px;border-bottom:1px solid var(--line)}header a{color:var(--fg);text-decoration:none;font-weight:700}
+nav{font-size:14px;margin-top:6px}nav a{margin-right:12px;color:var(--muted)}
+h1{font-size:1.55rem;line-height:1.4;margin:24px 0 8px}h2{font-size:1.25rem;margin-top:2.2em;padding-bottom:4px;border-bottom:2px solid var(--line)}h3{font-size:1.08rem;margin-top:1.8em}
+.meta{color:var(--muted);font-size:13px}.pr-note{color:var(--muted);font-size:12px;margin:4px 0 0}.table-wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px;margin:1em 0}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}th{background:var(--soft)}
+blockquote{margin:1em 0;padding:8px 14px;border-left:4px solid var(--line);color:var(--muted)}
+.cards{list-style:none;padding:0}.cards li{padding:10px 0;border-bottom:1px solid var(--line)}.cards .meta{display:block}
+footer{margin-top:48px;padding-top:16px;padding-bottom:32px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}footer a{color:var(--muted);margin-right:12px}
+img{max-width:100%;height:auto}
+.code-label{font-size:12px;color:var(--muted);margin:1em 0 -6px}pre{background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:12px 14px;overflow-x:auto;font-size:13.5px;line-height:1.6}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em}p code,li code,td code{background:var(--soft);padding:1px 5px;border-radius:4px}
+</style><script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "Node.jsで ReferenceError: require is not defined in ES module scope が出たときの原因と直し方【実行して確認】", "datePublished": "2026-11-20", "dateModified": "2026-11-20", "mainEntityOfPage": "https://ai-dev-notes.cloud-ruto02.workers.dev/h-0036/"}</script>
+</head><body>
+<header><a href="/">動かして確かめるプログラミング帳</a><nav><a href="/category/howto/">手順・エラー解決</a><a href="/category/guide/">学習ロードマップ</a><a href="/category/tools/">サーバー・ツール</a><a href="/category/school/">スクール</a></nav></header>
+<main>
+<h1>Node.jsで ReferenceError: require is not defined in ES module scope が出たときの原因と直し方【実行して確認】</h1>
+<p class="pr-note">※本記事はアフィリエイト広告（PR）を含みます。</p>
+<p class="meta">公開日 <time datetime="2026-11-20">2026-11-20</time>　更新日 <time datetime="2026-11-20">2026-11-20</time>　<a href="/category/howto/">手順・エラー解決</a> / <a href="/category/javascript/">JavaScript</a></p>
+<p>この記事の手順は 2026年11月20日 に下記の環境で実際に実行して確認しました。</p>
+<h2>結論：ES モジュールとして読まれたファイルでは require が使えません。import に書き換えると直ります</h2>
+<p>Node.jsで <code>ReferenceError: require is not defined in ES module scope</code> が出たら、そのファイルは package.json の <code>&quot;type&quot;: &quot;module&quot;</code> によって ES モジュールとして読まれています。<br>
+直し方は、<code>require(...)</code> を <code>import</code> 文に書き換えることです。JSON ファイルは <code>import config from &quot;./config.json&quot; with { type: &quot;json&quot; };</code> の形で読み込めます。<br>
+この環境では、書き換えた後に同じファイルがエラーなく動くことを確認しました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ cat index.js
+import fs from "node:fs";
+import config from "./config.json" with { type: "json" };
+
+const files = fs.readdirSync(".");
+console.log(`${config.appName}（ポート ${config.port}）`);
+console.log(`ファイル数: ${files.length}`);
+
+$ node index.js
+メモ帳（ポート 3000）
+ファイル数: 3</code></pre>
+<h2>検証環境</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>項目</th><th>バージョン</th></tr></thead><tbody>
+<tr><td>OS</td><td>Ubuntu 24.04.5 LTS</td></tr>
+<tr><td>Node.js</td><td>Node.js v22.23.5</td></tr>
+<tr><td>npm</td><td>npm 10.9.9</td></tr>
+</tbody></table></div>
+<p>お使いの環境（OS・バージョン）が違うと、出力やエラー文が少し変わることがあります。</p>
+<h2>エラーの再現：type が module のプロジェクトで require を使う</h2>
+<p>ネットの記事やサンプルからコピーした <code>require</code> のコードを、<code>&quot;type&quot;: &quot;module&quot;</code> が書かれたプロジェクトで動かそうとしたときによく起きます。別の記事の手順で import を使えるように package.json を変えた後、古いファイルで出ることもあります。</p>
+<p>ここでは <code>npm init -y</code> で package.json を作り、"type" を "module" にしました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ npm init -y &gt; /dev/null &amp;&amp; npm pkg set type=module &amp;&amp; npm pkg get type
+"module"</code></pre>
+<p>設定ファイル <code>config.json</code> を読み込んで表示するだけの <code>index.js</code> を用意しました。<code>require</code> で標準モジュールの fs と JSON ファイルを読み込む、よくある書き方です。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ cat config.json
+{
+  "appName": "メモ帳",
+  "port": 3000
+}
+
+$ cat index.js
+const fs = require("node:fs");
+const config = require("./config.json");
+
+const files = fs.readdirSync(".");
+console.log(`${config.appName}（ポート ${config.port}）`);
+console.log(`ファイル数: ${files.length}`);</code></pre>
+<p>実行すると、次のエラーになりました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ node index.js
+file:///tmp/run-h-0036/app/index.js:1
+const fs = require("node:fs");
+           ^
+
+ReferenceError: require is not defined in ES module scope, you can use import instead
+This file is being treated as an ES module because it has a '.js' file extension and '/tmp/run-h-0036/app/package.json' contains "type": "module". To treat it as a CommonJS script, rename it to use the '.cjs' file extension.
+    at file:///tmp/run-h-0036/app/index.js:1:12
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v22.23.5</code></pre>
+<p>要点は <code>ReferenceError:</code> の行とその次の行です。1行目は「ES モジュールの中には require が定義されていない。代わりに import を使える」という意味です。2行目には、なぜ ES モジュールとして読まれたのか（拡張子が <code>.js</code> で、package.json に <code>&quot;type&quot;: &quot;module&quot;</code> があるから）と、もう1つの直し方（拡張子を <code>.cjs</code> にする）が書かれています。<code>^</code> の位置は、1行目の <code>require</code> を指しています。</p>
+<h2>原因：require は CommonJS の書き方で、ES モジュールにはない</h2>
+<p>Node.js には、ファイルの書き方（モジュールの方式）が2種類あります。<code>require</code> と <code>module.exports</code> を使う CommonJS と、<code>import</code> と <code>export</code> を使う ES モジュールです。</p>
+<p>Node.js の公式ドキュメント「Modules: Packages」によると、<code>.js</code> ファイルをどちらの方式で読むかは、一番近い package.json の "type" で決まります。"module" なら ES モジュールとして読みます。そして公式ドキュメント「Modules: ECMAScript modules」には、ES モジュールでは <code>require</code>・<code>exports</code>・<code>module.exports</code> が使えないと書かれています。</p>
+<p>つまり、コードの書き方は CommonJS なのに、ファイルは ES モジュールとして読まれているという食い違いが原因です。コードの中身が間違っているわけではありません。</p>
+<h2>直し方：require を import に書き換える</h2>
+<p>プロジェクトが <code>&quot;type&quot;: &quot;module&quot;</code> で、これからも import を使っていくなら、ファイルの書き方を ES モジュールにそろえます。今回のファイルでは、2行だけ書き換えました。</p>
+<ul>
+<li><code>const fs = require(&quot;node:fs&quot;);</code> → <code>import fs from &quot;node:fs&quot;;</code></li>
+<li><code>const config = require(&quot;./config.json&quot;);</code> → <code>import config from &quot;./config.json&quot; with { type: &quot;json&quot; };</code></li>
+</ul>
+<p>JSON ファイルを import するときは、<code>with { type: &quot;json&quot; }</code> を付けます。付けないと JSON として読み込めません（公式ドキュメント「Modules: ECMAScript modules」の JSON modules の項）。書き換えたファイルを実行しました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ cat index.js
+import fs from "node:fs";
+import config from "./config.json" with { type: "json" };
+
+const files = fs.readdirSync(".");
+console.log(`${config.appName}（ポート ${config.port}）`);
+console.log(`ファイル数: ${files.length}`);
+
+$ node index.js
+メモ帳（ポート 3000）
+ファイル数: 3</code></pre>
+<p>エラーが消え、config.json の中身が表示されました。</p>
+<h2>うまくいかないとき</h2>
+<ul>
+<li><strong>ファイルを書き換えたくない場合は、拡張子を .cjs にします。</strong> エラー文の2行目に書かれていた方法です。拡張子が <code>.cjs</code> のファイルは、package.json の "type" に関係なく CommonJS として読まれます。この環境では、元の require のコードを <code>index.cjs</code> という名前でコピーして実行すると、そのまま動きました。</li>
+</ul>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ cp index.js index.cjs &amp;&amp; node index.cjs
+メモ帳（ポート 3000）
+ファイル数: 4</code></pre>
+<p>（ファイル数が4なのは、コピーした index.cjs の分が増えているためです。）</p>
+<ul>
+<li><strong>ES モジュールのまま、一部だけ require を使いたい場合は createRequire を使います。</strong> <code>node:module</code> の <code>createRequire</code> で require 関数を作ると、ES モジュールの中でも require で読み込めました。</li>
+</ul>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ cat index2.js
+import { createRequire } from "node:module";
+
+const require = createRequire(import.meta.url);
+const config = require("./config.json");
+
+console.log(`${config.appName}（ポート ${config.port}）`);
+
+$ node index2.js
+メモ帳（ポート 3000）</code></pre>
+<ul>
+<li>プロジェクト全体が require で書かれていて、import を使う予定がないなら、package.json の <code>&quot;type&quot;: &quot;module&quot;</code> を外す（または "commonjs" にする）方法もあります。ただし、その場合は import を使っているファイルで逆のエラーが出ます。その直し方は「<a href="/h-0905/">Node.jsで SyntaxError: Cannot use import statement outside a module が出たときの原因と直し方</a>」で確認しています。</li>
+<li>require を import に書き換えた後、<code>__dirname is not defined in ES module scope</code> のように別の名前で同じ種類のエラーが出ることがあります。この記事では実行して確かめていません。ES モジュールでの代わりの書き方は、Node.js 公式ドキュメント「Modules: ECMAScript modules」の「No require, exports, or module.exports」と <code>import.meta</code> の項をご確認ください。</li>
+</ul>
+<p>独学で行き詰まったときに、講座で体系的に学び直したい場合は、オンラインのプログラミングスクールもあります。</p>
+<a href="https://px.a8.net/svt/ejp?a8mat=4BGGBN+16V93U+5IZ2+5YRHE" rel="nofollow">『デイトラ』で仕事につながるWebスキルを身につけよう！</a>
+<img border="0" width="1" height="1" src="https://www11.a8.net/0.gif?a8mat=4BGGBN+16V93U+5IZ2+5YRHE" alt="">
+<h2>まとめ</h2>
+<p><code>ReferenceError: require is not defined in ES module scope</code> は、package.json の <code>&quot;type&quot;: &quot;module&quot;</code> によって ES モジュールとして読まれているファイルで require を使ったときのエラーです。この環境では、require を import に書き換える（JSON は <code>with { type: &quot;json&quot; }</code> を付ける）とエラーが消えました。書き換えたくない場合は、拡張子を <code>.cjs</code> にするか、<code>createRequire</code> を使う方法でも動くことを確認しました。</p>
+<h3>この手順の次に読む記事</h3>
+<ul>
+<li><a href="/g-0002/">AI時代にプログラミングを独学するなら何から始めるか（実行して確認した手順つき）</a></li>
+<li><a href="/h-0905/">Node.jsで SyntaxError: Cannot use import statement outside a module が出たときの原因と直し方【実行して確認】</a></li>
+<li><a href="/h-0033/">npm install で ERESOLVE unable to resolve dependency tree が出たときの原因と直し方【実行して確認】</a></li>
+</ul>
+<h2>出典・参考にした公式ドキュメント</h2>
+<ul>
+<li>Node.js ドキュメント「Modules: ECMAScript modules」: <a href="https://nodejs.org/api/esm.html">https://nodejs.org/api/esm.html</a></li>
+<li>Node.js ドキュメント「Modules: Packages」（"type" フィールド）: <a href="https://nodejs.org/api/packages.html">https://nodejs.org/api/packages.html</a></li>
+<li>Node.js ドキュメント「Modules: node:module API」（createRequire）: <a href="https://nodejs.org/api/module.html">https://nodejs.org/api/module.html</a></li>
+</ul>
+<h2>関連記事</h2><ul class="cards"><li><a href="/g-0002/">AI時代にプログラミングを独学するなら何から始めるか（実行して確認した手順つき）</a><span class="meta">更新日 2026-11-15</span></li><li><a href="/h-0905/">Node.jsで SyntaxError: Cannot use import statement outside a module が出たときの原因と直し方【実行して確認】</a><span class="meta">更新日 2026-11-11</span></li><li><a href="/h-0033/">npm install で ERESOLVE unable to resolve dependency tree が出たときの原因と直し方【実行して確認】</a><span class="meta">更新日 2026-11-18</span></li><li><a href="/h-0034/">npm install -g で EACCES: permission denied が出たときの原因と直し方【実行して確認】</a><span class="meta">更新日 2026-11-19</span></li></ul>
+</main>
+<footer><a href="/p-contact/">お問い合わせについて</a><a href="/p-ad-privacy/">広告の表示とプライバシーポリシー</a><a href="/p-about/">運営者情報とこのサイトの作り方</a><div>© 2026 動かして確かめるプログラミング帳</div></footer>
+</body></html>
