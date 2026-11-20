@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>JavaScriptで TypeError: Cannot read properties of undefined (reading &#x27;xxx&#x27;) が出たときの原因と直し方【実行して確認】 | 動かして確かめるプログラミング帳</title>
+<meta name="description" content="この記事の手順は 2026年11月21日 に下記の環境で実際に実行して確認しました。">
+<link rel="canonical" href="https://ai-dev-notes.cloud-ruto02.workers.dev/h-0037/">
+<meta property="og:title" content="JavaScriptで TypeError: Cannot read properties of undefined (reading &#x27;xxx&#x27;) が出たときの原因と直し方【実行して確認】"><meta property="og:description" content="この記事の手順は 2026年11月21日 に下記の環境で実際に実行して確認しました。">
+<meta property="og:url" content="https://ai-dev-notes.cloud-ruto02.workers.dev/h-0037/"><meta property="og:site_name" content="動かして確かめるプログラミング帳"><meta property="og:type" content="article">
+<style>
+:root{--bg:#fff;--fg:#1d1d1f;--muted:#6e6e73;--line:#e3e3e8;--accent:#0b62d6;--soft:#f5f6f8}
+@media (prefers-color-scheme:dark){:root{--bg:#161618;--fg:#ececf0;--muted:#a1a1a8;--line:#333338;--accent:#6aa8ff;--soft:#202024}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.85 -apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif}
+a{color:var(--accent)}header,main,footer{max-width:760px;margin:0 auto;padding:0 16px}
+header{padding-top:20px;padding-bottom:12px;border-bottom:1px solid var(--line)}header a{color:var(--fg);text-decoration:none;font-weight:700}
+nav{font-size:14px;margin-top:6px}nav a{margin-right:12px;color:var(--muted)}
+h1{font-size:1.55rem;line-height:1.4;margin:24px 0 8px}h2{font-size:1.25rem;margin-top:2.2em;padding-bottom:4px;border-bottom:2px solid var(--line)}h3{font-size:1.08rem;margin-top:1.8em}
+.meta{color:var(--muted);font-size:13px}.pr-note{color:var(--muted);font-size:12px;margin:4px 0 0}.table-wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px;margin:1em 0}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}th{background:var(--soft)}
+blockquote{margin:1em 0;padding:8px 14px;border-left:4px solid var(--line);color:var(--muted)}
+.cards{list-style:none;padding:0}.cards li{padding:10px 0;border-bottom:1px solid var(--line)}.cards .meta{display:block}
+footer{margin-top:48px;padding-top:16px;padding-bottom:32px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}footer a{color:var(--muted);margin-right:12px}
+img{max-width:100%;height:auto}
+.code-label{font-size:12px;color:var(--muted);margin:1em 0 -6px}pre{background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:12px 14px;overflow-x:auto;font-size:13.5px;line-height:1.6}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em}p code,li code,td code{background:var(--soft);padding:1px 5px;border-radius:4px}
+</style><script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "JavaScriptで TypeError: Cannot read properties of undefined (reading 'xxx') が出たときの原因と直し方【実行して確認】", "datePublished": "2026-11-21", "dateModified": "2026-11-21", "mainEntityOfPage": "https://ai-dev-notes.cloud-ruto02.workers.dev/h-0037/"}</script>
+</head><body>
+<header><a href="/">動かして確かめるプログラミング帳</a><nav><a href="/category/howto/">手順・エラー解決</a><a href="/category/guide/">学習ロードマップ</a><a href="/category/tools/">サーバー・ツール</a><a href="/category/school/">スクール</a></nav></header>
+<main>
+<h1>JavaScriptで TypeError: Cannot read properties of undefined (reading &#x27;xxx&#x27;) が出たときの原因と直し方【実行して確認】</h1>
+<p class="pr-note">※本記事はアフィリエイト広告（PR）を含みます。</p>
+<p class="meta">公開日 <time datetime="2026-11-21">2026-11-21</time>　更新日 <time datetime="2026-11-21">2026-11-21</time>　<a href="/category/howto/">手順・エラー解決</a> / <a href="/category/javascript/">JavaScript</a></p>
+<p>この記事の手順は 2026年11月21日 に下記の環境で実際に実行して確認しました。</p>
+<h2>結論：undefined の値からプロパティを読もうとしています。読む前に値があるかを確かめると直ります</h2>
+<p><code>TypeError: Cannot read properties of undefined (reading &#x27;city&#x27;)</code> は、「<code>.city</code> を読もうとした相手が undefined だった」というエラーです。<code>reading</code> の後ろの名前は読もうとしたプロパティで、問題なのはその1つ手前の値です。<br>
+直し方は、手前の値が無い場合を考えて書くことです。オプショナルチェーン <code>?.</code> と <code>??</code> を使うと、<code>user.address?.city ?? &quot;（住所なし）&quot;</code> のように1行で書けます。<br>
+この環境では、書き換えた後にエラーが消え、住所のないデータも最後まで表示されることを確認しました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ cat index.js
+const users = require("./users.json");
+
+for (const user of users) {
+  console.log(`${user.name}: ${user.address?.city ?? "（住所なし）"}`);
+}
+
+$ node index.js
+佐藤: 東京
+鈴木: （住所なし）
+高橋: 大阪</code></pre>
+<h2>検証環境</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>項目</th><th>バージョン</th></tr></thead><tbody>
+<tr><td>OS</td><td>Ubuntu 24.04.5 LTS</td></tr>
+<tr><td>Node.js</td><td>Node.js v22.23.5</td></tr>
+</tbody></table></div>
+<p>お使いの環境（OS・バージョン）が違うと、出力やエラー文が少し変わることがあります。ブラウザ（Chrome など）でも同じ文のエラーになります。</p>
+<h2>エラーの再現：一部のデータにだけ項目がない</h2>
+<p>APIの応答やJSONファイルなど、外から来たデータを順番に表示するときによく起きます。ほとんどのデータには項目があるのに、一部のデータだけ項目が欠けていると、そこで止まります。</p>
+<p>ここでは、3人分のユーザーデータ <code>users.json</code> を用意しました。2人目の「鈴木」にだけ <code>address</code> がありません。これを読み込んで、名前と住所の市区町村を表示する <code>index.js</code> を書きました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ cat users.json
+[
+  { "name": "佐藤", "address": { "city": "東京" } },
+  { "name": "鈴木" },
+  { "name": "高橋", "address": { "city": "大阪" } }
+]
+
+$ cat index.js
+const users = require("./users.json");
+
+for (const user of users) {
+  console.log(`${user.name}: ${user.address.city}`);
+}</code></pre>
+<p>実行すると、1人目は表示されたあと、次のエラーで止まりました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ node index.js
+佐藤: 東京
+/tmp/run-h-0037/app/index.js:4
+  console.log(`${user.name}: ${user.address.city}`);
+                                            ^
+
+TypeError: Cannot read properties of undefined (reading 'city')
+    at Object.&lt;anonymous&gt; (/tmp/run-h-0037/app/index.js:4:45)
+    at Module._compile (node:internal/modules/cjs/loader:1781:14)
+    at Object..js (node:internal/modules/cjs/loader:1913:10)
+    at Module.load (node:internal/modules/cjs/loader:1505:32)
+    at Function._load (node:internal/modules/cjs/loader:1309:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:171:5)
+    at node:internal/main/run_main_module:36:49
+
+Node.js v22.23.5</code></pre>
+<p>エラー文の読み方は次のとおりです。</p>
+<ul>
+<li>1行目の <code>index.js:4</code> は、エラーが起きたファイルと行番号です。その下にその行のコードが表示され、<code>^</code> が問題の位置（<code>.city</code> の直前）を指しています。</li>
+<li><code>TypeError: Cannot read properties of undefined (reading &#x27;city&#x27;)</code> が本体です。「undefined のプロパティは読めない（読もうとしたのは city）」という意味です。</li>
+<li>`at Object.<anonymous> (...index.js:4:45)<code> の数字は「4行目の45文字目」です。その下の </code>node:internal/...` の行は Node.js 内部の呼び出しなので、読まなくてかまいません。</li>
+</ul>
+<p>ここで勘違いしやすいのは、<code>city</code> が無いのではない点です。<code>city</code> を読もうとした相手、つまり <code>user.address</code> が undefined になっています。</p>
+<h2>原因：手前の値（user.address）が undefined になっている</h2>
+<p>本当に <code>user.address</code> が undefined なのかを確かめるため、2人目のデータとその <code>address</code> を表示しました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ node -e "const users = require(\"./users.json\"); console.log(users[1]); console.log(users[1].address);"
+{ name: '鈴木' }
+undefined</code></pre>
+<p>2人目のデータには <code>name</code> しかなく、<code>address</code> を読むと undefined になりました。JavaScriptでは、オブジェクトにないプロパティを読んでもエラーにはならず、undefined が返ります。ところが、その undefined からさらに <code>.city</code> を読もうとすると、MDN の「TypeError: "x" has no properties」の解説にあるとおり、TypeError になります。</p>
+<p>まとめると、<code>a.b.c</code> の形で <code>c</code> を読むときにこのエラーが出たら、<code>a.b</code> が undefined です。エラーの <code>reading</code> に出ている名前の1つ手前を調べてください。</p>
+<h2>直し方：?. と ?? で、値が無い場合を書いておく</h2>
+<p>住所が無いデータもあり得るなら、それを前提に書きます。オプショナルチェーン <code>?.</code> は、手前の値が undefined（または null）のときに、エラーにせず undefined を返す書き方です。さらに <code>??</code>（Null 合体演算子）を付けると、undefined のときに代わりの値を出せます。4行目だけ書き換えました。</p>
+<ul>
+<li><code>user.address.city</code> → <code>user.address?.city ?? &quot;（住所なし）&quot;</code></li>
+</ul>
+<p>書き換えたファイルを実行しました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ cat index.js
+const users = require("./users.json");
+
+for (const user of users) {
+  console.log(`${user.name}: ${user.address?.city ?? "（住所なし）"}`);
+}
+
+$ node index.js
+佐藤: 東京
+鈴木: （住所なし）
+高橋: 大阪</code></pre>
+<p>エラーが消え、住所のない「鈴木」も含めて3人とも表示されました。</p>
+<p>なお、<code>?.</code> を付ける場所は「undefined になり得る値」の直後です。今回は <code>user.address</code> が無いことがあるので <code>address?.</code> としました。全部の <code>.</code> に付けると、本来あるはずのデータが欠けていても気づけなくなるので、必要なところだけに付けるのがおすすめです。</p>
+<h2>うまくいかないとき</h2>
+<ul>
+<li><strong>配列の範囲の外を読んでいることもあります。</strong> for 文の条件を <code>&lt;=</code> にすると、最後に1つ多く回って、存在しない要素（undefined）を読みます。この環境で、<code>i &lt;= users.length</code> と書いたファイルを実行すると、3人表示したあとに <code>(reading &#x27;name&#x27;)</code> のエラーになりました。</li>
+</ul>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ cat loop.js
+const users = require("./users.json");
+
+for (let i = 0; i &lt;= users.length; i++) {
+  console.log(users[i].name);
+}
+
+$ node loop.js
+佐藤
+鈴木
+高橋
+/tmp/run-h-0037/app/loop.js:4
+  console.log(users[i].name);
+                       ^
+
+TypeError: Cannot read properties of undefined (reading 'name')
+    at Object.&lt;anonymous&gt; (/tmp/run-h-0037/app/loop.js:4:24)
+    at Module._compile (node:internal/modules/cjs/loader:1781:14)
+    at Object..js (node:internal/modules/cjs/loader:1913:10)
+    at Module.load (node:internal/modules/cjs/loader:1505:32)
+    at Function._load (node:internal/modules/cjs/loader:1309:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:171:5)
+    at node:internal/main/run_main_module:36:49
+
+Node.js v22.23.5</code></pre>
+<p>配列の番号は0から始まるので、要素が3つなら最後の番号は2です。条件を <code>i &lt; users.length</code> に直すと、エラーなく3人表示されました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ cat loop.js
+const users = require("./users.json");
+
+for (let i = 0; i &lt; users.length; i++) {
+  console.log(users[i].name);
+}
+
+$ node loop.js
+佐藤
+鈴木
+高橋</code></pre>
+<ul>
+<li>エラー文が <code>Cannot read properties of null</code> の場合も、考え方は同じです（読もうとした相手が null）。ブラウザで <code>document.querySelector()</code> の結果に対して起きることが多いですが、この記事ではブラウザでは実行して確かめていません。<code>?.</code> の動きは MDN の「オプショナルチェーン (?.)」をご確認ください。</li>
+<li><code>fetch</code> などで取ったデータで起きる場合は、受け取ったデータの形が思っていたものと違うことが多いです。まず <code>console.log()</code> でデータ全体を表示し、どの階層が undefined なのかを確かめてください。</li>
+</ul>
+<p>独学で行き詰まったときに、講座で体系的に学び直したい場合は、オンラインのプログラミングスクールもあります。</p>
+<a href="https://px.a8.net/svt/ejp?a8mat=4BGGBN+16V93U+5IZ2+5YRHE" rel="nofollow">『デイトラ』で仕事につながるWebスキルを身につけよう！</a>
+<img border="0" width="1" height="1" src="https://www11.a8.net/0.gif?a8mat=4BGGBN+16V93U+5IZ2+5YRHE" alt="">
+<h2>まとめ</h2>
+<p><code>TypeError: Cannot read properties of undefined (reading &#x27;xxx&#x27;)</code> は、<code>xxx</code> を読もうとした相手（その1つ手前の値）が undefined のときに出るエラーです。この環境では、データの一部に <code>address</code> が無いことが原因で、<code>user.address?.city ?? &quot;（住所なし）&quot;</code> と書き換えるとエラーが消えました。for 文の <code>&lt;=</code> で配列の外を読んでいる場合は、<code>&lt;</code> に直すと直ることも確認しました。</p>
+<h3>この手順の次に読む記事</h3>
+<ul>
+<li><a href="/g-0002/">AI時代にプログラミングを独学するなら何から始めるか（実行して確認した手順つき）</a></li>
+<li><a href="/h-0036/">Node.jsで ReferenceError: require is not defined in ES module scope が出たときの原因と直し方【実行して確認】</a></li>
+<li><a href="/h-0905/">Node.jsで SyntaxError: Cannot use import statement outside a module が出たときの原因と直し方【実行して確認】</a></li>
+</ul>
+<h2>出典・参考にした公式ドキュメント</h2>
+<ul>
+<li>MDN Web Docs「TypeError: "x" has no properties」: <a href="https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Errors/Cant_access_property">https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Errors/Cant_access_property</a></li>
+<li>MDN Web Docs「オプショナルチェーン (?.)」: <a href="https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Operators/Optional_chaining">https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Operators/Optional_chaining</a></li>
+<li>MDN Web Docs「Null 合体演算子 (??)」: <a href="https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Operators/Nullish_coalescing">https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Operators/Nullish_coalescing</a></li>
+</ul>
+<h2>関連記事</h2><ul class="cards"><li><a href="/g-0002/">AI時代にプログラミングを独学するなら何から始めるか（実行して確認した手順つき）</a><span class="meta">更新日 2026-11-15</span></li><li><a href="/h-0036/">Node.jsで ReferenceError: require is not defined in ES module scope が出たときの原因と直し方【実行して確認】</a><span class="meta">更新日 2026-11-20</span></li><li><a href="/h-0905/">Node.jsで SyntaxError: Cannot use import statement outside a module が出たときの原因と直し方【実行して確認】</a><span class="meta">更新日 2026-11-11</span></li><li><a href="/h-0034/">npm install -g で EACCES: permission denied が出たときの原因と直し方【実行して確認】</a><span class="meta">更新日 2026-11-19</span></li></ul>
+</main>
+<footer><a href="/p-contact/">お問い合わせについて</a><a href="/p-ad-privacy/">広告の表示とプライバシーポリシー</a><a href="/p-about/">運営者情報とこのサイトの作り方</a><div>© 2026 動かして確かめるプログラミング帳</div></footer>
+</body></html>
