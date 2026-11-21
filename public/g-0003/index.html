@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Web制作を独学で進める順番：HTML・CSS・JavaScriptから公開まで（実行して確認した手順つき） | 動かして確かめるプログラミング帳</title>
+<meta name="description" content="この記事は 2026年11月22日 時点の情報です。紹介している手順記事は、それぞれの記事に書いた環境で実際に実行して確認しています。">
+<link rel="canonical" href="https://ai-dev-notes.cloud-ruto02.workers.dev/g-0003/">
+<meta property="og:title" content="Web制作を独学で進める順番：HTML・CSS・JavaScriptから公開まで（実行して確認した手順つき）"><meta property="og:description" content="この記事は 2026年11月22日 時点の情報です。紹介している手順記事は、それぞれの記事に書いた環境で実際に実行して確認しています。">
+<meta property="og:url" content="https://ai-dev-notes.cloud-ruto02.workers.dev/g-0003/"><meta property="og:site_name" content="動かして確かめるプログラミング帳"><meta property="og:type" content="article">
+<style>
+:root{--bg:#fff;--fg:#1d1d1f;--muted:#6e6e73;--line:#e3e3e8;--accent:#0b62d6;--soft:#f5f6f8}
+@media (prefers-color-scheme:dark){:root{--bg:#161618;--fg:#ececf0;--muted:#a1a1a8;--line:#333338;--accent:#6aa8ff;--soft:#202024}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.85 -apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif}
+a{color:var(--accent)}header,main,footer{max-width:760px;margin:0 auto;padding:0 16px}
+header{padding-top:20px;padding-bottom:12px;border-bottom:1px solid var(--line)}header a{color:var(--fg);text-decoration:none;font-weight:700}
+nav{font-size:14px;margin-top:6px}nav a{margin-right:12px;color:var(--muted)}
+h1{font-size:1.55rem;line-height:1.4;margin:24px 0 8px}h2{font-size:1.25rem;margin-top:2.2em;padding-bottom:4px;border-bottom:2px solid var(--line)}h3{font-size:1.08rem;margin-top:1.8em}
+.meta{color:var(--muted);font-size:13px}.pr-note{color:var(--muted);font-size:12px;margin:4px 0 0}.table-wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px;margin:1em 0}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}th{background:var(--soft)}
+blockquote{margin:1em 0;padding:8px 14px;border-left:4px solid var(--line);color:var(--muted)}
+.cards{list-style:none;padding:0}.cards li{padding:10px 0;border-bottom:1px solid var(--line)}.cards .meta{display:block}
+footer{margin-top:48px;padding-top:16px;padding-bottom:32px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}footer a{color:var(--muted);margin-right:12px}
+img{max-width:100%;height:auto}
+.code-label{font-size:12px;color:var(--muted);margin:1em 0 -6px}pre{background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:12px 14px;overflow-x:auto;font-size:13.5px;line-height:1.6}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em}p code,li code,td code{background:var(--soft);padding:1px 5px;border-radius:4px}
+</style><script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "Web制作を独学で進める順番：HTML・CSS・JavaScriptから公開まで（実行して確認した手順つき）", "datePublished": "2026-11-22", "dateModified": "2026-11-22", "mainEntityOfPage": "https://ai-dev-notes.cloud-ruto02.workers.dev/g-0003/"}</script>
+</head><body>
+<header><a href="/">動かして確かめるプログラミング帳</a><nav><a href="/category/howto/">手順・エラー解決</a><a href="/category/guide/">学習ロードマップ</a><a href="/category/tools/">サーバー・ツール</a><a href="/category/school/">スクール</a></nav></header>
+<main>
+<h1>Web制作を独学で進める順番：HTML・CSS・JavaScriptから公開まで（実行して確認した手順つき）</h1>
+<p class="pr-note">※本記事はアフィリエイト広告（PR）を含みます。</p>
+<p class="meta">公開日 <time datetime="2026-11-22">2026-11-22</time>　更新日 <time datetime="2026-11-22">2026-11-22</time>　<a href="/category/guide/">学習ロードマップ</a> / <a href="/category/web/">Web制作</a></p>
+<p>この記事は 2026年11月22日 時点の情報です。紹介している手順記事は、それぞれの記事に書いた環境で実際に実行して確認しています。</p>
+<h2>結論：HTML → CSS → JavaScript の順に1枚のページを作り、そのあと Node.js と npm、Git へ進みます</h2>
+<p>Web制作の独学は、HTMLで中身の構造を書き、CSSで見た目と配置を整え、JavaScriptで動きを付ける、という順番で進めるのが基本です。3つを別々に学ぶよりも、自分で決めた1枚のページ（自己紹介ページや、好きなお店の紹介ページなど）を少しずつ育てながら学ぶほうが、何のための知識なのかが分かりやすくなります。</p>
+<p>ページが形になったら、Node.js と npm を使った開発の道具に進み、最後に Git で変更を記録して、公開できる状態にします。この記事では全体を5つのステップに分け、各ステップで「できるようになること」「つまずきやすい所」「このサイトの手順記事」を並べました。手順記事がまだない段階は、公式のドキュメント（MDN Web Docs など）にリンクしています。</p>
+<h2>全体の順番</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>ステップ</th><th>できるようになること</th><th>このサイトの手順記事</th></tr></thead><tbody>
+<tr><td>1. HTMLでページの構造を書く</td><td>見出し・段落・リンク・画像・リストを正しいタグで書ける</td><td>公式チュートリアル（MDN Web Docs）</td></tr>
+<tr><td>2. CSSで見た目と配置を整える</td><td>色や余白を指定し、Flexbox や Grid で要素を並べられる</td><td>公式チュートリアル（MDN Web Docs）</td></tr>
+<tr><td>3. JavaScriptでページに動きを付ける</td><td>ボタンを押したときに表示を切り替えるなど、ページを操作できる</td><td><a href="/h-0037/">Cannot read properties of undefined</a></td></tr>
+<tr><td>4. Node.js と npm で開発の道具を使う</td><td>パッケージを入れて、開発用のコマンドを動かせる</td><td><a href="/h-0033/">ERESOLVE</a>、<a href="/h-0034/">EACCES</a>、<a href="/h-0905/">import の SyntaxError</a>、<a href="/h-0036/">require is not defined</a></td></tr>
+<tr><td>5. Git で記録し、公開できる状態にする</td><td>変更を commit で残し、リモートのリポジトリと同期できる</td><td><a href="/h-0904/">unrelated histories</a></td></tr>
+</tbody></table></div>
+<h2>ステップ1：HTMLでページの構造を書く</h2>
+<p>HTMLは、ページの中身が「見出しなのか」「段落なのか」「リンクなのか」を、タグで表すための言語です。最初は、テキストエディタで <code>index.html</code> という名前のファイルを作り、ブラウザで開いて表示を確かめる、という往復を繰り返します。特別な道具は必要なく、ブラウザとエディタがあれば始められます。</p>
+<p>この段階でつまずきやすいのは、見た目を整えるためにタグを選んでしまうことです。たとえば文字を大きくしたいだけなのに見出しのタグを使うと、検索エンジンや読み上げソフトにとって分かりにくいページになります。見た目はステップ2のCSSに任せ、HTMLでは「意味に合ったタグを選ぶ」ことに集中すると、後の作業がずっと楽になります。閉じタグの書き忘れや、画像のファイル名とパスの食い違いもよくある原因です。表示が崩れたら、ブラウザの開発者ツールで、要素が思った場所に入っているかを確かめる習慣をつけましょう。</p>
+<ul>
+<li>つまずきやすい所: 閉じタグの書き忘れ、画像やリンクのパスの間違い、見た目のためのタグ選び</li>
+<li>公式ドキュメント: <a href="https://developer.mozilla.org/ja/docs/Web/HTML">https://developer.mozilla.org/ja/docs/Web/HTML</a> 、<a href="https://developer.mozilla.org/ja/docs/Learn_web_development">https://developer.mozilla.org/ja/docs/Learn_web_development</a></li>
+</ul>
+<h2>ステップ2：CSSで見た目と配置を整える</h2>
+<p>CSSは、HTMLで書いた要素に色・文字の大きさ・余白・配置を指定するための言語です。最初は文字の色や背景色、余白（margin と padding）の違いを確かめるところから始め、慣れてきたら Flexbox と Grid を使って要素を横に並べたり、画面の幅に合わせて並び方を変えたりする方法に進みます。</p>
+<p>CSSで多くの人が迷うのは、「指定したのに反映されない」場面です。原因は、セレクタの書き間違い、同じ要素に別の指定が後から上書きしている、親要素の設定が影響している、などさまざまです。ここでも開発者ツールが役に立ちます。要素を選ぶと、どの指定が効いていて、どれが打ち消されているかが一覧で表示されるので、当てずっぽうに書き足す前に、まずそこを見るようにします。スマートフォンでの見え方も、開発者ツールの表示幅の切り替えで確かめられます。</p>
+<ul>
+<li>つまずきやすい所: 指定の上書き（詳細度と書く順番）、margin と padding の違い、Flexbox と Grid の使い分け</li>
+<li>公式ドキュメント: <a href="https://developer.mozilla.org/ja/docs/Web/CSS">https://developer.mozilla.org/ja/docs/Web/CSS</a></li>
+</ul>
+<h2>ステップ3：JavaScriptでページに動きを付ける</h2>
+<p>JavaScriptは、ページを読み込んだあとに表示を変えたり、ボタンのクリックや入力に反応したりするための言語です。まずは、ボタンを押したらメニューを開く、入力した文字を画面に表示する、といった小さな動きを、ステップ1と2で作ったページに1つずつ足していきます。HTMLの要素を JavaScript から取り出して書き換える操作（DOM 操作）が、Web制作でのJavaScriptの中心になります。</p>
+<p>この段階でよく出会うのが、<code>TypeError: Cannot read properties of undefined</code> というエラーです。取り出したつもりの要素やデータが実際には存在せず、undefined のまま中身を読もうとしたときに起きます。このサイトの手順記事では、このエラーをわざと起こし、どの値が undefined になっているかを確かめてから直す手順を、実際に実行して確認しています。エラーが出たら、ブラウザの開発者ツールのコンソールで、エラー文と行番号を読むことから始めましょう。</p>
+<ul>
+<li>つまずきやすい所: <a href="/h-0037/">JavaScriptで TypeError: Cannot read properties of undefined (reading &#x27;xxx&#x27;) が出たときの原因と直し方</a></li>
+<li>公式ドキュメント: <a href="https://developer.mozilla.org/ja/docs/Web/JavaScript">https://developer.mozilla.org/ja/docs/Web/JavaScript</a></li>
+</ul>
+<h2>ステップ4：Node.js と npm で開発の道具を使う</h2>
+<p>ページ作りに慣れてくると、ライブラリを使ったり、ファイルをまとめて変換したり、開発用のサーバーで変更をすぐに確かめたりしたくなります。そのときに使うのが、ブラウザの外で JavaScript を動かす Node.js と、パッケージを管理する npm です。<code>npm install</code> でパッケージを入れ、<code>package.json</code> に書かれたコマンドを <code>npm run</code> で動かす、という流れを覚えるのがこのステップの目標です。</p>
+<p>ここでは、HTMLやCSSとは違う種類のエラーが増えます。パッケージ同士の求めるバージョンが合わずに <code>npm install</code> が ERESOLVE で止まる、<code>npm install -g</code> が権限不足の EACCES で止まる、といったものです。また JavaScript には、ファイルの読み込み方に <code>import</code> と <code>require</code> の2つの書き方があり、設定と書き方が合っていないと SyntaxError や ReferenceError になります。どれも、このサイトの手順記事でエラーを再現し、直ることを確かめています。</p>
+<ul>
+<li>つまずきやすい所: <a href="/h-0033/">npm install で ERESOLVE unable to resolve dependency tree が出たときの原因と直し方</a>、<a href="/h-0034/">npm install -g で EACCES: permission denied が出たときの原因と直し方</a>、<a href="/h-0905/">Node.jsで SyntaxError: Cannot use import statement outside a module が出たときの原因と直し方</a>、<a href="/h-0036/">Node.jsで ReferenceError: require is not defined in ES module scope が出たときの原因と直し方</a></li>
+<li>公式ドキュメント: <a href="https://nodejs.org/en/learn/getting-started/introduction-to-nodejs">https://nodejs.org/en/learn/getting-started/introduction-to-nodejs</a> 、<a href="https://docs.npmjs.com/about-npm">https://docs.npmjs.com/about-npm</a></li>
+</ul>
+<h2>ステップ5：Git で記録し、公開できる状態にする</h2>
+<p>作ったページを人に見てもらうには、ファイルをサーバーに置いて公開する必要があります。その前に身につけておきたいのが Git です。Git で変更を記録しておけば、表示が崩れたときに動いていた時点へ戻れますし、GitHub などのリモートのリポジトリにファイルを置けば、そこから公開する仕組みにもつなげられます。最初は、作業フォルダで <code>git init</code> を実行し、区切りのよいところで commit する、という最小限の使い方で十分です。</p>
+<p>手元とリモートでそれぞれ別に履歴を作ってしまうと、<code>git pull</code> が refusing to merge unrelated histories で止まることがあります。このエラーが出る仕組みと直し方も、手順記事で再現して確かめています。</p>
+<ul>
+<li>つまずきやすい所: <a href="/h-0904/">git pull で fatal: refusing to merge unrelated histories が出たときの原因と直し方</a></li>
+<li>公式ドキュメント: <a href="https://git-scm.com/book/ja/v2">https://git-scm.com/book/ja/v2</a></li>
+</ul>
+<h2>独学で進めるか、スクールを使うか</h2>
+<p>Web制作は、ブラウザとエディタがあれば始められ、公式のドキュメントも充実しているため、この記事の5つのステップは独学でも進められるように並べています。つまずいたときは、エラー文と開発者ツールの表示を手がかりに、このサイトの手順記事や公式ドキュメントで確かめてください。</p>
+<p>一方で、デザインの細かな崩れや、自分のコードのどこが問題なのかを、人に見てもらって質問したい場面もあります。そうした環境がほしい場合は、Web制作を学べるオンラインのスクールも選択肢になります。このサイトではスクールを受講して確かめてはいないため、ここではリンクの紹介にとどめます。学べる内容や質問の受け付け方、料金などの条件は、申し込む前に公式サイトで確認してください。</p>
+<a href="https://px.a8.net/svt/ejp?a8mat=4BGGBN+16V93U+5IZ2+5YRHE" rel="nofollow">『デイトラ』で仕事につながるWebスキルを身につけよう！</a>
+<img border="0" width="1" height="1" src="https://www11.a8.net/0.gif?a8mat=4BGGBN+16V93U+5IZ2+5YRHE" alt="">
+<h2>まとめ</h2>
+<p>Web制作の独学は、HTMLでページの構造を書き、CSSで見た目を整え、JavaScriptで動きを付ける順に、1枚のページを育てながら進めるのがおすすめです。そのあと Node.js と npm で開発の道具を使えるようにし、Git で変更を記録すれば、公開に向けた準備が整います。このページは、Web制作の手順記事が増えるたびに表と本文を更新します。</p>
+<h2>出典・参考にした公式ドキュメント</h2>
+<ul>
+<li>MDN Web Docs ウェブ開発を学ぶ: <a href="https://developer.mozilla.org/ja/docs/Learn_web_development">https://developer.mozilla.org/ja/docs/Learn_web_development</a></li>
+<li>MDN Web Docs HTML: <a href="https://developer.mozilla.org/ja/docs/Web/HTML">https://developer.mozilla.org/ja/docs/Web/HTML</a></li>
+<li>MDN Web Docs CSS: <a href="https://developer.mozilla.org/ja/docs/Web/CSS">https://developer.mozilla.org/ja/docs/Web/CSS</a></li>
+<li>MDN Web Docs JavaScript: <a href="https://developer.mozilla.org/ja/docs/Web/JavaScript">https://developer.mozilla.org/ja/docs/Web/JavaScript</a></li>
+<li>Node.js Introduction to Node.js: <a href="https://nodejs.org/en/learn/getting-started/introduction-to-nodejs">https://nodejs.org/en/learn/getting-started/introduction-to-nodejs</a></li>
+<li>npm Docs About npm: <a href="https://docs.npmjs.com/about-npm">https://docs.npmjs.com/about-npm</a></li>
+<li>Pro Git（日本語版）: <a href="https://git-scm.com/book/ja/v2">https://git-scm.com/book/ja/v2</a></li>
+</ul>
+<h2>関連記事</h2><ul class="cards"><li><a href="/h-0037/">JavaScriptで TypeError: Cannot read properties of undefined (reading &#x27;xxx&#x27;) が出たときの原因と直し方【実行して確認】</a><span class="meta">更新日 2026-11-21</span></li><li><a href="/h-0033/">npm install で ERESOLVE unable to resolve dependency tree が出たときの原因と直し方【実行して確認】</a><span class="meta">更新日 2026-11-18</span></li><li><a href="/h-0904/">git pull で fatal: refusing to merge unrelated histories が出たときの原因と直し方【実行して確認】</a><span class="meta">更新日 2026-11-07</span></li></ul>
+</main>
+<footer><a href="/p-contact/">お問い合わせについて</a><a href="/p-ad-privacy/">広告の表示とプライバシーポリシー</a><a href="/p-about/">運営者情報とこのサイトの作り方</a><div>© 2026 動かして確かめるプログラミング帳</div></footer>
+</body></html>
