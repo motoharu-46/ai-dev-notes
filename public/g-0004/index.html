@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>プログラミングのエラーを自力で解決する調べ方の順番（実行して確認した手順つき） | 動かして確かめるプログラミング帳</title>
+<meta name="description" content="この記事は 2026年11月23日 時点の情報です。紹介している手順記事は、それぞれの記事に書いた環境で実際に実行して確認しています。">
+<link rel="canonical" href="https://ai-dev-notes.cloud-ruto02.workers.dev/g-0004/">
+<meta property="og:title" content="プログラミングのエラーを自力で解決する調べ方の順番（実行して確認した手順つき）"><meta property="og:description" content="この記事は 2026年11月23日 時点の情報です。紹介している手順記事は、それぞれの記事に書いた環境で実際に実行して確認しています。">
+<meta property="og:url" content="https://ai-dev-notes.cloud-ruto02.workers.dev/g-0004/"><meta property="og:site_name" content="動かして確かめるプログラミング帳"><meta property="og:type" content="article">
+<style>
+:root{--bg:#fff;--fg:#1d1d1f;--muted:#6e6e73;--line:#e3e3e8;--accent:#0b62d6;--soft:#f5f6f8}
+@media (prefers-color-scheme:dark){:root{--bg:#161618;--fg:#ececf0;--muted:#a1a1a8;--line:#333338;--accent:#6aa8ff;--soft:#202024}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.85 -apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif}
+a{color:var(--accent)}header,main,footer{max-width:760px;margin:0 auto;padding:0 16px}
+header{padding-top:20px;padding-bottom:12px;border-bottom:1px solid var(--line)}header a{color:var(--fg);text-decoration:none;font-weight:700}
+nav{font-size:14px;margin-top:6px}nav a{margin-right:12px;color:var(--muted)}
+h1{font-size:1.55rem;line-height:1.4;margin:24px 0 8px}h2{font-size:1.25rem;margin-top:2.2em;padding-bottom:4px;border-bottom:2px solid var(--line)}h3{font-size:1.08rem;margin-top:1.8em}
+.meta{color:var(--muted);font-size:13px}.pr-note{color:var(--muted);font-size:12px;margin:4px 0 0}.table-wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px;margin:1em 0}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}th{background:var(--soft)}
+blockquote{margin:1em 0;padding:8px 14px;border-left:4px solid var(--line);color:var(--muted)}
+.cards{list-style:none;padding:0}.cards li{padding:10px 0;border-bottom:1px solid var(--line)}.cards .meta{display:block}
+footer{margin-top:48px;padding-top:16px;padding-bottom:32px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}footer a{color:var(--muted);margin-right:12px}
+img{max-width:100%;height:auto}
+.code-label{font-size:12px;color:var(--muted);margin:1em 0 -6px}pre{background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:12px 14px;overflow-x:auto;font-size:13.5px;line-height:1.6}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em}p code,li code,td code{background:var(--soft);padding:1px 5px;border-radius:4px}
+</style><script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "プログラミングのエラーを自力で解決する調べ方の順番（実行して確認した手順つき）", "datePublished": "2026-11-23", "dateModified": "2026-11-23", "mainEntityOfPage": "https://ai-dev-notes.cloud-ruto02.workers.dev/g-0004/"}</script>
+</head><body>
+<header><a href="/">動かして確かめるプログラミング帳</a><nav><a href="/category/howto/">手順・エラー解決</a><a href="/category/guide/">学習ロードマップ</a><a href="/category/tools/">サーバー・ツール</a><a href="/category/school/">スクール</a></nav></header>
+<main>
+<h1>プログラミングのエラーを自力で解決する調べ方の順番（実行して確認した手順つき）</h1>
+<p class="pr-note">※本記事はアフィリエイト広告（PR）を含みます。</p>
+<p class="meta">公開日 <time datetime="2026-11-23">2026-11-23</time>　更新日 <time datetime="2026-11-23">2026-11-23</time>　<a href="/category/guide/">学習ロードマップ</a> / <a href="/category/devenv/">Git・開発環境</a></p>
+<p>この記事は 2026年11月23日 時点の情報です。紹介している手順記事は、それぞれの記事に書いた環境で実際に実行して確認しています。</p>
+<h2>結論：エラー文の最後の行から読み、原因の行と実行環境を確かめてから、小さく再現して調べます</h2>
+<p>エラーが出たときに、いきなりエラー文を丸ごと検索したり、思いついた書き換えを次々に試したりすると、原因が分からないまま時間だけが過ぎがちです。自力で解決するには、調べる順番を決めておくのが効果的です。このサイトでは、エラー解決の記事を書くたびに、同じ順番でエラーを再現し、直し方を実行して確かめています。</p>
+<p>その順番は、①エラー文の最後の行で「種類」と「説明」を読む、②トレースバックから自分のコードの行を見つける、③どのPythonやNode.jsで、どのフォルダから実行したかを確かめる、④数行のコードで同じエラーを再現する、⑤公式ドキュメントとエラー文で調べる、⑥直ったことを再実行で確かめて記録する、の6つです。最初の一歩は、次にエラーが出たとき、画面のいちばん下の行だけを声に出して読んでみることです。</p>
+<h2>全体の順番</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>ステップ</th><th>できるようになること</th><th>このサイトの手順記事</th></tr></thead><tbody>
+<tr><td>1. エラー文の最後の行を読む</td><td>エラーの種類（SyntaxError、TypeError など）と説明から、何が起きたかの見当をつける</td><td><a href="/h-0004/">全角スペースの SyntaxError</a>、<a href="/h-0006/">NoneType の TypeError</a>、<a href="/h-0037/">Cannot read properties of undefined</a></td></tr>
+<tr><td>2. 原因の行を見つける</td><td>トレースバックの中から自分のファイルと行番号を拾い、その行の値を確かめる</td><td><a href="/h-0005/">IndentationError</a>、<a href="/h-0011/">RecursionError</a>、<a href="/h-0012/">JSONDecodeError</a></td></tr>
+<tr><td>3. 実行環境を確かめる</td><td>どのPython・Node.jsで、どのフォルダから実行したかを確かめ、環境の食い違いを見分ける</td><td><a href="/h-0902/">ModuleNotFoundError（venv）</a>、<a href="/h-0903/">externally-managed-environment</a>、<a href="/h-0009/">FileNotFoundError</a></td></tr>
+<tr><td>4. 小さく再現する</td><td>使い捨てのフォルダで、数行のコードだけで同じエラーを出す</td><td><a href="/h-0010/">循環インポートの ImportError</a>、<a href="/h-0905/">import 文の SyntaxError</a>、<a href="/h-0036/">require is not defined</a></td></tr>
+<tr><td>5. 公式情報で調べる</td><td>エラー文から自分だけの部分を外して検索し、公式ドキュメントで仕様を確かめる</td><td><a href="/h-0901/">UnicodeDecodeError（日本語CSV）</a>、<a href="/h-0007/">pandas の KeyError</a>、<a href="/h-0033/">npm の ERESOLVE</a></td></tr>
+<tr><td>6. 直ったことを確かめて記録する</td><td>同じ手順で再実行して確かめ、Git で動いた状態を残す</td><td><a href="/h-0904/">unrelated histories</a>、<a href="/h-0034/">npm の EACCES</a></td></tr>
+</tbody></table></div>
+<h2>ステップ1：エラー文の最後の行を読む</h2>
+<p>Pythonでエラーが起きると、トレースバックと呼ばれる数行から数十行のメッセージが出ます。長く見えても、いちばん大事なのは最後の行です。そこには <code>TypeError: &#x27;NoneType&#x27; object is not subscriptable</code> のように、コロンの左にエラーの種類、右にその説明が書かれています。種類を見れば、文法の誤り（SyntaxError、IndentationError）なのか、値の型が想定と違う（TypeError）のか、名前が見つからない（NameError、ModuleNotFoundError）のか、といった大まかな分類ができます。</p>
+<p>Node.js（JavaScript）でも考え方は同じで、<code>TypeError: Cannot read properties of undefined (reading &#x27;name&#x27;)</code> のように、種類と説明が1行にまとまって表示されます。説明の中にある <code>&#x27;name&#x27;</code> のような部分は、どのプロパティを読もうとして失敗したかを示す手がかりです。</p>
+<ul>
+<li>つまずきやすい所: 英語の説明を読み飛ばしてしまうことです。知らない単語があっても、エラーの種類の名前だけは公式ドキュメントの例外一覧で引くと、どんな場面で出るエラーかが分かります。</li>
+<li>このサイトの手順記事: <a href="/h-0004/">Pythonで SyntaxError: invalid non-printable character U+3000 が出たときの原因と直し方（全角スペース）</a>、<a href="/h-0006/">Pythonで TypeError: &#x27;NoneType&#x27; object is not subscriptable が出たときの原因と直し方</a>、<a href="/h-0037/">JavaScriptで TypeError: Cannot read properties of undefined (reading &#x27;xxx&#x27;) が出たときの原因と直し方</a></li>
+<li>公式ドキュメント: <a href="https://docs.python.org/ja/3/library/exceptions.html">https://docs.python.org/ja/3/library/exceptions.html</a> 、<a href="https://nodejs.org/api/errors.html">https://nodejs.org/api/errors.html</a></li>
+</ul>
+<h2>ステップ2：原因の行を見つける</h2>
+<p>種類が分かったら、次は「どこで」起きたかです。Pythonのトレースバックは、呼び出しの古い順に <code>File &quot;ファイル名&quot;, line 行番号</code> の形で並び、いちばん下がエラーが実際に起きた場所です。ライブラリの中のファイル名が並んでいることもありますが、まず探すのは自分が書いたファイルの名前が出ている行のうち、いちばん下にあるものです。たいていは、その行に渡した値が原因になっています。</p>
+<p>行が見つかったら、その行で使っている変数の中身を <code>print()</code> で表示して確かめます。たとえば JSONDecodeError なら、読み込もうとした文字列が空だったり、JSONではなくHTMLだったりすることが、表示してみると分かります。RecursionError のように同じ行が何度も繰り返し表示されるトレースバックでは、繰り返しの部分が「終わらない呼び出し」を表しています。</p>
+<ul>
+<li>つまずきやすい所: IndentationError や SyntaxError では、表示された行番号の1行前に原因があることがあります。括弧やクォートの閉じ忘れは、次の行で初めてエラーとして見つかるためです。</li>
+<li>このサイトの手順記事: <a href="/h-0005/">Pythonで IndentationError: unexpected indent が出たときの原因と直し方</a>、<a href="/h-0011/">Pythonで RecursionError: maximum recursion depth exceeded が出たときの原因と直し方</a>、<a href="/h-0012/">Pythonで json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0) が出たときの原因と直し方</a></li>
+<li>公式ドキュメント: <a href="https://docs.python.org/ja/3/tutorial/errors.html">https://docs.python.org/ja/3/tutorial/errors.html</a> 、<a href="https://docs.python.org/ja/3/library/traceback.html">https://docs.python.org/ja/3/library/traceback.html</a></li>
+</ul>
+<h2>ステップ3：実行環境を確かめる</h2>
+<p>コードに間違いが見当たらないのにエラーになるときは、実行している環境を疑います。よくあるのは、パッケージを入れたPythonと、コードを実行しているPythonが別物になっている場合です。<code>python3 --version</code> や <code>which python3</code>、<code>pip list</code> を実行すると、今どのPythonを使い、何が入っているかを確かめられます。仮想環境（venv）を作っているなら、有効にしてから実行しているかも確認します。</p>
+<p>もう1つ多いのが、実行した場所（カレントディレクトリ）の違いです。<code>open(&quot;data.csv&quot;)</code> のような相対パスは、スクリプトの置き場所ではなく、実行したときのフォルダを基準に探されます。Node.js では <code>node --version</code> と <code>npm ls</code> で、使っているバージョンと入っているパッケージを確かめられます。</p>
+<ul>
+<li>つまずきやすい所: 権限のエラーを <code>sudo</code> を付けて押し切ろうとすることです。npm の EACCES や pip の externally-managed-environment は、環境を守るための仕組みが止めているので、仮想環境やユーザー用の置き場所を使う方法で直すほうが安全です。</li>
+<li>このサイトの手順記事: <a href="/h-0902/">Pythonで ModuleNotFoundError: No module named が出たときの原因と直し方（venv）</a>、<a href="/h-0903/">pip install で error: externally-managed-environment が出たときの原因と直し方（Ubuntu 24.04）</a>、[Pythonで FileNotFoundError: [Errno 2] No such file or directory が出たときの原因と直し方（相対パスと実行場所）](/h-0009/)</li>
+<li>公式ドキュメント: <a href="https://docs.python.org/ja/3/tutorial/venv.html">https://docs.python.org/ja/3/tutorial/venv.html</a> 、<a href="https://docs.npmjs.com/cli/v11/commands/npm-ls">https://docs.npmjs.com/cli/v11/commands/npm-ls</a></li>
+</ul>
+<h2>ステップ4：小さく再現する</h2>
+<p>原因の見当がついたら、新しい空のフォルダを作り、エラーに関係する部分だけを数行のコードに書き出して、同じエラーが出るかを試します。これを「最小の再現」と呼びます。元のプログラムでは何十個もの要素が絡み合っていても、数行で同じエラーが出れば、原因はその数行の中にあると絞り込めます。逆に、数行では出ないなら、削った部分のどこかに原因があると分かります。</p>
+<p>このサイトの手順記事も、すべてこのやり方で作っています。使い捨てのフォルダの中だけで、エラーが出る状態をわざと作り、直し方を実行して、エラーが消えたことを実行ログで確かめています。たとえば循環インポートは2つの小さなファイルで、Node.js のモジュール形式のエラーは <code>package.json</code> と1つのファイルで再現できます。小さな再現があれば、人に質問するときにもそのまま見せられます。</p>
+<ul>
+<li>つまずきやすい所: 元のプロジェクトのフォルダで試し続けることです。設定ファイルや入っているパッケージの影響が残るので、まっさらなフォルダで試すと違いがはっきりします。</li>
+<li>このサイトの手順記事: <a href="/h-0010/">Pythonで ImportError: cannot import name from partially initialized module（循環インポート）が出たときの原因と直し方</a>、<a href="/h-0905/">Node.jsで SyntaxError: Cannot use import statement outside a module が出たときの原因と直し方</a>、<a href="/h-0036/">Node.jsで ReferenceError: require is not defined in ES module scope が出たときの原因と直し方</a></li>
+<li>公式ドキュメント: <a href="https://docs.python.org/ja/3/tutorial/modules.html">https://docs.python.org/ja/3/tutorial/modules.html</a> 、<a href="https://nodejs.org/api/esm.html">https://nodejs.org/api/esm.html</a></li>
+</ul>
+<h2>ステップ5：公式情報で調べる</h2>
+<p>検索するときは、エラーの最後の行をそのまま使うのが基本ですが、自分のファイル名、フォルダのパス、変数名、列名のような「自分だけの部分」は外します。たとえば <code>KeyError: &#x27;売上&#x27;</code> なら、<code>pandas KeyError 列名</code> のように、ライブラリ名とエラーの種類を組み合わせると、同じ状況の情報に当たりやすくなります。日本語の文字コードのエラーなら、<code>UnicodeDecodeError cp932</code> のように、エラー文に出ている文字コードの名前を入れます。</p>
+<p>検索で見つけた解決策は、書かれた時期と、使っているバージョンが自分の環境と合っているかを確かめてから試します。ライブラリの仕様はバージョンで変わるため、最終的な根拠は公式ドキュメントに置くのが安全です。npm の ERESOLVE のように、エラー文そのものに「どのパッケージ同士がぶつかっているか」が書かれている場合は、検索の前にその部分を読むと、調べる範囲を絞れます。</p>
+<ul>
+<li>つまずきやすい所: 検索で見つけたオプションを意味を調べずに付けることです。npm の <code>--force</code> のように、エラーを消す代わりに問題を先送りするだけのものもあります。</li>
+<li>このサイトの手順記事: <a href="/h-0901/">Pythonで UnicodeDecodeError: &#x27;utf-8&#x27; codec can&#x27;t decode byte が出たときの原因と直し方（日本語CSV）</a>、<a href="/h-0007/">pandasで KeyError: &#x27;列名&#x27; が出たときの原因と直し方（列は存在するのに）</a>、<a href="/h-0033/">npm install で ERESOLVE unable to resolve dependency tree が出たときの原因と直し方</a></li>
+<li>公式ドキュメント: <a href="https://docs.python.org/ja/3/library/exceptions.html">https://docs.python.org/ja/3/library/exceptions.html</a> 、<a href="https://docs.npmjs.com/cli/v11/commands/npm-ls">https://docs.npmjs.com/cli/v11/commands/npm-ls</a></li>
+</ul>
+<h2>ステップ6：直ったことを確かめて記録する</h2>
+<p>直し方を見つけたら、エラーが出たときと同じ手順でもう一度実行し、エラーが出ないことと、期待した結果が出ることの両方を確かめます。エラーが消えただけで、値が空のまま処理が進んでいる、ということもあるからです。このサイトの記事に「直し方と実行ログ」を載せているのも、エラーが消えたあとの出力まで確かめるためです。</p>
+<p>動く状態に戻ったら、Git で commit しておきます。次に何かを試して動かなくなっても、動いていた時点との違いを <code>git diff</code> で見比べたり、その時点に戻したりできます。直した内容と原因を commit のメッセージに一言書いておくと、同じエラーに再び出会ったときの手がかりになります。</p>
+<ul>
+<li>つまずきやすい所: 複数の直し方を同時に試して、どれが効いたのか分からなくなることです。1つ変えたら1回実行する、を繰り返します。</li>
+<li>このサイトの手順記事: <a href="/h-0904/">git pull で fatal: refusing to merge unrelated histories が出たときの原因と直し方</a>、<a href="/h-0034/">npm install -g で EACCES: permission denied が出たときの原因と直し方</a></li>
+<li>公式ドキュメント: <a href="https://git-scm.com/book/ja/v2">https://git-scm.com/book/ja/v2</a></li>
+</ul>
+<h2>独学で進めるか、スクールを使うか</h2>
+<p>この6つのステップは、公式ドキュメントとこのサイトの手順記事を使えば、独学で身につけられるように並べています。エラーの種類ごとの直し方は、このサイトでも実行して確かめた記事を少しずつ増やしています。</p>
+<p>一方で、ステップ4の小さな再現を作っても原因が分からないときや、自分のコードを人に見てもらいながら調べ方そのものを教わりたいときは、質問できる環境を持つのも1つの方法です。オンラインのプログラミングスクールには、質問を受け付けているところがあります。このサイトではスクールを受講して確かめてはいないため、ここではリンクの紹介にとどめます。学べる内容や質問の受け付け方、料金などの条件は、申し込む前に公式サイトで確認してください。</p>
+<a href="https://px.a8.net/svt/ejp?a8mat=4BGGBN+16V93U+5IZ2+5YRHE" rel="nofollow">『デイトラ』で仕事につながるWebスキルを身につけよう！</a>
+<img border="0" width="1" height="1" src="https://www11.a8.net/0.gif?a8mat=4BGGBN+16V93U+5IZ2+5YRHE" alt="">
+<h2>まとめ</h2>
+<p>エラーを自力で解決するには、エラー文の最後の行を読み、原因の行と実行環境を確かめ、小さく再現してから公式情報で調べ、直ったことを再実行で確かめる、という順番で進めるのがおすすめです。どのステップも、このサイトの手順記事で実際の出力を見ながら練習できます。このページは、手順記事が増えるたびに表と本文を更新します。</p>
+<h2>出典・参考にした公式ドキュメント</h2>
+<ul>
+<li>Python チュートリアル「エラーと例外」: <a href="https://docs.python.org/ja/3/tutorial/errors.html">https://docs.python.org/ja/3/tutorial/errors.html</a></li>
+<li>Python 組み込み例外: <a href="https://docs.python.org/ja/3/library/exceptions.html">https://docs.python.org/ja/3/library/exceptions.html</a></li>
+<li>Python traceback モジュール: <a href="https://docs.python.org/ja/3/library/traceback.html">https://docs.python.org/ja/3/library/traceback.html</a></li>
+<li>Python 仮想環境とパッケージ: <a href="https://docs.python.org/ja/3/tutorial/venv.html">https://docs.python.org/ja/3/tutorial/venv.html</a></li>
+<li>Python モジュール: <a href="https://docs.python.org/ja/3/tutorial/modules.html">https://docs.python.org/ja/3/tutorial/modules.html</a></li>
+<li>Node.js Errors: <a href="https://nodejs.org/api/errors.html">https://nodejs.org/api/errors.html</a></li>
+<li>Node.js ECMAScript modules: <a href="https://nodejs.org/api/esm.html">https://nodejs.org/api/esm.html</a></li>
+<li>npm ls: <a href="https://docs.npmjs.com/cli/v11/commands/npm-ls">https://docs.npmjs.com/cli/v11/commands/npm-ls</a></li>
+<li>Pro Git（日本語版）: <a href="https://git-scm.com/book/ja/v2">https://git-scm.com/book/ja/v2</a></li>
+</ul>
+<h2>関連記事</h2><ul class="cards"><li><a href="/h-0006/">Pythonで TypeError: &#x27;NoneType&#x27; object is not subscriptable が出たときの原因と直し方【実行して確認】</a><span class="meta">更新日 2026-11-18</span></li><li><a href="/h-0902/">Pythonで ModuleNotFoundError: No module named が出たときの原因と直し方（venv）【実行して確認】</a><span class="meta">更新日 2026-11-18</span></li><li><a href="/h-0037/">JavaScriptで TypeError: Cannot read properties of undefined (reading &#x27;xxx&#x27;) が出たときの原因と直し方【実行して確認】</a><span class="meta">更新日 2026-11-21</span></li></ul>
+</main>
+<footer><a href="/p-contact/">お問い合わせについて</a><a href="/p-ad-privacy/">広告の表示とプライバシーポリシー</a><a href="/p-about/">運営者情報とこのサイトの作り方</a><div>© 2026 動かして確かめるプログラミング帳</div></footer>
+</body></html>
