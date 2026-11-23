@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Node.jsで Error: listen EADDRINUSE: address already in use が出たときの原因と直し方【実行して確認】 | 動かして確かめるプログラミング帳</title>
+<meta name="description" content="Error: listen EADDRINUSE: address already in use の原因と直し方を、Ubuntu 24.04・Node.js v22.23.5で実際に実行して確認しました。実行ログつき。">
+<link rel="canonical" href="https://ai-dev-notes.cloud-ruto02.workers.dev/h-0038/">
+<meta property="og:title" content="Node.jsで Error: listen EADDRINUSE: address already in use が出たときの原因と直し方【実行して確認】"><meta property="og:description" content="Error: listen EADDRINUSE: address already in use の原因と直し方を、Ubuntu 24.04・Node.js v22.23.5で実際に実行して確認しました。実行ログつき。">
+<meta property="og:url" content="https://ai-dev-notes.cloud-ruto02.workers.dev/h-0038/"><meta property="og:site_name" content="動かして確かめるプログラミング帳"><meta property="og:type" content="article">
+<style>
+:root{--bg:#fff;--fg:#1d1d1f;--muted:#6e6e73;--line:#e3e3e8;--accent:#0b62d6;--soft:#f5f6f8}
+@media (prefers-color-scheme:dark){:root{--bg:#161618;--fg:#ececf0;--muted:#a1a1a8;--line:#333338;--accent:#6aa8ff;--soft:#202024}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.85 -apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif}
+a{color:var(--accent)}header,main,footer{max-width:760px;margin:0 auto;padding:0 16px}
+header{padding-top:20px;padding-bottom:12px;border-bottom:1px solid var(--line)}header a{color:var(--fg);text-decoration:none;font-weight:700}
+nav{font-size:14px;margin-top:6px}nav a{margin-right:12px;color:var(--muted)}
+h1{font-size:1.55rem;line-height:1.4;margin:24px 0 8px}h2{font-size:1.25rem;margin-top:2.2em;padding-bottom:4px;border-bottom:2px solid var(--line)}h3{font-size:1.08rem;margin-top:1.8em}
+.meta{color:var(--muted);font-size:13px}.pr-note{color:var(--muted);font-size:12px;margin:4px 0 0}.table-wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px;margin:1em 0}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}th{background:var(--soft)}
+blockquote{margin:1em 0;padding:8px 14px;border-left:4px solid var(--line);color:var(--muted)}
+.cards{list-style:none;padding:0}.cards li{padding:10px 0;border-bottom:1px solid var(--line)}.cards .meta{display:block}
+footer{margin-top:48px;padding-top:16px;padding-bottom:32px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}footer a{color:var(--muted);margin-right:12px}
+img{max-width:100%;height:auto}
+.code-label{font-size:12px;color:var(--muted);margin:1em 0 -6px}pre{background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:12px 14px;overflow-x:auto;font-size:13.5px;line-height:1.6}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em}p code,li code,td code{background:var(--soft);padding:1px 5px;border-radius:4px}
+</style><script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "Node.jsで Error: listen EADDRINUSE: address already in use が出たときの原因と直し方【実行して確認】", "datePublished": "2026-11-24", "dateModified": "2026-11-24", "mainEntityOfPage": "https://ai-dev-notes.cloud-ruto02.workers.dev/h-0038/"}</script>
+</head><body>
+<header><a href="/">動かして確かめるプログラミング帳</a><nav><a href="/category/howto/">手順・エラー解決</a><a href="/category/guide/">学習ロードマップ</a><a href="/category/tools/">サーバー・ツール</a><a href="/category/school/">スクール</a></nav></header>
+<main>
+<h1>Node.jsで Error: listen EADDRINUSE: address already in use が出たときの原因と直し方【実行して確認】</h1>
+<p class="pr-note">※本記事はアフィリエイト広告（PR）を含みます。</p>
+<p class="meta">公開日 <time datetime="2026-11-24">2026-11-24</time>　更新日 <time datetime="2026-11-24">2026-11-24</time>　<a href="/category/howto/">手順・エラー解決</a> / <a href="/category/javascript/">JavaScript</a></p>
+<p>この記事の手順は 2026年11月24日 に下記の環境で実際に実行して確認しました。</p>
+<h2>結論：同じポートを別のプロセスがすでに使っています。そのプロセスを止めるか、別のポートで起動すると直ります</h2>
+<p><code>Error: listen EADDRINUSE: address already in use 0.0.0.0:3000</code> は、「3000番ポートはもう別のプログラムが使っているので、このサーバーは待ち受けできない」というエラーです。前に起動したサーバーが裏で動いたまま、もう一度起動したときによく起きます。<br>
+直し方は、<code>lsof -i :3000</code> で使っているプロセスの番号（PID）を調べて <code>kill</code> で止めるか、<code>PORT=3001 node server.js</code> のように別のポートで起動することです。<br>
+この環境では、どちらの方法でもサーバーが起動し、ブラウザの代わりに <code>curl</code> でアクセスして応答が返ることを確認しました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ lsof -i :3000
+COMMAND PID   USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
+node    387 ubuntu   21u  IPv4   4405      0t0  TCP *:3000 (LISTEN)
+
+$ kill 387</code></pre>
+<h2>検証環境</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>項目</th><th>バージョン</th></tr></thead><tbody>
+<tr><td>OS</td><td>Ubuntu 24.04.5 LTS</td></tr>
+<tr><td>Node.js</td><td>Node.js v22.23.5</td></tr>
+</tbody></table></div>
+<p>お使いの環境（OS・バージョン）が違うと、出力やエラー文が少し変わることがあります。たとえば IPv6 が有効な環境では、エラー文の最後が <code>0.0.0.0:3000</code> ではなく <code>:::3000</code> と表示されることがあります。どちらも意味は同じです。</p>
+<h2>エラーの再現：サーバーを2回起動する</h2>
+<p>Node.js で Web サーバーを作って動作確認していると、ターミナルを閉じたつもりでも前のサーバーが動いたままになっていることがあります。その状態でもう一度起動すると、このエラーになります。Express など、ほかのフレームワークでも中で同じ仕組み（<code>listen</code>）を使っているので、同じエラー文が出ます。</p>
+<p>ここでは、3000番ポートで待ち受ける最小のサーバー <code>server.js</code> を用意しました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ cat server.js
+const http = require("http");
+
+const port = 3000;
+
+const server = http.createServer((req, res) =&gt; {
+  res.end("Hello from port " + port + "\n");
+});
+
+server.listen(port, () =&gt; {
+  console.log(`Server running at http://localhost:${port}/`);
+});</code></pre>
+<p>まず1つ目のサーバーを裏で（<code>&amp;</code> を付けて）起動しました。こちらは正常に起動しています。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ node server.js &gt; first.log 2&gt;&amp;1 &amp;
+
+$ cat first.log
+Server running at http://localhost:3000/</code></pre>
+<p>この状態で、もう一度同じファイルを起動すると、次のエラーで止まりました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ node server.js
+node:events:497
+      throw er; // Unhandled 'error' event
+      ^
+
+Error: listen EADDRINUSE: address already in use 0.0.0.0:3000
+    at Server.setupListenHandle [as _listen2] (node:net:1941:16)
+    at listenInCluster (node:net:1998:12)
+    at Server.listen (node:net:2103:7)
+    at Object.&lt;anonymous&gt; (/tmp/run-h-0038/app/server.js:9:8)
+    at Module._compile (node:internal/modules/cjs/loader:1781:14)
+    at Object..js (node:internal/modules/cjs/loader:1913:10)
+    at Module.load (node:internal/modules/cjs/loader:1505:32)
+    at Function._load (node:internal/modules/cjs/loader:1309:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:254:19)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:171:5)
+Emitted 'error' event on Server instance at:
+    at emitErrorNT (node:net:1977:8)
+    at process.processTicksAndRejections (node:internal/process/task_queues:89:21) {
+  code: 'EADDRINUSE',
+  errno: -98,
+  syscall: 'listen',
+  address: '0.0.0.0',
+  port: 3000
+}
+
+Node.js v22.23.5</code></pre>
+<p>エラー文の読み方は次のとおりです。</p>
+<ul>
+<li><code>Error: listen EADDRINUSE: address already in use 0.0.0.0:3000</code> が本体です。<code>listen</code>（待ち受けの開始）のときに、<code>EADDRINUSE</code>（アドレスが使用中）になった、という意味です。最後の <code>:3000</code> がぶつかったポート番号です。</li>
+<li><code>server.js:9:8</code> は、自分のコードのうちエラーにつながった場所です。9行目の <code>server.listen(port, ...)</code> を指しています。コードの書き間違いではなく、「待ち受けを始めようとしたら先客がいた」ということです。</li>
+<li>下の <code>code: &#x27;EADDRINUSE&#x27;</code> と <code>port: 3000</code> は、エラーの種類とポート番号をもう一度まとめて表示したものです。</li>
+<li>一番上の <code>Unhandled &#x27;error&#x27; event</code> は、このエラーを受け取る処理（<code>error</code> イベントの処理）を書いていないため、プログラム全体が止まったことを表しています。</li>
+</ul>
+<h2>原因：前に起動したサーバーが3000番ポートを使ったままになっている</h2>
+<p>1つのポートで待ち受けられるのは、基本的に1つのプロセスだけです。Node.js の公式ドキュメント（Errors の「Common system errors」）でも、<code>EADDRINUSE</code> は「ローカルのアドレスにサーバーを結び付けようとしたが、別のサーバーがすでにそのアドレスを使っている」ときのエラーとして説明されています。</p>
+<p>本当に別のプロセスが3000番を使っているのかを、<code>lsof</code> で確かめました。<code>-i :3000</code> は「3000番ポートを使っているもの」を表示するオプションです。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ lsof -i :3000
+COMMAND PID   USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
+node    387 ubuntu   21u  IPv4   4405      0t0  TCP *:3000 (LISTEN)</code></pre>
+<p><code>COMMAND</code> が <code>node</code>、<code>PID</code> が <code>387</code>、最後が <code>(LISTEN)</code>（待ち受け中）になっています。最初に裏で起動したサーバーが、3000番を使い続けていることが分かりました。PID の数字は実行するたびに変わるので、ご自分の環境で表示された数字を使ってください。</p>
+<h2>直し方1：使っているプロセスを止めてから起動し直す</h2>
+<p>前のサーバーが不要なら、<code>kill</code> に PID を渡して止めます。止めたあと、もう一度 <code>lsof</code> を実行すると、何も表示されなくなりました（3000番を使っているものがない）。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ kill 387
+
+$ lsof -i :3000</code></pre>
+<p>この状態でサーバーを起動し、<code>curl</code> でアクセスしました。今度はエラーにならず、サーバーからの応答が返りました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ node server.js &amp; sleep 1; curl -s http://localhost:3000/; kill %1
+Server running at http://localhost:3000/
+Hello from port 3000</code></pre>
+<p>なお、前のサーバーを起動したターミナルが手元に残っているなら、そのターミナルで <code>Ctrl + C</code> を押して止めるのがいちばん簡単です。<code>kill</code> は、どのターミナルで起動したか分からなくなったときに使います。</p>
+<h2>直し方2：別のポートで起動できるようにしておく</h2>
+<p>前のサーバーを止めたくない場合（別のアプリが3000番を使っている場合など）は、別のポートで起動します。ポート番号をコードに直接書かず、環境変数 <code>PORT</code> から読むようにしておくと、起動のたびに番号を変えられます。あわせて <code>error</code> イベントを受け取り、ポートが使用中のときは分かりやすいメッセージを出して終了するようにしました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ cat server.js
+const http = require("http");
+
+const port = process.env.PORT || 3000;
+
+const server = http.createServer((req, res) =&gt; {
+  res.end("Hello from port " + port + "\n");
+});
+
+server.on("error", (err) =&gt; {
+  if (err.code === "EADDRINUSE") {
+    console.error(`ポート ${port} は使用中です。PORT=3001 node server.js のように別のポートを指定してください。`);
+    process.exit(1);
+  }
+  throw err;
+});
+
+server.listen(port, () =&gt; {
+  console.log(`Server running at http://localhost:${port}/`);
+});</code></pre>
+<p>3000番を別のサーバーが使っている状態で、そのまま起動すると、長いエラーの代わりに用意したメッセージが表示されました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ node server.js
+ポート 3000 は使用中です。PORT=3001 node server.js のように別のポートを指定してください。</code></pre>
+<p>メッセージのとおり <code>PORT=3001</code> を付けて起動すると、3001番で起動し、アクセスにも応答しました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ PORT=3001 node server.js &amp; sleep 1; curl -s http://localhost:3001/; kill %1
+Server running at http://localhost:3001/
+Hello from port 3001</code></pre>
+<p><code>process.env.PORT || 3000</code> は、「環境変数 <code>PORT</code> があればその値、なければ3000」という意味です。レンタルサーバーやクラウドの公開先では、使うポートを環境変数 <code>PORT</code> で渡してくることが多いので、この書き方にしておくと公開するときにも書き換えずに済みます。</p>
+<h2>うまくいかないとき</h2>
+<ul>
+<li><strong>ターミナルを閉じたのにポートが空かない場合</strong>は、<code>&amp;</code> で裏で起動したサーバーが残っています。この記事の再現手順と同じ状態なので、<code>lsof -i :3000</code> で PID を調べて <code>kill</code> してください。</li>
+<li><strong>Windows の場合</strong>は <code>lsof</code> がありません。この記事では Windows では実行して確かめていないため、ポートとプロセスの関係はお使いの OS の公式ドキュメントをご確認ください。Node.js 側の考え方（同じポートは1つのプロセスしか使えない、<code>PORT</code> で変えられるようにしておく）は同じです。</li>
+<li><code>listen</code> の引数や <code>error</code> イベントの詳しい動きは、Node.js 公式ドキュメントの「server.listen()」をご確認ください。</li>
+</ul>
+<p>独学で行き詰まったときに、講座で体系的に学び直したい場合は、オンラインのプログラミングスクールもあります。</p>
+<a href="https://px.a8.net/svt/ejp?a8mat=4BGGBN+16V93U+5IZ2+5YRHE" rel="nofollow">『デイトラ』で仕事につながるWebスキルを身につけよう！</a>
+<img border="0" width="1" height="1" src="https://www11.a8.net/0.gif?a8mat=4BGGBN+16V93U+5IZ2+5YRHE" alt="">
+<h2>まとめ</h2>
+<p><code>Error: listen EADDRINUSE: address already in use</code> は、起動しようとしたポートを別のプロセスがすでに使っているときに出るエラーです。この環境では、前に起動したサーバーが3000番を使ったままになっていたのが原因で、<code>lsof -i :3000</code> で PID を調べて <code>kill</code> すると起動できるようになりました。止めたくない場合は、ポートを <code>process.env.PORT</code> から読むようにして <code>PORT=3001 node server.js</code> のように別のポートで起動できることも確認しました。</p>
+<h3>この手順の次に読む記事</h3>
+<ul>
+<li><a href="/g-0003/">Web制作を独学で進める順番：HTML・CSS・JavaScriptから公開まで（実行して確認した手順つき）</a></li>
+<li><a href="/h-0037/">JavaScriptで TypeError: Cannot read properties of undefined (reading &#x27;xxx&#x27;) が出たときの原因と直し方【実行して確認】</a></li>
+<li><a href="/h-0036/">Node.jsで ReferenceError: require is not defined in ES module scope が出たときの原因と直し方【実行して確認】</a></li>
+</ul>
+<h2>出典・参考にした公式ドキュメント</h2>
+<ul>
+<li>Node.js Documentation「server.listen()」: <a href="https://nodejs.org/api/net.html#serverlisten">https://nodejs.org/api/net.html#serverlisten</a></li>
+<li>Node.js Documentation「Common system errors」: <a href="https://nodejs.org/api/errors.html#common-system-errors">https://nodejs.org/api/errors.html#common-system-errors</a></li>
+<li>Node.js Documentation「process.env」: <a href="https://nodejs.org/api/process.html#processenv">https://nodejs.org/api/process.html#processenv</a></li>
+</ul>
+<h2>関連記事</h2><ul class="cards"><li><a href="/g-0003/">Web制作を独学で進める順番：HTML・CSS・JavaScriptから公開まで（実行して確認した手順つき）</a><span class="meta">更新日 2026-11-22</span></li><li><a href="/h-0037/">JavaScriptで TypeError: Cannot read properties of undefined (reading &#x27;xxx&#x27;) が出たときの原因と直し方【実行して確認】</a><span class="meta">更新日 2026-11-21</span></li><li><a href="/h-0036/">Node.jsで ReferenceError: require is not defined in ES module scope が出たときの原因と直し方【実行して確認】</a><span class="meta">更新日 2026-11-20</span></li><li><a href="/h-0034/">npm install -g で EACCES: permission denied が出たときの原因と直し方【実行して確認】</a><span class="meta">更新日 2026-11-19</span></li></ul>
+</main>
+<footer><a href="/p-contact/">お問い合わせについて</a><a href="/p-ad-privacy/">広告の表示とプライバシーポリシー</a><a href="/p-about/">運営者情報とこのサイトの作り方</a><div>© 2026 動かして確かめるプログラミング帳</div></footer>
+</body></html>
