@@ -1,0 +1,395 @@
+{
+  "version": "2.0",
+  "updated": "2026-11-06",
+  "owner": "B（コンテンツ）",
+  "profile": "ai",
+  "note": "AI・プログラミング実践ブログ（設計書 v2）の判定ルール。RULES_PROFILE=ai で読む。severity=error は公開しない、warn はログに残して公開可。正規表現は Python re。required/banned はコードブロックを除いた本文（check.py の prose）に当てる。",
+  "site": {
+    "types": {
+      "howto": "h-",
+      "guide": "g-",
+      "tool": "t-",
+      "school": "s-",
+      "page": "p-"
+    },
+    "kind_categories": {
+      "howto": "手順・エラー解決",
+      "guide": "学習ロードマップ",
+      "tool": "サーバー・ツール",
+      "school": "スクール"
+    },
+    "genres": [
+      "Python",
+      "JavaScript",
+      "生成AI",
+      "Web制作",
+      "サーバー・公開",
+      "Git・開発環境"
+    ],
+    "category_slugs": {
+      "手順・エラー解決": "howto",
+      "学習ロードマップ": "guide",
+      "サーバー・ツール": "tools",
+      "スクール": "school",
+      "Python": "python",
+      "JavaScript": "javascript",
+      "生成AI": "genai",
+      "Web制作": "web",
+      "サーバー・公開": "hosting",
+      "Git・開発環境": "devenv"
+    },
+    "listing_type": "howto",
+    "a8_limits": {
+      "howto": 1,
+      "guide": 2,
+      "tool": 3,
+      "school": 3
+    },
+    "strict_fact_types": [
+      "tool",
+      "school"
+    ],
+    "run_log_types": [
+      "howto"
+    ]
+  },
+  "required": [
+    {
+      "id": "pr_first_line",
+      "severity": "error",
+      "where": "body_first_nonempty_line",
+      "equals": "※本記事はアフィリエイト広告（PR）を含みます。",
+      "message": "A8リンクがある記事で、本文の最初の行がPR表記の固定文ではない（景品表示法のステマ規制・A8.net規約）。PR表記はA8リンクがある記事だけに付ける"
+    },
+    {
+      "id": "checked_at_sentence",
+      "severity": "error",
+      "applies_to": [
+        "howto"
+      ],
+      "where": "body_first_10_lines",
+      "regex": "この記事の手順は \\d{4}年\\d{1,2}月\\d{1,2}日 に下記の環境で実際に実行して確認しました。",
+      "message": "実行日の固定文が冒頭10行以内にない（howto）"
+    },
+    {
+      "id": "checked_at_sentence_official",
+      "severity": "error",
+      "applies_to": [
+        "tool",
+        "school"
+      ],
+      "where": "body_first_10_lines",
+      "regex": "料金・内容は \\d{4}年\\d{1,2}月\\d{1,2}日 時点の公式サイトの情報です。最新の情報は公式サイトでご確認ください。",
+      "message": "確認日の固定文が冒頭10行以内にない（tool/school）"
+    },
+    {
+      "id": "checked_at_sentence_guide",
+      "severity": "error",
+      "applies_to": [
+        "guide"
+      ],
+      "where": "body_first_10_lines",
+      "regex": "この記事は \\d{4}年\\d{1,2}月\\d{1,2}日 時点の情報です。",
+      "message": "確認日の文が冒頭10行以内にない（guide）"
+    },
+    {
+      "id": "checked_at_matches_meta",
+      "severity": "error",
+      "where": "body_first_10_lines",
+      "date_regex": "(?:手順は|料金・内容は|この記事は) (\\d{4}年\\d{1,2}月\\d{1,2}日)",
+      "rule": "date_regex の日付が front matter の checked_at と同じ",
+      "message": "本文の確認日（実行日）と checked_at が一致しない"
+    },
+    {
+      "id": "checked_at_fresh",
+      "severity": "error",
+      "where": "front_matter.checked_at",
+      "rule": "公開日（JST）から7日以内",
+      "message": "確認日（実行日）が古い。実行し直してから公開する"
+    },
+    {
+      "id": "env_table",
+      "severity": "error",
+      "applies_to": [
+        "howto"
+      ],
+      "where": "body_tables",
+      "header_equals": [
+        "項目",
+        "バージョン"
+      ],
+      "rule": "1行目は OS。front matter の env の値がすべて表にあること",
+      "message": "検証環境の表（見出し: 項目 | バージョン）がない、または env と食い違う"
+    },
+    {
+      "id": "run_log_blocks",
+      "severity": "error",
+      "applies_to": [
+        "howto"
+      ],
+      "where": "body_code_fences",
+      "rule": "```text 実行ログ で始まるブロックが2つ以上（再現と解決）。各ブロックは run_log に逐語で含まれる（check.py が照合）",
+      "min_blocks": 2,
+      "message": "実行ログのブロックが足りない、または run_log と一致しない"
+    },
+    {
+      "id": "code_blocks_from_log",
+      "severity": "warn",
+      "applies_to": [
+        "howto"
+      ],
+      "where": "body_code_fences",
+      "rule": "```python ```javascript ```bash などのソースコードのブロックも run_log の cat 出力に逐語で含まれる（実際に動かしたコードだけ載せる）",
+      "message": "記事のコードが実行ログにない（動かしていないコードの可能性）"
+    },
+    {
+      "id": "sources_section",
+      "severity": "error",
+      "where": "body",
+      "regex": "^## 出典・参考にした公式ドキュメント\\s*$",
+      "then": "見出しの後に https:// で始まるURLが1つ以上",
+      "message": "出典の見出し、またはURLがない"
+    },
+    {
+      "id": "sources_meta",
+      "severity": "error",
+      "where": "front_matter.sources",
+      "rule": "1件以上。本文の出典URLと同じ集合",
+      "message": "front matter の sources が空、または本文の出典と食い違う"
+    },
+    {
+      "id": "sources_official_only",
+      "severity": "error",
+      "where": "front_matter.sources",
+      "allow_hosts": [
+        "docs.python.org",
+        "peps.python.org",
+        "packaging.python.org",
+        "pip.pypa.io",
+        "pypi.org",
+        "pandas.pydata.org",
+        "numpy.org",
+        "nodejs.org",
+        "docs.npmjs.com",
+        "developer.mozilla.org",
+        "typescriptlang.org",
+        "www.typescriptlang.org",
+        "git-scm.com",
+        "docs.github.com",
+        "docs.anthropic.com",
+        "docs.claude.com",
+        "platform.openai.com",
+        "ubuntu.com",
+        "documentation.ubuntu.com",
+        "learn.microsoft.com",
+        "code.visualstudio.com",
+        "developers.cloudflare.com",
+        "docs.docker.com"
+      ],
+      "deny_hosts": [
+        "justwatch.com",
+        "wikipedia.org",
+        "qiita.com",
+        "zenn.dev",
+        "note.com",
+        "stackoverflow.com",
+        "teratail.com"
+      ],
+      "rule": "公式ドキュメント（allow_hosts）か、services-master.json・programs.csv の公式ドメインだけ",
+      "message": "出典に公式以外のサイトがある（設計書 v2 §3-4）"
+    },
+    {
+      "id": "unverified_empty",
+      "severity": "error",
+      "where": "front_matter.unverified",
+      "rule": "空配列であること",
+      "message": "未確認の項目（unverified）が残っている"
+    },
+    {
+      "id": "headings_order",
+      "severity": "error",
+      "applies_to": [
+        "howto"
+      ],
+      "where": "body_h2",
+      "order": [
+        "結論",
+        "検証環境",
+        "再現",
+        "直し方",
+        "うまくいかない",
+        "まとめ",
+        "出典"
+      ],
+      "rule": "各H2見出しに左の語を含むものが、この順で現れる（設計書 v2 §3-7）",
+      "message": "howto の見出しが 結論→検証環境→再現→直し方→うまくいかないとき→まとめ→出典 の順になっていない"
+    },
+    {
+      "id": "no_unresolved_placeholder",
+      "severity": "error",
+      "where": "body_after_link_insert",
+      "regex": "\\{\\{[^}]+\\}\\}",
+      "invert": true,
+      "message": "テンプレートの差し込み記号 {{...}} が残っている"
+    },
+    {
+      "id": "a8_link_count",
+      "severity": "error",
+      "where": "body_after_link_insert",
+      "rule": "site.a8_limits の数まで（howto は1。置ける案件と場所は howto_a8_allowed）",
+      "message": "A8.netリンクが多すぎる（設計書 v2 §2.3）"
+    },
+    {
+      "id": "howto_a8_allowed",
+      "severity": "error",
+      "applies_to": [
+        "howto"
+      ],
+      "where": "body_after_link_insert",
+      "rule": "howto のA8リンクは categories[1]（テーマ）ごとに決めた案件・場所だけ。サーバー・公開は xserver/onamae を1つ。Python・JavaScript は daytra を「## うまくいかないとき」節の末尾に1つ。git・pip・環境構築がテーマ（タイトルで判定）の howto には置かない。それ以外のテーマも置かない",
+      "allowed": {
+        "サーバー・公開": {
+          "services": [
+            "xserver",
+            "onamae"
+          ],
+          "exclude_title": false
+        },
+        "Python": {
+          "services": [
+            "daytra"
+          ],
+          "section": "うまくいかないとき",
+          "position": "end"
+        },
+        "JavaScript": {
+          "services": [
+            "daytra"
+          ],
+          "section": "うまくいかないとき",
+          "position": "end"
+        }
+      },
+      "exclude_title_regex": "pip install|pip3? |externally-managed|\\bgit\\b|Git|環境構築|インストール手順",
+      "message": "howto のA8リンクの置き方が違う（設計書 v2 §2.3、2026-11-09 改定）"
+    }
+  ],
+  "length": {
+    "count": "地の文の文字数（コードブロック・インラインコードを除く。check.py の数え方）",
+    "howto": {
+      "min": 1500,
+      "max": 4000,
+      "severity": "error"
+    },
+    "guide": {
+      "min": 3000,
+      "max": 6000,
+      "severity": "error"
+    },
+    "tool": {
+      "min": 2500,
+      "max": 5000,
+      "severity": "error"
+    },
+    "school": {
+      "min": 2500,
+      "max": 5000,
+      "severity": "error"
+    },
+    "page": {
+      "min": 300,
+      "max": 4000,
+      "severity": "warn"
+    }
+  },
+  "banned": [
+    {
+      "id": "fake_experience",
+      "severity": "error",
+      "regex": "受講して(み|き)(た|ました)|受講した感想|実際に(契約|申し込|受講|入会|登録)し(て|た|ました)|使ってみた(感想|結果)|使ってみました|試してみた感想|体験談|私の(経験|体験)|筆者(が|も|は)(受講|契約|転職|就職|独学)|口コミ|評判をまとめ",
+      "message": "体験談風の表現。Claudeは受講も契約もしていない（設計書 v2 §1・§3-5）",
+      "suggest": "公式サイトの説明を出典つきで書く。手順は『この環境で実行した結果』として書く"
+    },
+    {
+      "id": "hype_absolute",
+      "severity": "error",
+      "regex": "絶対(に)?(できる|稼げる|うまくいく|解決|おすすめ|大丈夫|身につく)|必ず(稼げ|転職でき|就職でき|解決|できる|身につく)|100%|１００％|誰でも(簡単に|すぐに)?(稼げ|できる|作れる|転職)",
+      "message": "根拠のない断定・誇大表現",
+      "suggest": "この記事の環境では〜で解決しました／〜のときに当てはまります"
+    },
+    {
+      "id": "hype_money",
+      "severity": "error",
+      "regex": "稼げる|稼げます|月\\d+万円?(を|が)?稼|副業で(稼|月)|不労所得|放置で(稼|収入)|年収(が)?\\d+万円?(アップ|up)",
+      "message": "収入をうたう表現（スクール・副業系で特に禁止）"
+    },
+    {
+      "id": "hype_speed",
+      "severity": "error",
+      "regex": "最短\\d+(日|週間|か月|ヶ月|カ月)で|たった\\d+(日|時間|分)で(習得|マスター|エンジニア|転職)|未経験から\\d+(日|週間|か月|ヶ月|カ月)で",
+      "message": "習得期間の誇大表現"
+    },
+    {
+      "id": "superlative",
+      "severity": "error",
+      "regex": "最安(値)?|一番安い|業界最安|日本一|No\\.?1|ナンバーワン|業界最大|最強の|神ツール",
+      "message": "最上級表現。比較の範囲・日付・出典がない限り使わない（自動生成では使わない）"
+    },
+    {
+      "id": "kanzen_muryo",
+      "severity": "error",
+      "regex": "完全無料|ずっと無料|永久無料",
+      "message": "「完全無料」系の断定。無料相談・無料体験には条件がある",
+      "suggest": "無料相談は〜の条件で受けられます（公式サイトより）"
+    },
+    {
+      "id": "urgency",
+      "severity": "warn",
+      "regex": "今だけ|急いで|終了間近|残りわずか|今すぐ(申し込|登録)",
+      "message": "根拠のない煽り。キャンペーンは公式に日付があるときだけ日付で書く"
+    },
+    {
+      "id": "stealth_pr",
+      "severity": "error",
+      "regex": "広告ではありません|PRではありません|案件ではありません|ステマではありません",
+      "message": "広告であることを否定しない"
+    },
+    {
+      "id": "piracy_crack",
+      "severity": "error",
+      "regex": "クラック版|クラックした|海賊版|割れ版|不正ライセンス|ライセンス認証(を)?(回避|解除)|プロダクトキー(を)?生成|ライセンスを回避",
+      "message": "不正利用につながる内容"
+    },
+    {
+      "id": "dangerous_advice",
+      "severity": "error",
+      "regex": "--break-system-packages(を付ければ|で解決|すればOK)|sudo pip install|chmod (-R )?777|SSL(の)?検証を無効(に|化)(すれば|して解決)|verify=False(で解決|にすれば)",
+      "message": "環境やセキュリティを壊す『解決策』を勧めない。紹介するなら危険性とセットで、推奨しない形で書く"
+    },
+    {
+      "id": "sandbox_leak",
+      "severity": "error",
+      "regex": "/mnt/project-files|claude-0|scratchpad|/tmp/claude|__agentproxy|\\.ccr/",
+      "message": "実行環境の内部パスが本文に出ている"
+    },
+    {
+      "id": "third_party_source",
+      "severity": "error",
+      "regex": "Qiitaによると|Zennの記事|Stack ?Overflowによると|teratailによると|ブログによると|まとめサイト",
+      "message": "第三者の記事を根拠にしない（設計書 v2 §3-4）"
+    },
+    {
+      "id": "ai_disclaimer_missing_tone",
+      "severity": "warn",
+      "regex": "私(は|が)(エンジニア|プログラマー|現役)|現役エンジニアの(私|筆者)",
+      "message": "人間の書き手を装わない（運営者情報ページでAI作成を明記している）"
+    }
+  ],
+  "secret_patterns_note": "実行ログの秘密情報（APIキー等）は check.py の SECRET_PATTERNS で判定する（C）。",
+  "allowed_wording": {
+    "run_sentence": "この記事の手順は YYYY年M月D日 に下記の環境で実際に実行して確認しました。",
+    "official_sentence": "料金・内容は YYYY年M月D日 時点の公式サイトの情報です。最新の情報は公式サイトでご確認ください。",
+    "guide_sentence": "この記事は YYYY年M月D日 時点の情報です。",
+    "env_note": "お使いの環境（OS・バージョン）が違うと、出力やエラー文が少し変わることがあります。"
+  }
+}
