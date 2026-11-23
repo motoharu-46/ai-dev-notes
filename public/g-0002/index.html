@@ -2,9 +2,9 @@
 <html lang="ja"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>AI時代にプログラミングを独学するなら何から始めるか（実行して確認した手順つき） | 動かして確かめるプログラミング帳</title>
-<meta name="description" content="この記事は 2026年11月15日 時点の情報です。紹介している手順記事は、それぞれの記事に書いた環境で実際に実行して確認しています。">
+<meta name="description" content="この記事は 2026年11月23日 時点の情報です。紹介している手順記事は、それぞれの記事に書いた環境で実際に実行して確認しています。">
 <link rel="canonical" href="https://ai-dev-notes.cloud-ruto02.workers.dev/g-0002/">
-<meta property="og:title" content="AI時代にプログラミングを独学するなら何から始めるか（実行して確認した手順つき）"><meta property="og:description" content="この記事は 2026年11月15日 時点の情報です。紹介している手順記事は、それぞれの記事に書いた環境で実際に実行して確認しています。">
+<meta property="og:title" content="AI時代にプログラミングを独学するなら何から始めるか（実行して確認した手順つき）"><meta property="og:description" content="この記事は 2026年11月23日 時点の情報です。紹介している手順記事は、それぞれの記事に書いた環境で実際に実行して確認しています。">
 <meta property="og:url" content="https://ai-dev-notes.cloud-ruto02.workers.dev/g-0002/"><meta property="og:site_name" content="動かして確かめるプログラミング帳"><meta property="og:type" content="article">
 <style>
 :root{--bg:#fff;--fg:#1d1d1f;--muted:#6e6e73;--line:#e3e3e8;--accent:#0b62d6;--soft:#f5f6f8}
@@ -22,14 +22,14 @@ footer{margin-top:48px;padding-top:16px;padding-bottom:32px;border-top:1px solid
 img{max-width:100%;height:auto}
 .code-label{font-size:12px;color:var(--muted);margin:1em 0 -6px}pre{background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:12px 14px;overflow-x:auto;font-size:13.5px;line-height:1.6}
 code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em}p code,li code,td code{background:var(--soft);padding:1px 5px;border-radius:4px}
-</style><script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "AI時代にプログラミングを独学するなら何から始めるか（実行して確認した手順つき）", "datePublished": "2026-11-15", "dateModified": "2026-11-15", "mainEntityOfPage": "https://ai-dev-notes.cloud-ruto02.workers.dev/g-0002/"}</script>
+</style><script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "AI時代にプログラミングを独学するなら何から始めるか（実行して確認した手順つき）", "datePublished": "2026-11-15", "dateModified": "2026-11-23", "mainEntityOfPage": "https://ai-dev-notes.cloud-ruto02.workers.dev/g-0002/"}</script>
 </head><body>
 <header><a href="/">動かして確かめるプログラミング帳</a><nav><a href="/category/howto/">手順・エラー解決</a><a href="/category/guide/">学習ロードマップ</a><a href="/category/tools/">サーバー・ツール</a><a href="/category/school/">スクール</a></nav></header>
 <main>
 <h1>AI時代にプログラミングを独学するなら何から始めるか（実行して確認した手順つき）</h1>
 <p class="pr-note">※本記事はアフィリエイト広告（PR）を含みます。</p>
-<p class="meta">公開日 <time datetime="2026-11-15">2026-11-15</time>　更新日 <time datetime="2026-11-15">2026-11-15</time>　<a href="/category/guide/">学習ロードマップ</a> / <a href="/category/genai/">生成AI</a></p>
-<p>この記事は 2026年11月15日 時点の情報です。紹介している手順記事は、それぞれの記事に書いた環境で実際に実行して確認しています。</p>
+<p class="meta">公開日 <time datetime="2026-11-15">2026-11-15</time>　更新日 <time datetime="2026-11-23">2026-11-23</time>　<a href="/category/guide/">学習ロードマップ</a> / <a href="/category/genai/">生成AI</a></p>
+<p>この記事は 2026年11月23日 時点の情報です。紹介している手順記事は、それぞれの記事に書いた環境で実際に実行して確認しています。</p>
 <h2>結論：言語を1つ決めて手元で動かせる環境を作り、AIの答えを「自分で動かして確かめる」力から身につけます</h2>
 <p>生成AIに聞けばコードはすぐに出てきますが、そのコードが自分のパソコンで動くとは限りません。AIは、あなたが使っているOS、Pythonのバージョン、ファイルの置き場所、入れてあるパッケージを知らないまま答えを書くことが多いからです。そのため独学の最初の段階では、文法を暗記するよりも先に、「手元で実行できる環境を持つこと」「エラー文を自分で読めること」「出てきたコードを動かして結果を確かめること」の3つを身につけるのが近道になります。</p>
 <p>最初の一歩は、学ぶ言語を1つに決め（迷ったら、業務の自動化にもAIの活用にも使われることの多い Python）、作業用のフォルダに仮想環境（venv）を作るところです。この記事では、その先を5つのステップに分け、各ステップで「できるようになること」「AIに頼るときの注意点」「このサイトの手順記事」を並べました。</p>
@@ -84,9 +84,7 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
 </ul>
 <h2>独学で進めるか、スクールを使うか</h2>
 <p>生成AIに質問できるようになって、独学で調べられる範囲は以前より広がっています。この記事の5つのステップも、公式ドキュメントとこのサイトの手順記事、そしてAIへの質問を組み合わせれば、独学で進められるように並べています。</p>
-<p>ただし、AIの答えが正しいかどうかを判断できないうちは、間違った説明をそのまま覚えてしまうこともあります。人に質問して、自分のコードを見たうえで答えてもらえる環境がほしい場合は、オンラインのプログラミングスクールも選択肢になります。このサイトではスクールを受講して確かめてはいないため、ここではリンクの紹介にとどめます。学べる内容や質問の受け付け方、料金などの条件は、申し込む前に各公式サイトで確認してください。</p>
-<a href="https://px.a8.net/svt/ejp?a8mat=4BGGBN+13ANH6+4K3S+5ZEMQ" rel="nofollow">質問し放題のオンラインプログラミングスクール｜SkillHacks(スキルハックス) </a>
-<img border="0" width="1" height="1" src="https://www17.a8.net/0.gif?a8mat=4BGGBN+13ANH6+4K3S+5ZEMQ" alt="">
+<p>ただし、AIの答えが正しいかどうかを判断できないうちは、間違った説明をそのまま覚えてしまうこともあります。人に質問して、自分のコードを見たうえで答えてもらえる環境がほしい場合は、オンラインのプログラミングスクールも選択肢になります。このサイトではスクールを受講して確かめてはいないため、ここではリンクの紹介にとどめます。学べる内容や質問の受け付け方、料金などの条件は、申し込む前に公式サイトで確認してください。</p>
 <a href="https://px.a8.net/svt/ejp?a8mat=4BGGBN+16V93U+5IZ2+5YRHE" rel="nofollow">『デイトラ』で仕事につながるWebスキルを身につけよう！</a>
 <img border="0" width="1" height="1" src="https://www11.a8.net/0.gif?a8mat=4BGGBN+16V93U+5IZ2+5YRHE" alt="">
 <h2>まとめ</h2>
