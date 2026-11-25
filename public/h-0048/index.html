@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>git push で ! [rejected] main -&gt; main (non-fast-forward) が出たときの原因と直し方【実行して確認】 | 動かして確かめるプログラミング帳</title>
+<meta name="description" content="git push で ! [rejected] (non-fast-forward) が出る原因と直し方を、Ubuntu 24.04・Git 2.43.0で実際に実行して確認しました。実行ログつき。">
+<link rel="canonical" href="https://ai-dev-notes.cloud-ruto02.workers.dev/h-0048/">
+<meta property="og:title" content="git push で ! [rejected] main -&gt; main (non-fast-forward) が出たときの原因と直し方【実行して確認】"><meta property="og:description" content="git push で ! [rejected] (non-fast-forward) が出る原因と直し方を、Ubuntu 24.04・Git 2.43.0で実際に実行して確認しました。実行ログつき。">
+<meta property="og:url" content="https://ai-dev-notes.cloud-ruto02.workers.dev/h-0048/"><meta property="og:site_name" content="動かして確かめるプログラミング帳"><meta property="og:type" content="article">
+<style>
+:root{--bg:#fff;--fg:#1d1d1f;--muted:#6e6e73;--line:#e3e3e8;--accent:#0b62d6;--soft:#f5f6f8}
+@media (prefers-color-scheme:dark){:root{--bg:#161618;--fg:#ececf0;--muted:#a1a1a8;--line:#333338;--accent:#6aa8ff;--soft:#202024}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.85 -apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif}
+a{color:var(--accent)}header,main,footer{max-width:760px;margin:0 auto;padding:0 16px}
+header{padding-top:20px;padding-bottom:12px;border-bottom:1px solid var(--line)}header a{color:var(--fg);text-decoration:none;font-weight:700}
+nav{font-size:14px;margin-top:6px}nav a{margin-right:12px;color:var(--muted)}
+h1{font-size:1.55rem;line-height:1.4;margin:24px 0 8px}h2{font-size:1.25rem;margin-top:2.2em;padding-bottom:4px;border-bottom:2px solid var(--line)}h3{font-size:1.08rem;margin-top:1.8em}
+.meta{color:var(--muted);font-size:13px}.pr-note{color:var(--muted);font-size:12px;margin:4px 0 0}.table-wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px;margin:1em 0}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}th{background:var(--soft)}
+blockquote{margin:1em 0;padding:8px 14px;border-left:4px solid var(--line);color:var(--muted)}
+.cards{list-style:none;padding:0}.cards li{padding:10px 0;border-bottom:1px solid var(--line)}.cards .meta{display:block}
+footer{margin-top:48px;padding-top:16px;padding-bottom:32px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}footer a{color:var(--muted);margin-right:12px}
+img{max-width:100%;height:auto}
+.code-label{font-size:12px;color:var(--muted);margin:1em 0 -6px}pre{background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:12px 14px;overflow-x:auto;font-size:13.5px;line-height:1.6}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em}p code,li code,td code{background:var(--soft);padding:1px 5px;border-radius:4px}
+</style><script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "git push で ! [rejected] main -> main (non-fast-forward) が出たときの原因と直し方【実行して確認】", "datePublished": "2026-11-26", "dateModified": "2026-11-26", "mainEntityOfPage": "https://ai-dev-notes.cloud-ruto02.workers.dev/h-0048/"}</script>
+</head><body>
+<header><a href="/">動かして確かめるプログラミング帳</a><nav><a href="/category/howto/">手順・エラー解決</a><a href="/category/guide/">学習ロードマップ</a><a href="/category/tools/">サーバー・ツール</a><a href="/category/school/">スクール</a></nav></header>
+<main>
+<h1>git push で ! [rejected] main -&gt; main (non-fast-forward) が出たときの原因と直し方【実行して確認】</h1>
+<p class="meta">公開日 <time datetime="2026-11-26">2026-11-26</time>　更新日 <time datetime="2026-11-26">2026-11-26</time>　<a href="/category/howto/">手順・エラー解決</a> / <a href="/category/devenv/">Git・開発環境</a></p>
+<p>この記事の手順は 2026年11月26日 に下記の環境で実際に実行して確認しました。</p>
+<h2>結論：リモートに自分の持っていないコミットがあるためです。pull で取り込んでから push し直すと直ります</h2>
+<p><code>! [rejected] main -&gt; main (non-fast-forward)</code> は、「リモートの main には、手元にないコミットが先に積まれているので、このまま上書きはしません」という意味のエラーです。別のパソコンや別の人が先に push したときによく起きます。<br>
+直し方は、<code>git pull --no-rebase origin main</code>（マージ）か <code>git pull --rebase origin main</code>（リベース）でリモートの変更を取り込み、もう一度 <code>git push origin main</code> することです。<br>
+この環境では、どちらの方法でも push が通り、リモートと手元の両方の変更が残ることを確認しました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ git pull --no-rebase origin main
+From /tmp/run-h-0048/work/remote
+ * branch            main       -&gt; FETCH_HEAD
+Merge made by the 'ort' strategy.
+ office.py | 1 +
+ 1 file changed, 1 insertion(+)
+ create mode 100644 office.py</code></pre>
+<h2>検証環境</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>項目</th><th>バージョン</th></tr></thead><tbody>
+<tr><td>OS</td><td>Ubuntu 24.04.5 LTS</td></tr>
+<tr><td>Git</td><td>git version 2.43.0</td></tr>
+</tbody></table></div>
+<p>GitHub の代わりに、同じパソコンの中に作ったリモート用のリポジトリ（<code>remote.git</code>）を使っています。「会社のパソコン（<code>pc-office</code>）」と「家のパソコン（<code>myapp</code>）」の2つの作業場所から、同じリモートに push する状況を作りました。お使いの環境（OS・バージョン）が違うと、出力やエラー文が少し変わることがあります。</p>
+<h2>エラーの再現：別の場所から先に push されたあとで push する</h2>
+<p>まず、家のパソコン側でリモートを clone しました。この時点のコミットは1つです。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ git clone remote.git myapp
+Cloning into 'myapp'...
+done.
+
+$ git log --oneline
+0053981 Initial commit</code></pre>
+<p>次に、会社のパソコン側で <code>office.py</code> を追加して、先に push しました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ echo 'print("office")' &gt; office.py &amp;&amp; git add office.py &amp;&amp; git commit -q -m "add office.py" &amp;&amp; git push origin main
+To /tmp/run-h-0048/work/remote.git
+   0053981..dc1dbd2  main -&gt; main</code></pre>
+<p>家のパソコン側では、そのことを知らないまま <code>app.py</code> を追加してコミットし、push しました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ echo 'print("home")' &gt; app.py &amp;&amp; git add app.py &amp;&amp; git commit -q -m "add app.py" &amp;&amp; git log --oneline
+3b08aa6 add app.py
+0053981 Initial commit
+
+$ git push origin main
+To /tmp/run-h-0048/work/remote.git
+ ! [rejected]        main -&gt; main (fetch first)
+error: failed to push some refs to '/tmp/run-h-0048/work/remote.git'
+hint: Updates were rejected because the remote contains work that you do not
+hint: have locally. This is usually caused by another repository pushing to
+hint: the same ref. If you want to integrate the remote changes, use
+hint: 'git pull' before pushing again.
+hint: See the 'Note about fast-forwards' in 'git push --help' for details.</code></pre>
+<p>最初は <code>(fetch first)</code> と出ました。手元がリモートの新しいコミットをまだ一度も取ってきていないときの表示です。<code>git fetch</code> でリモートの状態だけを取ってきてから push し直すと、今回のエラー <code>(non-fast-forward)</code> になりました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ git fetch origin
+From /tmp/run-h-0048/work/remote
+   0053981..dc1dbd2  main       -&gt; origin/main
+
+$ git push origin main
+To /tmp/run-h-0048/work/remote.git
+ ! [rejected]        main -&gt; main (non-fast-forward)
+error: failed to push some refs to '/tmp/run-h-0048/work/remote.git'
+hint: Updates were rejected because the tip of your current branch is behind
+hint: its remote counterpart. If you want to integrate the remote changes,
+hint: use 'git pull' before pushing again.
+hint: See the 'Note about fast-forwards' in 'git push --help' for details.</code></pre>
+<p>要点は <code>hint:</code> の1行目と3行目です。「手元のブランチの先端が、リモートより遅れている」「取り込みたいなら、push の前に git pull を使う」と書かれています。<code>(fetch first)</code> と <code>(non-fast-forward)</code> は表示が違うだけで、原因と直し方は同じです。</p>
+<h2>原因：手元とリモートの履歴が分かれている</h2>
+<p><code>git status</code> と <code>git log --graph --all</code> で状態を確かめました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ git status
+On branch main
+Your branch and 'origin/main' have diverged,
+and have 1 and 1 different commits each, respectively.
+  (use "git pull" if you want to integrate the remote branch with yours)
+
+nothing to commit, working tree clean
+
+$ git log --oneline --graph --all
+* 3b08aa6 add app.py
+| * dc1dbd2 add office.py
+|/  
+* 0053981 Initial commit</code></pre>
+<p><code>Initial commit</code> のあとで、手元には <code>add app.py</code>、リモートには <code>add office.py</code> と、別々のコミットが積まれて枝分かれしています。push は、リモートのブランチを「今の先端の続き」に進める（fast-forward）ときだけ、そのまま受け付けます。このまま手元の main で上書きすると、リモートにある <code>add office.py</code> が消えてしまうため、Git が拒否しています。Git の公式ドキュメント（git-push の「NOTE ABOUT FAST-FORWARDS」）でも、この場合は先にリモートの変更を取り込むように説明されています。</p>
+<h2>直し方：git pull で取り込んでから push する</h2>
+<p>マージで取り込む <code>--no-rebase</code> を付けて pull しました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ git pull --no-rebase origin main
+From /tmp/run-h-0048/work/remote
+ * branch            main       -&gt; FETCH_HEAD
+Merge made by the 'ort' strategy.
+ office.py | 1 +
+ 1 file changed, 1 insertion(+)
+ create mode 100644 office.py
+
+$ git log --oneline --graph
+*   01e4dec Merge branch 'main' of /tmp/run-h-0048/work/remote
+|\  
+| * dc1dbd2 add office.py
+* | 3b08aa6 add app.py
+|/  
+* 0053981 Initial commit</code></pre>
+<p>2つの枝がマージコミットでつながり、手元がリモートの先端を含む状態になりました。もう一度 push すると、今度は通りました。</p>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ git push origin main
+To /tmp/run-h-0048/work/remote.git
+   dc1dbd2..01e4dec  main -&gt; main
+
+$ ls
+README.md
+app.py
+office.py</code></pre>
+<p>会社のパソコンで追加した <code>office.py</code> と、家のパソコンで追加した <code>app.py</code> の両方が残っています。</p>
+<h2>うまくいかないとき</h2>
+<ul>
+<li>マージコミットを作らずに履歴を1本にしたい場合は、<code>--rebase</code> で取り込めます。同じ状況をもう一度作って実行したところ、手元のコミットがリモートの先端の後ろに付け直され、push が通りました。</li>
+</ul>
+<div class="code-label">実行ログ</div>
+<pre><code class="language-text">$ git pull --rebase origin main 2&gt;&amp;1 | tr '\r' '\n' | grep Successfully
+Successfully rebased and updated refs/heads/main.
+
+$ git log --oneline --graph
+* 02f32a0 add app2.py
+* f3ea136 add office2.py
+*   01e4dec Merge branch 'main' of /tmp/run-h-0048/work/remote
+|\  
+| * dc1dbd2 add office.py
+* | 3b08aa6 add app.py
+|/  
+* 0053981 Initial commit
+
+$ git push origin main
+To /tmp/run-h-0048/work/remote.git
+   f3ea136..02f32a0  main -&gt; main</code></pre>
+<ul>
+<li>手元とリモートで同じファイルの同じ行を変えていると、pull のときに衝突（コンフリクト）します。この記事の検証ではファイルが重ならなかったため、衝突の解消は実行して確かめていません。手順は Git の公式ドキュメント（git-merge の「HOW TO RESOLVE CONFLICTS」）をご確認ください。</li>
+<li>オプションを付けずに <code>git pull</code> だけを実行すると、<code>fatal: Need to specify how to reconcile divergent branches.</code> で止まることがあります。これは「マージかリベースかを選んでください」という案内なので、この記事のように <code>--no-rebase</code> か <code>--rebase</code> を付けてください。</li>
+<li>エラーを消すために <code>git push --force</code> で上書きする方法も見かけますが、リモートにある他の人（または別のパソコン）のコミットが消えます。この記事では実行していません。使う場合の注意は公式ドキュメント（git-push の <code>--force</code> と <code>--force-with-lease</code>）をご確認ください。</li>
+<li>手元とリモートに共通のコミットが1つもないときは、pull が <code>fatal: refusing to merge unrelated histories</code> で止まります。その場合は <a href="/h-0904/">git pull で fatal: refusing to merge unrelated histories が出たときの原因と直し方</a> をご覧ください。</li>
+</ul>
+<h2>まとめ</h2>
+<p><code>! [rejected] main -&gt; main (non-fast-forward)</code> や <code>(fetch first)</code> は、リモートに手元にないコミットがあり、そのまま push するとそれが消えてしまうために出るエラーです。この環境では、<code>git pull --no-rebase origin main</code>（または <code>--rebase</code>）でリモートの変更を取り込んでから <code>git push origin main</code> すると、両方の変更を残したまま push できました。</p>
+<h3>この手順の次に読む記事</h3>
+<ul>
+<li><a href="/g-0004/">プログラミングのエラーを自力で解決する調べ方の順番</a></li>
+<li><a href="/h-0904/">git pull で fatal: refusing to merge unrelated histories が出たときの原因と直し方</a></li>
+</ul>
+<h2>出典・参考にした公式ドキュメント</h2>
+<ul>
+<li>Git ドキュメント「git-push」（NOTE ABOUT FAST-FORWARDS）: <a href="https://git-scm.com/docs/git-push">https://git-scm.com/docs/git-push</a></li>
+<li>Git ドキュメント「git-pull」: <a href="https://git-scm.com/docs/git-pull">https://git-scm.com/docs/git-pull</a></li>
+<li>Git ドキュメント「git-merge」（HOW TO RESOLVE CONFLICTS）: <a href="https://git-scm.com/docs/git-merge">https://git-scm.com/docs/git-merge</a></li>
+</ul>
+<h2>関連記事</h2><ul class="cards"><li><a href="/g-0004/">プログラミングのエラーを自力で解決する調べ方の順番（実行して確認した手順つき）</a><span class="meta">更新日 2026-11-23</span></li><li><a href="/h-0904/">git pull で fatal: refusing to merge unrelated histories が出たときの原因と直し方【実行して確認】</a><span class="meta">更新日 2026-11-07</span></li></ul>
+</main>
+<footer><a href="/p-contact/">お問い合わせについて</a><a href="/p-ad-privacy/">広告の表示とプライバシーポリシー</a><a href="/p-about/">運営者情報とこのサイトの作り方</a><div>© 2026 動かして確かめるプログラミング帳</div></footer>
+</body></html>
