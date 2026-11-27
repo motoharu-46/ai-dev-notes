@@ -1,5 +1,7 @@
 # ai-dev-notes
 
+サイト: [動かして確かめるプログラミング帳](https://ai-dev-notes.cloud-ruto02.workers.dev/)（Python・Node.js・Git のエラー解決を、実際に実行したログつきでまとめています）
+
 AI・プログラミング実践ブログの公開用リポジトリです。Cloudflare Pages がこのリポジトリの `public/` をそのまま配信します。
 
 - `content/` … 公開済み記事の原稿（Markdown）。公開前チェックを通ったものだけが入る
